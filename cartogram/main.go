@@ -1,4 +1,4 @@
-package cartograms
+package cartogram
 
 import (
 	"encoding/json"
