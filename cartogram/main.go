@@ -3,6 +3,7 @@ package cartogram
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path"
 )
@@ -115,7 +116,12 @@ func configDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Join(home, configName), nil
+	dir := path.Join(home, configName)
+	err = os.MkdirAll(dir, 0700)
+	if err != nil {
+		return "", err
+	}
+	return dir, nil
 }
 
 func homeDir() (string, error) {
