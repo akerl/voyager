@@ -1,6 +1,6 @@
 .PHONY: default build clean lint fmt test deps source
 
-PACKAGE = voyager 
+PACKAGE = voyager
 NAMESPACE = github.com/akerl
 VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2>/dev/null)
 export GOPATH = $(CURDIR)/.gopath
