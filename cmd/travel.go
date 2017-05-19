@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/akerl/voyager/cartogram"
 
@@ -32,16 +31,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if len(args) < 1 {
-		return fmt.Errorf("Not enough arguments provided")
-	}
-	cName := args[0]
-	c := cp[cName]
-	if len(c) == 0 {
-		return fmt.Errorf("Cartogram not found: %s", cName)
-	}
-
-	targetAccount, targetRole, err := findAccount(c, args[1:])
+	targetAccount, targetRole, err := findAccount(cp, args[1:])
 	if err != nil {
 		return err
 	}
@@ -50,88 +40,58 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-type filter struct {
-	Name, Value string
-}
+func findAccount(cp cartogram.Pack, args []string) (cartogram.Account, string, error) {
+	var targetAccount cartogram.Account
+	var targetRole string
+	var err error
+	var found bool
 
-func findAccount(c cartogram.Cartogram, args []string) (string, string, error) {
-	var targetAccount, targetRole string
-
-	targetAccount, targetRole, error = findDirectAccount(c, args)
+	found, targetAccount, targetRole, err = findDirectAccount(cp, args)
 	if err != nil {
-		return "", "", err
+		return targetAccount, "", err
 	}
-	if targetAccount != "" {
+	if found {
 		return targetAccount, targetRole, nil
 	}
 
-	targetAccount, targetRole, err := parseMatchAccounts(c, args)
-}
-
-func findDirectAccount(c cartogram.Cartogram, args []string) (string, string, error) {
-	var targetAccount, targetRole string
-	if len(args) == 1 {
-		accountMatch := accountRegex.FindStringSubmatch(args[0])
-		if len(accountMatch) > 1 {
-			targetAccount = accountMatch[1]
-			if len(accountMatch) > 2 {
-				targetRole = accountMatch[3]
-			}
-		}
+	found, targetAccount, targetRole, err = findMatchAccount(cp, args)
+	if found {
+		return targetAccount, targetRole, nil
 	}
 
-	return targetAccount, targetRole
+	return targetAccount, targetRole, fmt.Errorf("Unable to locate an account with provided info")
 }
 
-func parseMatchAccounts(args []string) (string, string, error) {
-	argPairs := parsePairs(args)
-	matchingPack := cartogram.Pack{}
-	for name, c := range cp {
-		matchingCartogram := cartogram.Cartogram{}
-		for _, account := range c {
-			for _, f := range argPairs {
-				for tagName, tagValue := range account.Tags {
-					if tagName == f.Name || f.Name == "" {
-						match, err := regexp.MatchString(f.Value, tagValue)
-						if err != nil {
-							return "", "", nil
-						}
-						if match {
-							matchingCartogram = append(matchingCartogram, account)
-						}
-					}
-				}
-			}
-		}
+func findDirectAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, string, error) {
+	var account cartogram.Account
+	if len(args) != 1 {
+		return false, account, "", nil
 	}
+	accountMatch := accountRegex.FindStringSubmatch(args[0])
+	if len(accountMatch) == 0 {
+		return false, account, "", nil
+	}
+	var accountID, role string
+	accountID = accountMatch[1]
+	if len(accountMatch) > 2 {
+		role = accountMatch[3]
+	}
+	found, account := cp.Lookup(accountID)
+	if !found {
+		return false, account, role, fmt.Errorf("Account not found: %s", accountID)
+	}
+	return true, account, role, nil
 }
 
-func parseDirectAccount(args []string) (string, string) {
-	var targetAccount, targetRole string
-	if len(args) == 1 {
-		accountMatch := accountRegex.FindStringSubmatch(args[0])
-		if len(accountMatch) > 1 {
-			targetAccount = accountMatch[1]
-			if len(accountMatch) > 2 {
-				targetRole = accountMatch[3]
-			}
-		}
+func findMatchAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, string, error) {
+	var account cartogram.Account
+	tfs := cartogram.TagFilterSet{}
+	if err := tfs.LoadFromArgs(args); err != nil {
+		return false, account, "", err
 	}
-	return targetAccount, targetRole
-}
-
-func parsePairs(args []string) []filter {
-	var argPairs []filter
-	for _, a := range args {
-		var f filter
-		fields := strings.SplitN(a, ":", 2)
-		if len(fields) == 1 {
-			f.Value = fields[0]
-		} else {
-			f.Name = fields[0]
-			f.Value = fields[1]
-		}
-		argPairs = append(argPairs, f)
+	accounts := cp.Search(tfs)
+	if len(accounts) == 0 {
+		return false, account, "", nil
 	}
-	return argPairs
+	return true, accounts[0], "", nil
 }

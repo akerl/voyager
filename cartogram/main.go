@@ -2,10 +2,13 @@ package cartogram
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
+	"regexp"
+	"strings"
 )
 
 const (
@@ -38,17 +41,99 @@ type Role struct {
 	Mfa bool `json:"mfa"`
 }
 
-// Lookup finds an account in a Pack based on its ID
-func (cp Pack) Lookup(accountID string) (Account, Cartogram, error) {
-	for name, c := range cp {
-		account, err := c.Lookup(accountID)
+// TagFilter describes a filter to apply based on an account's tags
+type TagFilter struct {
+	Name  string
+	Value *regexp.Regexp
+}
+
+// TagFilterSet describes a set of tag filters
+type TagFilterSet []TagFilter
+
+// LoadFromArgs parses key:value args into a TagFilterSet
+func (tfs *TagFilterSet) LoadFromArgs(args []string) error {
+	var err error
+	for _, a := range args {
+		tf := TagFilter{}
+		fields := strings.SplitN(a, ":", 2)
+		var regexString string
+		if len(fields) == 1 {
+			regexString = fields[0]
+		} else {
+			tf.Name = fields[0]
+			regexString = fields[1]
+		}
+		tf.Value, err = regexp.Compile(regexString)
+		if err != nil {
+			return err
+		}
+		*tfs = append(*tfs, tf)
 	}
-	return Account{}, Cartogram{}, nil
+	return nil
+}
+
+// Match checks if an account matches the tag filter
+func (tf TagFilter) Match(a Account) bool {
+	for tagName, tagValue := range a.Tags {
+		// TODO: break this out to check tagName if set
+		if tf.Name == "" || tf.Name == tagName {
+			if tf.Value.MatchString(tagValue) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Match checks if an account matches the tag filter set
+func (tfs TagFilterSet) Match(a Account) bool {
+	for _, tf := range tfs {
+		if !tf.Match(a) {
+			return false
+		}
+	}
+	return true
+}
+
+// Lookup finds an account in a Pack based on its ID
+func (cp Pack) Lookup(accountID string) (bool, Account) {
+	for _, c := range cp {
+		found, account := c.Lookup(accountID)
+		if found {
+			return true, account
+		}
+	}
+	return false, Account{}
 }
 
 // Lookup finds an account in a Cartogram based on its ID
-func (c Cartogram) Lookup(accountID string) (Account, error) {
-	return Account{}, nil
+func (c Cartogram) Lookup(accountID string) (bool, Account) {
+	for _, a := range c {
+		if a.Account == accountID {
+			return true, a
+		}
+	}
+	return false, Account{}
+}
+
+// Search finds accounts based on their tags
+func (cp Pack) Search(tfs TagFilterSet) Cartogram {
+	results := Cartogram{}
+	for _, c := range cp {
+		results = append(results, c.Search(tfs)...)
+	}
+	return results
+}
+
+// Search finds accounts based on their tags
+func (c Cartogram) Search(tfs TagFilterSet) Cartogram {
+	results := Cartogram{}
+	for _, a := range c {
+		if tfs.Match(a) {
+			results = append(results, a)
+		}
+	}
+	return results
 }
 
 // Load populates the Cartograms from disk
@@ -93,6 +178,9 @@ func (c *Cartogram) loadFromString(data []byte) error {
 	var results versionedCartogram
 	if err := json.Unmarshal(data, &results); err != nil {
 		return err
+	}
+	if results.Version != specVersion {
+		return fmt.Errorf("Spec version mismatch: expected %d, got %d", specVersion, results.Version)
 	}
 	c = &results.Cartogram
 	return nil
