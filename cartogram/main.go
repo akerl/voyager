@@ -32,6 +32,17 @@ type Account struct {
 	Tags    map[string]string `json:"tags"`
 }
 
+// Lookup finds an account in a Pack based on its ID
+func (cp Pack) Lookup(accountId string) (Account, Cartogram, error) {
+	for name, c := range cp {
+		account, err := c.Lookup(accountId)
+	}
+}
+
+// Lookup finds an account in a Cartogram based on its ID
+func (c Cartogram) Lookup(accountId string) (Account, error) {
+}
+
 // Load populates the Cartograms from disk
 func (cp Pack) Load() error {
 	config, err := configDir()
@@ -53,15 +64,16 @@ func (cp Pack) Load() error {
 func (cp Pack) loadFromFiles(filePaths []string) error {
 	for _, filePath := range filePaths {
 		name := path.Base(filePath)
-		cp[name] = Cartogram{}
-		if err := cp[name].loadFromFile(filePath); err != nil {
+		newC := Cartogram{}
+		if err := newC.loadFromFile(filePath); err != nil {
 			return err
 		}
+		cp[name] = newC
 	}
 	return nil
 }
 
-func (c Cartogram) loadFromFile(filePath string) error {
+func (c *Cartogram) loadFromFile(filePath string) error {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err
@@ -69,12 +81,12 @@ func (c Cartogram) loadFromFile(filePath string) error {
 	return c.loadFromString(data)
 }
 
-func (c Cartogram) loadFromString(data []byte) error {
+func (c *Cartogram) loadFromString(data []byte) error {
 	var results Cartogram
 	if err := json.Unmarshal(data, &results); err != nil {
 		return err
 	}
-	c = append(c, results...)
+	*c = append(*c, results...)
 	return nil
 }
 
