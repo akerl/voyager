@@ -10,17 +10,24 @@ Helper for assuming roles on AWS accounts
 ## Usage
 
 ```
-* account: 1234567890
-  roles:
-    readonly:
-      mfa: false
-    admin:
-      mfa: true
-  region: us-east-1
-  source: 0987654321/admin
-  tags:
-    group: cool-servers
-    owners: my-team
+{
+  "account": "1234567890",
+  "region": "us-east-1",
+  "source": "auth",
+  "roles": {
+    "admin": {
+      "mfa": true
+    },
+    "readonly": {
+      "mfa": false
+    }
+  },
+  "tags": {
+    "owner": "sadteam",
+    "env": "prod",
+    "group": "databases"
+  }
+},
 ```
 
 ## Installation
