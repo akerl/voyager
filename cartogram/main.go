@@ -182,7 +182,7 @@ func (c *Cartogram) loadFromString(data []byte) error {
 	if results.Version != specVersion {
 		return fmt.Errorf("Spec version mismatch: expected %d, got %d", specVersion, results.Version)
 	}
-	c = &results.Cartogram
+	*c = results.Cartogram
 	return nil
 }
 

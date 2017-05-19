@@ -31,7 +31,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	targetAccount, targetRole, err := findAccount(cp, args[1:])
+	targetAccount, targetRole, err := findAccount(cp, args)
 	if err != nil {
 		return err
 	}
