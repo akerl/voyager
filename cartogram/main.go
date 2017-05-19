@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	configName = ".cartograms"
+	configName  = ".cartograms"
+	specVersion = 0
 )
 
-// Role holds information about authenticating to a role
-type Role struct {
-	Mfa bool `json:"mfa"`
+type versionedCartogram struct {
+	Version   int       `json:"version"`
+	Cartogram Cartogram `json:"cartogram"`
 }
 
 // Pack defines a group of Cartograms
@@ -32,15 +33,22 @@ type Account struct {
 	Tags    map[string]string `json:"tags"`
 }
 
+// Role holds information about authenticating to a role
+type Role struct {
+	Mfa bool `json:"mfa"`
+}
+
 // Lookup finds an account in a Pack based on its ID
-func (cp Pack) Lookup(accountId string) (Account, Cartogram, error) {
+func (cp Pack) Lookup(accountID string) (Account, Cartogram, error) {
 	for name, c := range cp {
-		account, err := c.Lookup(accountId)
+		account, err := c.Lookup(accountID)
 	}
+	return Account{}, Cartogram{}, nil
 }
 
 // Lookup finds an account in a Cartogram based on its ID
-func (c Cartogram) Lookup(accountId string) (Account, error) {
+func (c Cartogram) Lookup(accountID string) (Account, error) {
+	return Account{}, nil
 }
 
 // Load populates the Cartograms from disk
@@ -82,11 +90,11 @@ func (c *Cartogram) loadFromFile(filePath string) error {
 }
 
 func (c *Cartogram) loadFromString(data []byte) error {
-	var results Cartogram
+	var results versionedCartogram
 	if err := json.Unmarshal(data, &results); err != nil {
 		return err
 	}
-	*c = append(*c, results...)
+	c = &results.Cartogram
 	return nil
 }
 
@@ -116,7 +124,8 @@ func (c Cartogram) writeToFile(filePath string) error {
 }
 
 func (c Cartogram) writeToString() ([]byte, error) {
-	buffer, err := json.MarshalIndent(c, "", "  ")
+	vc := versionedCartogram{Version: specVersion, Cartogram: c}
+	buffer, err := json.MarshalIndent(vc, "", "  ")
 	if err != nil {
 		return []byte{}, err
 	}

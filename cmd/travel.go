@@ -68,23 +68,19 @@ func findAccount(c cartogram.Cartogram, args []string) (string, string, error) {
 	targetAccount, targetRole, err := parseMatchAccounts(c, args)
 }
 
-func lookupAccount(c cartogram.Cartogram, accountId, accountRole) (cartogram.Account, error) {
-	
-}
-
 func findDirectAccount(c cartogram.Cartogram, args []string) (string, string, error) {
-    var targetAccount, targetRole string
-    if len(args) == 1 {
-        accountMatch := accountRegex.FindStringSubmatch(args[0])
-        if len(accountMatch) > 1 {
-            targetAccount = accountMatch[1]
-            if len(accountMatch) > 2 {
-                targetRole = accountMatch[3]
-            }
-        }
-    }
+	var targetAccount, targetRole string
+	if len(args) == 1 {
+		accountMatch := accountRegex.FindStringSubmatch(args[0])
+		if len(accountMatch) > 1 {
+			targetAccount = accountMatch[1]
+			if len(accountMatch) > 2 {
+				targetRole = accountMatch[3]
+			}
+		}
+	}
 
-    return targetAccount, targetRole
+	return targetAccount, targetRole
 }
 
 func parseMatchAccounts(args []string) (string, string, error) {
@@ -112,30 +108,30 @@ func parseMatchAccounts(args []string) (string, string, error) {
 
 func parseDirectAccount(args []string) (string, string) {
 	var targetAccount, targetRole string
-    if len(args) == 1 {
-        accountMatch := accountRegex.FindStringSubmatch(args[0])
-        if len(accountMatch) > 1 {
-            targetAccount = accountMatch[1]
-            if len(accountMatch) > 2 {
-                targetRole = accountMatch[3]
-            }
-        }
-    }
+	if len(args) == 1 {
+		accountMatch := accountRegex.FindStringSubmatch(args[0])
+		if len(accountMatch) > 1 {
+			targetAccount = accountMatch[1]
+			if len(accountMatch) > 2 {
+				targetRole = accountMatch[3]
+			}
+		}
+	}
 	return targetAccount, targetRole
 }
 
 func parsePairs(args []string) []filter {
 	var argPairs []filter
-    for _, a := range args {
-        var f filter
-        fields := strings.SplitN(a, ":", 2)
-        if len(fields) == 1 {
-            f.Value = fields[0]
-        } else {
-            f.Name = fields[0]
-            f.Value = fields[1]
-        }
-        argPairs = append(argPairs, f)
-    }
+	for _, a := range args {
+		var f filter
+		fields := strings.SplitN(a, ":", 2)
+		if len(fields) == 1 {
+			f.Value = fields[0]
+		} else {
+			f.Name = fields[0]
+			f.Value = fields[1]
+		}
+		argPairs = append(argPairs, f)
+	}
 	return argPairs
 }
