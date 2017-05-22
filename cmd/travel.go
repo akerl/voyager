@@ -8,6 +8,7 @@ import (
 
 	"github.com/akerl/voyager/cartogram"
 
+	speculate "github.com/akerl/speculate/utils"
 	"github.com/dixonwille/wmenu"
 	"github.com/spf13/cobra"
 )
@@ -26,9 +27,19 @@ var travelCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(travelCmd)
+	travelCmd.Flags().StringP("role", "r", "", "Choose role to use")
+}
+
+type hop struct {
+	Profile string
+	Account string
+	Role    string
+	Mfa     bool
 }
 
 func travelRunner(cmd *cobra.Command, args []string) error {
+	flags := cmd.Flags()
+
 	cp := cartogram.Pack{}
 	if err := cp.Load(); err != nil {
 		return err
@@ -40,19 +51,90 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	}
 
 	if targetRole == "" {
+		// TODO: check if role exists
+		targetRole, err = flags.GetString("role")
+		if err != nil {
+			return err
+		}
+	}
+
+	if targetRole == "" {
 		roleNames := []string{}
 		for k := range targetAccount.Roles {
 			roleNames = append(roleNames, k)
 		}
 		sort.Strings(roleNames)
+		// TODO: don't ask if there's only 1 option
 		targetRole, err = pickFromList("Desired Role:", roleNames, "")
 		if err != nil {
 			return err
 		}
 	}
 
-	fmt.Printf("Account: %s\nRole: %s\n", targetAccount, targetRole)
+	stack := []hop{}
+	if err := parseHops(&stack, cp, targetAccount, targetRole); err != nil {
+		return err
+	}
+	for i, j := 0, len(stack)-1; i < j; i, j = i+1, j-1 {
+		stack[i], stack[j] = stack[j], stack[i]
+	}
+
+	for _, thisHop := range stack {
+		// TODO: pop the profile off the top pre-loop
+		if thisHop.Profile != "" {
+			os.Setenv("AWS_PROFILE", thisHop.Profile)
+		} else {
+			assumption := speculate.Assumption{
+				RoleName:  thisHop.Role,
+				AccountID: thisHop.Account,
+			}
+			// TODO: make speculate default to lifetime 3600 if not set
+			assumption.Lifetime.LifetimeInt = 3600
+			assumption.Mfa.UseMfa = thisHop.Mfa
+			creds, err := assumption.Execute()
+			if err != nil {
+				return err
+			}
+			// TODO: make speculate take creds as an assumption field
+			// TODO: make translations visible externally
+			os.Setenv("AWS_ACCESS_KEY_ID", creds.AccessKey)
+			os.Setenv("AWS_SECRET_ACCESS_KEY", creds.SecretKey)
+			os.Setenv("AWS_SESSION_TOKEN", creds.SessionToken)
+			os.Setenv("AWS_SECURITY_TOKEN", creds.SessionToken)
+		}
+	}
+
+	//TODO: Avoid double-initing these creds
+	creds := speculate.Creds{}
+	if err := creds.NewFromEnv(); err != nil {
+		return err
+	}
+	for _, line := range creds.ToEnvVars() {
+		fmt.Println(line)
+	}
+	url, err := creds.ToConsoleURL()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("# %s\n", url)
+
 	return nil
+}
+
+func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) error {
+	*stack = append(*stack, hop{Account: a.Account, Role: r, Mfa: a.Roles[r].Mfa})
+	accountMatch := accountRegex.FindStringSubmatch(a.Source)
+	if len(accountMatch) != 4 {
+		*stack = append(*stack, hop{Profile: a.Source})
+		return nil
+	}
+	sAccountID := accountMatch[1]
+	sRole := accountMatch[3]
+	found, sAccount := cp.Lookup(sAccountID)
+	if !found {
+		return fmt.Errorf("Failed to resolve hop for %s", sAccountID)
+	}
+	return parseHops(stack, cp, sAccount, sRole)
 }
 
 func findAccount(cp cartogram.Pack, args []string) (cartogram.Account, string, error) {
