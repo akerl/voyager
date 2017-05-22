@@ -1,6 +1,7 @@
 package cartogram
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,6 +9,7 @@ import (
 	"os/user"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -27,18 +29,22 @@ type Pack map[string]Cartogram
 // Cartogram defines a set of Accounts
 type Cartogram []Account
 
+// Tags are a set of metadata about an account
+type Tags map[string]string
+
 // Account defines the spec for a role assumption target
 type Account struct {
-	Account string            `json:"account"`
-	Region  string            `json:"region"`
-	Source  string            `json:"source"`
-	Roles   map[string]Role   `json:"roles"`
-	Tags    map[string]string `json:"tags"`
+	Account string          `json:"account"`
+	Region  string          `json:"region"`
+	Source  string          `json:"source"`
+	Roles   map[string]Role `json:"roles"`
+	Tags    Tags            `json:"tags"`
 }
 
 // Role holds information about authenticating to a role
 type Role struct {
 	Mfa bool `json:"mfa"`
+	// TODO: support IsDefault
 }
 
 // TagFilter describes a filter to apply based on an account's tags
@@ -49,6 +55,24 @@ type TagFilter struct {
 
 // TagFilterSet describes a set of tag filters
 type TagFilterSet []TagFilter
+
+// String converts tags to a human-readable string
+func (t Tags) String() string {
+	sortedTags := make([]string, len(t))
+	i := 0
+	for k := range t {
+		sortedTags[i] = k
+		i++
+	}
+	sort.Strings(sortedTags)
+
+	var buffer bytes.Buffer
+	for _, k := range sortedTags {
+		buffer.WriteString(fmt.Sprintf("%s:%s, ", k, t[k]))
+	}
+	fullResult := buffer.String()
+	return strings.TrimSuffix(fullResult, ", ")
+}
 
 // LoadFromArgs parses key:value args into a TagFilterSet
 func (tfs *TagFilterSet) LoadFromArgs(args []string) error {

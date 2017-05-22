@@ -2,10 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"regexp"
+	"sort"
 
 	"github.com/akerl/voyager/cartogram"
 
+	"github.com/dixonwille/wmenu"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +37,18 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	targetAccount, targetRole, err := findAccount(cp, args)
 	if err != nil {
 		return err
+	}
+
+	if targetRole == "" {
+		roleNames := []string{}
+		for k := range targetAccount.Roles {
+			roleNames = append(roleNames, k)
+		}
+		sort.Strings(roleNames)
+		targetRole, err = pickFromList("Desired Role:", roleNames, "")
+		if err != nil {
+			return err
+		}
 	}
 
 	fmt.Printf("Account: %s\nRole: %s\n", targetAccount, targetRole)
@@ -80,6 +95,11 @@ func findDirectAccount(cp cartogram.Pack, args []string) (bool, cartogram.Accoun
 	if !found {
 		return false, account, role, fmt.Errorf("Account not found: %s", accountID)
 	}
+	if role != "" {
+		if _, ok := account.Roles[role]; !ok {
+			return false, account, role, fmt.Errorf("Role not present in account")
+		}
+	}
 	return true, account, role, nil
 }
 
@@ -90,8 +110,50 @@ func findMatchAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account
 		return false, account, "", err
 	}
 	accounts := cp.Search(tfs)
-	if len(accounts) == 0 {
+
+	switch len(accounts) {
+	case 0:
 		return false, account, "", nil
+	case 1:
+		return true, accounts[0], "", nil
+	default:
+		mapOfAccounts := map[string]cartogram.Account{}
+		sliceOfNames := []string{}
+		for _, a := range accounts {
+			name := fmt.Sprintf("%s (%s)", a.Account, a.Tags)
+			mapOfAccounts[name] = a
+			sliceOfNames = append(sliceOfNames, name)
+		}
+		chosen, err := pickFromList("Desired account:", sliceOfNames, "")
+		if err != nil {
+			return false, account, "", err
+		}
+		return true, mapOfAccounts[chosen], "", nil
 	}
-	return true, accounts[0], "", nil
+}
+
+func pickFromList(message string, list []string, defaultOpt string) (string, error) {
+	c := make(chan string, 1)
+
+	menu := wmenu.NewMenu(message)
+	menu.ChangeReaderWriter(os.Stdin, os.Stderr, os.Stderr)
+	menu.LoopOnInvalid()
+	menu.Action(func(opts []wmenu.Opt) error {
+		c <- opts[0].Value.(string)
+		return nil
+	})
+
+	for _, item := range list {
+		isDefault := false
+		if item == defaultOpt {
+			isDefault = true
+		}
+		menu.Option(item, item, isDefault, nil)
+	}
+
+	if err := menu.Run(); err != nil {
+		return "", err
+	}
+
+	return <-c, nil
 }
