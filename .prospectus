@@ -1,5 +1,5 @@
 item do
-  name '::golang'
+  name 'voyager::golang'
 
   expected do
     github_tag
