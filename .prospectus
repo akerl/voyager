@@ -7,7 +7,7 @@ item do
 
   deps do
     item do
-      name 'voyager::golang'
+      name 'golang'
 
       expected do
         github_tag
