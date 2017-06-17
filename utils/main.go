@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	accountRegexString = `(\d+)(/(\w+))?`
+	accountRegexString = `(\d{12})`
 )
 
 var accountRegex = regexp.MustCompile(accountRegexString)
@@ -26,7 +26,7 @@ type hop struct {
 }
 
 // Travel accepts a role and args and turns them into creds
-func Travel(flagRole string, args []string) (speculate.Creds, error) {
+func Travel(targetRole string, args []string) (speculate.Creds, error) {
 	var creds speculate.Creds
 
 	cp := cartogram.Pack{}
@@ -34,14 +34,9 @@ func Travel(flagRole string, args []string) (speculate.Creds, error) {
 		return creds, err
 	}
 
-	targetAccount, targetRole, err := findAccount(cp, args)
+	targetAccount, err := findAccount(cp, args)
 	if err != nil {
 		return creds, err
-	}
-
-	if targetRole == "" {
-		// TODO: check if role exists
-		targetRole = flagRole
 	}
 
 	if targetRole == "" {
@@ -49,11 +44,18 @@ func Travel(flagRole string, args []string) (speculate.Creds, error) {
 		for k := range targetAccount.Roles {
 			roleNames = append(roleNames, k)
 		}
-		sort.Strings(roleNames)
-		// TODO: don't ask if there's only 1 option
-		targetRole, err = pickFromList("Desired Role:", roleNames, "")
-		if err != nil {
-			return creds, err
+		if len(roleNames) == 1 {
+			targetRole = roleNames[0]
+		} else {
+			sort.Strings(roleNames)
+			targetRole, err = pickFromList("Desired Role:", roleNames, "")
+			if err != nil {
+				return creds, err
+			}
+		}
+	} else {
+		if _, ok := targetAccount.Roles[role]; !ok {
+			return creds, fmt.Errorf("Provided role not present in account")
 		}
 	}
 
@@ -114,67 +116,55 @@ func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) e
 	return parseHops(stack, cp, sAccount, sRole)
 }
 
-func findAccount(cp cartogram.Pack, args []string) (cartogram.Account, string, error) {
+func findAccount(cp cartogram.Pack, args []string) (cartogram.Account, error) {
 	var targetAccount cartogram.Account
-	var targetRole string
 	var err error
 	var found bool
 
-	found, targetAccount, targetRole, err = findDirectAccount(cp, args)
-	if err != nil {
-		return targetAccount, "", err
-	}
-	if found {
-		return targetAccount, targetRole, nil
+	found, targetAccount, err = findDirectAccount(cp, args)
+	if err != nil || found {
+		return targetAccount, err
 	}
 
-	found, targetAccount, targetRole, err = findMatchAccount(cp, args)
-	if found {
-		return targetAccount, targetRole, nil
+	found, targetAccount, err = findMatchAccount(cp, args)
+	if err != nil || found {
+		return targetAccount, err
 	}
 
-	return targetAccount, targetRole, fmt.Errorf("Unable to locate an account with provided info")
+	return targetAccount, fmt.Errorf("Unable to locate an account with provided info")
 }
 
-func findDirectAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, string, error) {
+func findDirectAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, error) {
 	var account cartogram.Account
 	if len(args) != 1 {
-		return false, account, "", nil
+		return false, account, nil
 	}
 	accountMatch := accountRegex.FindStringSubmatch(args[0])
 	if len(accountMatch) == 0 {
-		return false, account, "", nil
+		return false, account, nil
 	}
-	var accountID, role string
+	var accountID string
 	accountID = accountMatch[1]
-	if len(accountMatch) > 2 {
-		role = accountMatch[3]
-	}
 	found, account := cp.Lookup(accountID)
 	if !found {
-		return false, account, role, fmt.Errorf("Account not found: %s", accountID)
+		return false, account, fmt.Errorf("Account not found: %s", accountID)
 	}
-	if role != "" {
-		if _, ok := account.Roles[role]; !ok {
-			return false, account, role, fmt.Errorf("Role not present in account")
-		}
-	}
-	return true, account, role, nil
+	return true, account, nil
 }
 
-func findMatchAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, string, error) {
+func findMatchAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, error) {
 	var account cartogram.Account
 	tfs := cartogram.TagFilterSet{}
 	if err := tfs.LoadFromArgs(args); err != nil {
-		return false, account, "", err
+		return false, account, err
 	}
 	accounts := cp.Search(tfs)
 
 	switch len(accounts) {
 	case 0:
-		return false, account, "", nil
+		return false, account, nil
 	case 1:
-		return true, accounts[0], "", nil
+		return true, accounts[0], nil
 	default:
 		mapOfAccounts := map[string]cartogram.Account{}
 		sliceOfNames := []string{}
@@ -185,9 +175,9 @@ func findMatchAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account
 		}
 		chosen, err := pickFromList("Desired account:", sliceOfNames, "")
 		if err != nil {
-			return false, account, "", err
+			return false, account, err
 		}
-		return true, mapOfAccounts[chosen], "", nil
+		return true, mapOfAccounts[chosen], nil
 	}
 }
 

@@ -44,7 +44,6 @@ type Account struct {
 // Role holds information about authenticating to a role
 type Role struct {
 	Mfa bool `json:"mfa"`
-	// TODO: support IsDefault
 }
 
 // TagFilter describes a filter to apply based on an account's tags
@@ -98,9 +97,12 @@ func (tfs *TagFilterSet) LoadFromArgs(args []string) error {
 
 // Match checks if an account matches the tag filter
 func (tf TagFilter) Match(a Account) bool {
-	for tagName, tagValue := range a.Tags {
-		// TODO: break this out to check tagName if set
-		if tf.Name == "" || tf.Name == tagName {
+	if tf.Name != "" {
+		if tf.Value.MatchString(a.Tags[tf.Name]) {
+			return true
+		}
+	} else {
+		for _, tagValue := range a.Tags {
 			if tf.Value.MatchString(tagValue) {
 				return true
 			}
