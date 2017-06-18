@@ -81,7 +81,6 @@ func Travel(targetRole string, args []string) (speculate.Creds, error) {
 			return creds, err
 		}
 		// TODO: make speculate take creds as an assumption field
-		// TODO: make translations visible externally
 		os.Setenv("AWS_ACCESS_KEY_ID", creds.AccessKey)
 		os.Setenv("AWS_SECRET_ACCESS_KEY", creds.SecretKey)
 		os.Setenv("AWS_SESSION_TOKEN", creds.SessionToken)
