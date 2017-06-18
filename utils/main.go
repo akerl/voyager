@@ -54,7 +54,7 @@ func Travel(targetRole string, args []string) (speculate.Creds, error) {
 			}
 		}
 	} else {
-		if _, ok := targetAccount.Roles[role]; !ok {
+		if _, ok := targetAccount.Roles[targetRole]; !ok {
 			return creds, fmt.Errorf("Provided role not present in account")
 		}
 	}
@@ -67,36 +67,27 @@ func Travel(targetRole string, args []string) (speculate.Creds, error) {
 		stack[i], stack[j] = stack[j], stack[i]
 	}
 
+	profileHop, stack := stack[0], stack[1:]
+	os.Setenv("AWS_PROFILE", profileHop.Profile)
+
 	for _, thisHop := range stack {
-		// TODO: pop the profile off the top pre-loop
-		if thisHop.Profile != "" {
-			os.Setenv("AWS_PROFILE", thisHop.Profile)
-		} else {
-			assumption := speculate.Assumption{
-				RoleName:  thisHop.Role,
-				AccountID: thisHop.Account,
-			}
-			// TODO: make speculate default to lifetime 3600 if not set
-			assumption.Lifetime.LifetimeInt = 3600
-			assumption.Mfa.UseMfa = thisHop.Mfa
-			creds, err := assumption.Execute()
-			if err != nil {
-				return creds, err
-			}
-			// TODO: make speculate take creds as an assumption field
-			// TODO: make translations visible externally
-			os.Setenv("AWS_ACCESS_KEY_ID", creds.AccessKey)
-			os.Setenv("AWS_SECRET_ACCESS_KEY", creds.SecretKey)
-			os.Setenv("AWS_SESSION_TOKEN", creds.SessionToken)
-			os.Setenv("AWS_SECURITY_TOKEN", creds.SessionToken)
+		assumption := speculate.Assumption{
+			RoleName:  thisHop.Role,
+			AccountID: thisHop.Account,
 		}
+		assumption.Mfa.UseMfa = thisHop.Mfa
+		creds, err = assumption.Execute()
+		if err != nil {
+			return creds, err
+		}
+		// TODO: make speculate take creds as an assumption field
+		// TODO: make translations visible externally
+		os.Setenv("AWS_ACCESS_KEY_ID", creds.AccessKey)
+		os.Setenv("AWS_SECRET_ACCESS_KEY", creds.SecretKey)
+		os.Setenv("AWS_SESSION_TOKEN", creds.SessionToken)
+		os.Setenv("AWS_SECURITY_TOKEN", creds.SessionToken)
 	}
 
-	//TODO: Avoid double-initing these creds
-	creds = speculate.Creds{}
-	if err := creds.NewFromEnv(); err != nil {
-		return creds, err
-	}
 	return creds, nil
 }
 
