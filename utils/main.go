@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	accountRegexString = `(\d{12})`
+	accountRegexString = `(\d+)(/(\w+))?`
 )
 
 var accountRegex = regexp.MustCompile(accountRegexString)
@@ -76,15 +76,10 @@ func Travel(targetRole string, args []string) (speculate.Creds, error) {
 			AccountID: thisHop.Account,
 		}
 		assumption.Mfa.UseMfa = thisHop.Mfa
-		creds, err = assumption.Execute()
+		creds, err = assumption.ExecuteWithCreds(creds)
 		if err != nil {
 			return creds, err
 		}
-		// TODO: make speculate take creds as an assumption field
-		os.Setenv("AWS_ACCESS_KEY_ID", creds.AccessKey)
-		os.Setenv("AWS_SECRET_ACCESS_KEY", creds.SecretKey)
-		os.Setenv("AWS_SESSION_TOKEN", creds.SessionToken)
-		os.Setenv("AWS_SECURITY_TOKEN", creds.SessionToken)
 	}
 
 	return creds, nil
