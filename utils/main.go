@@ -27,6 +27,11 @@ type hop struct {
 
 // Travel accepts a role and args and turns them into creds
 func Travel(targetRole string, args []string) (speculate.Creds, error) {
+	return NamedTravel(targetRole, args, "")
+}
+
+// NamedTravel accepts a role, args, and session name and turns them into creds
+func NamedTravel(targetRole string, args []string, sessionName string) (speculate.Creds, error) {
 	var creds speculate.Creds
 
 	cp := cartogram.Pack{}
@@ -72,8 +77,9 @@ func Travel(targetRole string, args []string) (speculate.Creds, error) {
 
 	for _, thisHop := range stack {
 		assumption := speculate.Assumption{
-			RoleName:  thisHop.Role,
-			AccountID: thisHop.Account,
+			RoleName:    thisHop.Role,
+			AccountID:   thisHop.Account,
+			SessionName: sessionName,
 		}
 		assumption.Mfa.UseMfa = thisHop.Mfa
 		creds, err = assumption.ExecuteWithCreds(creds)
