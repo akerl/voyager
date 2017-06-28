@@ -21,10 +21,3 @@
 #  version = "2.4.0"
 
 
-[[constraint]]
-  name = "github.com/dixonwille/wmenu"
-  version = "4.0.1"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/spf13/cobra"
