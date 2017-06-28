@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/akerl/speculate"
   packages = ["utils"]
-  revision = "763b0b8763e335a4ea7c5c65ec4dfe3a7db9fbb2"
-  version = "v0.0.5"
+  revision = "fd1c65f5074d9cfa935b0835251eafac02ae282a"
+  version = "0.0.6"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -64,6 +64,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0891b29a3fd82e9c2fc57eeea381fadd37e1be8be11e037b1305f8dfb26e8513"
+  inputs-digest = "ea553a12a2141bb0c985715ef06b367a28028733a7140dae54159e6ed39e8bc5"
   solver-name = "gps-cdcl"
   solver-version = 1
