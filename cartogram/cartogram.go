@@ -14,6 +14,15 @@ type Cartogram struct {
 	AccountSet AccountSet `json:"accounts"`
 }
 
+// NewCartogram creates a new cartogram from an account set
+func NewCartogram(as AccountSet) Cartogram {
+	return Cartogram{
+		Version:    specVersion,
+		Created:    time.Now(),
+		AccountSet: as,
+	}
+}
+
 // Lookup finds an account in a Cartogram based on its ID
 func (c Cartogram) Lookup(accountID string) (bool, Account) {
 	return c.AccountSet.Lookup(accountID)
