@@ -3,10 +3,17 @@ package cartogram
 import (
 	"io/ioutil"
 	"path"
+
+	"github.com/akerl/voyager/utils"
 )
 
 // Pack defines a group of Cartograms
 type Pack map[string]Cartogram
+
+// Find checks both Lookup and Search for an account
+func (cp Pack) Find(args []string) (Account, error) {
+	return findAccount(cp, args)
+}
 
 // Lookup finds an account in a Pack based on its ID
 func (cp Pack) Lookup(accountID string) (bool, Account) {
