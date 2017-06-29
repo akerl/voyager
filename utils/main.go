@@ -39,7 +39,7 @@ func NamedTravel(targetRole string, args []string, sessionName string) (speculat
 		return creds, err
 	}
 
-	targetAccount, err := findAccount(cp, args)
+	targetAccount, err := cp.Find(args)
 	if err != nil {
 		return creds, err
 	}
