@@ -175,6 +175,7 @@ func findMatchAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account
 func pickFromList(message string, list []string, defaultOpt string) (string, error) {
 	c := make(chan string, 1)
 
+	// TODO: support picking by name
 	menu := wmenu.NewMenu(message)
 	menu.ChangeReaderWriter(os.Stdin, os.Stderr, os.Stderr)
 	menu.LoopOnInvalid()
