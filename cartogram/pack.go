@@ -1,18 +1,87 @@
 package cartogram
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path"
+	"regexp"
 
-	"github.com/akerl/voyager/utils"
+	"github.com/akerl/voyager/prompt"
 )
+
+const (
+	accountRegexString = `(\d+)(/(\w+))?`
+)
+
+var accountRegex = regexp.MustCompile(accountRegexString)
 
 // Pack defines a group of Cartograms
 type Pack map[string]Cartogram
 
 // Find checks both Lookup and Search for an account
 func (cp Pack) Find(args []string) (Account, error) {
-	return findAccount(cp, args)
+	var targetAccount Account
+	var err error
+	var found bool
+
+	found, targetAccount, err = cp.findDirectAccount(args)
+	if err != nil || found {
+		return targetAccount, err
+	}
+
+	found, targetAccount, err = cp.findMatchAccount(args)
+	if err != nil || found {
+		return targetAccount, err
+	}
+
+	return targetAccount, fmt.Errorf("Unable to locate an account with provided info")
+}
+
+func (cp Pack) findDirectAccount(args []string) (bool, Account, error) {
+	var account Account
+	if len(args) != 1 {
+		return false, account, nil
+	}
+	accountMatch := accountRegex.FindStringSubmatch(args[0])
+	if len(accountMatch) == 0 {
+		return false, account, nil
+	}
+	var accountID string
+	accountID = accountMatch[1]
+	found, account := cp.Lookup(accountID)
+	if !found {
+		return false, account, fmt.Errorf("Account not found: %s", accountID)
+	}
+	return true, account, nil
+}
+
+func (cp Pack) findMatchAccount(args []string) (bool, Account, error) {
+	var account Account
+	tfs := TagFilterSet{}
+	if err := tfs.LoadFromArgs(args); err != nil {
+		return false, account, err
+	}
+	accounts := cp.Search(tfs)
+
+	switch len(accounts) {
+	case 0:
+		return false, account, nil
+	case 1:
+		return true, accounts[0], nil
+	default:
+		mapOfAccounts := map[string]Account{}
+		sliceOfNames := []string{}
+		for _, a := range accounts {
+			name := fmt.Sprintf("%s (%s)", a.Account, a.Tags)
+			mapOfAccounts[name] = a
+			sliceOfNames = append(sliceOfNames, name)
+		}
+		chosen, err := prompt.PickFromList("Desired account:", sliceOfNames, "")
+		if err != nil {
+			return false, account, err
+		}
+		return true, mapOfAccounts[chosen], nil
+	}
 }
 
 // Lookup finds an account in a Pack based on its ID

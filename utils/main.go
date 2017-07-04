@@ -7,9 +7,9 @@ import (
 	"sort"
 
 	"github.com/akerl/voyager/cartogram"
+	"github.com/akerl/voyager/prompt"
 
 	speculate "github.com/akerl/speculate/utils"
-	"github.com/dixonwille/wmenu"
 )
 
 const (
@@ -53,7 +53,7 @@ func NamedTravel(targetRole string, args []string, sessionName string) (speculat
 			targetRole = roleNames[0]
 		} else {
 			sort.Strings(roleNames)
-			targetRole, err = pickFromList("Desired Role:", roleNames, "")
+			targetRole, err = prompt.PickFromList("Desired Role:", roleNames, "")
 			if err != nil {
 				return creds, err
 			}
@@ -105,96 +105,4 @@ func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) e
 		return fmt.Errorf("Failed to resolve hop for %s", sAccountID)
 	}
 	return parseHops(stack, cp, sAccount, sRole)
-}
-
-func findAccount(cp cartogram.Pack, args []string) (cartogram.Account, error) {
-	var targetAccount cartogram.Account
-	var err error
-	var found bool
-
-	found, targetAccount, err = findDirectAccount(cp, args)
-	if err != nil || found {
-		return targetAccount, err
-	}
-
-	found, targetAccount, err = findMatchAccount(cp, args)
-	if err != nil || found {
-		return targetAccount, err
-	}
-
-	return targetAccount, fmt.Errorf("Unable to locate an account with provided info")
-}
-
-func findDirectAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, error) {
-	var account cartogram.Account
-	if len(args) != 1 {
-		return false, account, nil
-	}
-	accountMatch := accountRegex.FindStringSubmatch(args[0])
-	if len(accountMatch) == 0 {
-		return false, account, nil
-	}
-	var accountID string
-	accountID = accountMatch[1]
-	found, account := cp.Lookup(accountID)
-	if !found {
-		return false, account, fmt.Errorf("Account not found: %s", accountID)
-	}
-	return true, account, nil
-}
-
-func findMatchAccount(cp cartogram.Pack, args []string) (bool, cartogram.Account, error) {
-	var account cartogram.Account
-	tfs := cartogram.TagFilterSet{}
-	if err := tfs.LoadFromArgs(args); err != nil {
-		return false, account, err
-	}
-	accounts := cp.Search(tfs)
-
-	switch len(accounts) {
-	case 0:
-		return false, account, nil
-	case 1:
-		return true, accounts[0], nil
-	default:
-		mapOfAccounts := map[string]cartogram.Account{}
-		sliceOfNames := []string{}
-		for _, a := range accounts {
-			name := fmt.Sprintf("%s (%s)", a.Account, a.Tags)
-			mapOfAccounts[name] = a
-			sliceOfNames = append(sliceOfNames, name)
-		}
-		chosen, err := pickFromList("Desired account:", sliceOfNames, "")
-		if err != nil {
-			return false, account, err
-		}
-		return true, mapOfAccounts[chosen], nil
-	}
-}
-
-func pickFromList(message string, list []string, defaultOpt string) (string, error) {
-	c := make(chan string, 1)
-
-	// TODO: support picking by name
-	menu := wmenu.NewMenu(message)
-	menu.ChangeReaderWriter(os.Stdin, os.Stderr, os.Stderr)
-	menu.LoopOnInvalid()
-	menu.Action(func(opts []wmenu.Opt) error {
-		c <- opts[0].Value.(string)
-		return nil
-	})
-
-	for _, item := range list {
-		isDefault := false
-		if item == defaultOpt {
-			isDefault = true
-		}
-		menu.Option(item, item, isDefault, nil)
-	}
-
-	if err := menu.Run(); err != nil {
-		return "", err
-	}
-
-	return <-c, nil
 }
