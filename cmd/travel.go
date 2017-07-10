@@ -27,7 +27,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	creds, err := utils.Travel(flagRole, args)
+	creds, err := utils.SimpleGetCreds(flagRole, args)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,11 @@
 package cartogram
 
-import ()
+import (
+	"fmt"
+	"sort"
+
+	"github.com/akerl/voyager/prompt"
+)
 
 // AccountSet is a set of accounts
 type AccountSet []Account
@@ -38,4 +43,23 @@ func (as AccountSet) Search(tfs TagFilterSet) AccountSet {
 		}
 	}
 	return results
+}
+
+// PickRole returns a role from the account
+func (a Account) PickRole(roleName string) (string, error) {
+	if roleName != "" {
+		if _, ok := a.Roles[roleName]; !ok {
+			return "", fmt.Errorf("Provided role not present in account")
+		}
+		return roleName, nil
+	}
+	roleNames := []string{}
+	for k := range a.Roles {
+		roleNames = append(roleNames, k)
+	}
+	if len(roleNames) == 1 {
+		return roleNames[0], nil
+	}
+	sort.Strings(roleNames)
+	return prompt.PickFromList("Desired Role:", roleNames, "")
 }

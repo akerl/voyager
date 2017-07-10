@@ -13,7 +13,8 @@ const (
 	accountRegexString = `(\d+)(/(\w+))?`
 )
 
-var accountRegex = regexp.MustCompile(accountRegexString)
+// AccountRegex matches an account number with an optional role name
+var AccountRegex = regexp.MustCompile(accountRegexString)
 
 // Pack defines a group of Cartograms
 type Pack map[string]Cartogram
@@ -42,7 +43,7 @@ func (cp Pack) findDirectAccount(args []string) (bool, Account, error) {
 	if len(args) != 1 {
 		return false, account, nil
 	}
-	accountMatch := accountRegex.FindStringSubmatch(args[0])
+	accountMatch := AccountRegex.FindStringSubmatch(args[0])
 	if len(accountMatch) == 0 {
 		return false, account, nil
 	}

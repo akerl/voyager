@@ -3,20 +3,11 @@ package utils
 import (
 	"fmt"
 	"os"
-	"regexp"
-	"sort"
 
 	"github.com/akerl/voyager/cartogram"
-	"github.com/akerl/voyager/prompt"
 
 	speculate "github.com/akerl/speculate/utils"
 )
-
-const (
-	accountRegexString = `(\d+)(/(\w+))?`
-)
-
-var accountRegex = regexp.MustCompile(accountRegexString)
 
 type hop struct {
 	Profile string
@@ -25,6 +16,62 @@ type hop struct {
 	Mfa     bool
 }
 
+type Voyage struct {
+	pack cartogram.Pack
+	account cartogram.Account
+	role string
+	hops []hop
+	creds speculate.Creds
+}
+
+// SimpleGetCreds provides you with creds based on an optional role and filter args
+func SimpleGetCreds(targetRole string, args []string) (speculate.Creds, error) {
+	var creds speculate.Creds
+	v := Voyage{}
+
+	if err := v.LoadPack(); err != nil {
+		return creds, err
+	}
+
+    if err := v.LoadAccount(args); err != nil {
+        return creds, err
+    }
+
+	if err := v.LoadRole(targetRole); err != nil {
+        return creds, err
+    }
+
+    if err := v.LoadHops(); err != nil {
+        return creds, err
+    }
+}
+
+func (v *Voyage) LoadPack() error {
+    return v.pack.Load()
+}
+
+func (v *Voyage) LoadAccount(args []string) error {
+	v.account, err := v.pack.Find(args)
+	return err
+}
+
+func (v *Voyage) LoadRole(roleName string) error {
+	v.role, err = targetAccount.PickRole(targetRole)
+	return err
+}
+
+func (v *Voyage) LoadHops() error {
+    if err := parseHops(&v.hops, cp, targetAccount, targetRole); err != nil {
+        return err
+    }
+    for i, j := 0, len(v.hops)-1; i < j; i, j = i+1, j-1 {
+        v.hops[i], v.hops[j] = v.hops[j], v.hops[i]
+    }
+	return nil
+}
+
+func (v *Voyage) LoadCreds() (speculate.Creds)
+
 // Travel accepts a role and args and turns them into creds
 func Travel(targetRole string, args []string) (speculate.Creds, error) {
 	return NamedTravel(targetRole, args, "")
@@ -32,8 +79,6 @@ func Travel(targetRole string, args []string) (speculate.Creds, error) {
 
 // NamedTravel accepts a role, args, and session name and turns them into creds
 func NamedTravel(targetRole string, args []string, sessionName string) (speculate.Creds, error) {
-	var creds speculate.Creds
-
 	cp := cartogram.Pack{}
 	if err := cp.Load(); err != nil {
 		return creds, err
@@ -44,24 +89,9 @@ func NamedTravel(targetRole string, args []string, sessionName string) (speculat
 		return creds, err
 	}
 
-	if targetRole == "" {
-		roleNames := []string{}
-		for k := range targetAccount.Roles {
-			roleNames = append(roleNames, k)
-		}
-		if len(roleNames) == 1 {
-			targetRole = roleNames[0]
-		} else {
-			sort.Strings(roleNames)
-			targetRole, err = prompt.PickFromList("Desired Role:", roleNames, "")
-			if err != nil {
-				return creds, err
-			}
-		}
-	} else {
-		if _, ok := targetAccount.Roles[targetRole]; !ok {
-			return creds, fmt.Errorf("Provided role not present in account")
-		}
+	targetRole, err = targetAccount.PickRole(targetRole)
+	if err != nil {
+		return creds, err
 	}
 
 	stack := []hop{}
@@ -93,7 +123,7 @@ func NamedTravel(targetRole string, args []string, sessionName string) (speculat
 
 func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) error {
 	*stack = append(*stack, hop{Account: a.Account, Role: r, Mfa: a.Roles[r].Mfa})
-	accountMatch := accountRegex.FindStringSubmatch(a.Source)
+	accountMatch := cartogram.AccountRegex.FindStringSubmatch(a.Source)
 	if len(accountMatch) != 4 {
 		*stack = append(*stack, hop{Profile: a.Source})
 		return nil
