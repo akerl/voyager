@@ -16,93 +16,73 @@ type hop struct {
 	Mfa     bool
 }
 
-type Voyage struct {
-	pack cartogram.Pack
+type voyage struct {
+	pack    cartogram.Pack
 	account cartogram.Account
-	role string
-	hops []hop
-	creds speculate.Creds
+	role    string
+	hops    []hop
+	creds   speculate.Creds
+}
+
+// SimpleGetNamedCreds provides you with creds based on an optional role, session name, and filter args
+func SimpleGetNamedCreds(targetRole string, sessionName string, args []string) (speculate.Creds, error) {
+	var creds speculate.Creds
+	v := voyage{}
+
+	if err := v.loadPack(); err != nil {
+		return creds, err
+	}
+	if err := v.loadAccount(args); err != nil {
+		return creds, err
+	}
+	if err := v.loadRole(targetRole); err != nil {
+		return creds, err
+	}
+	if err := v.loadHops(); err != nil {
+		return creds, err
+	}
+	if err := v.loadCreds(sessionName); err != nil {
+		return creds, err
+	}
+	return v.creds, nil
 }
 
 // SimpleGetCreds provides you with creds based on an optional role and filter args
 func SimpleGetCreds(targetRole string, args []string) (speculate.Creds, error) {
-	var creds speculate.Creds
-	v := Voyage{}
+	return SimpleGetNamedCreds(targetRole, "", args)
+}
 
-	if err := v.LoadPack(); err != nil {
-		return creds, err
+func (v *voyage) loadPack() error {
+	return v.pack.Load()
+}
+
+func (v *voyage) loadAccount(args []string) error {
+	var err error
+	v.account, err = v.pack.Find(args)
+	return err
+}
+
+func (v *voyage) loadRole(roleName string) error {
+	var err error
+	v.role, err = v.account.PickRole(roleName)
+	return err
+}
+
+func (v *voyage) loadHops() error {
+	if err := parseHops(&v.hops, v.pack, v.account, v.role); err != nil {
+		return err
 	}
-
-    if err := v.LoadAccount(args); err != nil {
-        return creds, err
-    }
-
-	if err := v.LoadRole(targetRole); err != nil {
-        return creds, err
-    }
-
-    if err := v.LoadHops(); err != nil {
-        return creds, err
-    }
-}
-
-func (v *Voyage) LoadPack() error {
-    return v.pack.Load()
-}
-
-func (v *Voyage) LoadAccount(args []string) error {
-	v.account, err := v.pack.Find(args)
-	return err
-}
-
-func (v *Voyage) LoadRole(roleName string) error {
-	v.role, err = targetAccount.PickRole(targetRole)
-	return err
-}
-
-func (v *Voyage) LoadHops() error {
-    if err := parseHops(&v.hops, cp, targetAccount, targetRole); err != nil {
-        return err
-    }
-    for i, j := 0, len(v.hops)-1; i < j; i, j = i+1, j-1 {
-        v.hops[i], v.hops[j] = v.hops[j], v.hops[i]
-    }
+	for i, j := 0, len(v.hops)-1; i < j; i, j = i+1, j-1 {
+		v.hops[i], v.hops[j] = v.hops[j], v.hops[i]
+	}
 	return nil
 }
 
-func (v *Voyage) LoadCreds() (speculate.Creds)
+func (v *voyage) loadCreds(sessionName string) error {
+	var creds speculate.Creds
+	var err error
 
-// Travel accepts a role and args and turns them into creds
-func Travel(targetRole string, args []string) (speculate.Creds, error) {
-	return NamedTravel(targetRole, args, "")
-}
-
-// NamedTravel accepts a role, args, and session name and turns them into creds
-func NamedTravel(targetRole string, args []string, sessionName string) (speculate.Creds, error) {
-	cp := cartogram.Pack{}
-	if err := cp.Load(); err != nil {
-		return creds, err
-	}
-
-	targetAccount, err := cp.Find(args)
-	if err != nil {
-		return creds, err
-	}
-
-	targetRole, err = targetAccount.PickRole(targetRole)
-	if err != nil {
-		return creds, err
-	}
-
-	stack := []hop{}
-	if err := parseHops(&stack, cp, targetAccount, targetRole); err != nil {
-		return creds, err
-	}
-	for i, j := 0, len(stack)-1; i < j; i, j = i+1, j-1 {
-		stack[i], stack[j] = stack[j], stack[i]
-	}
-
-	profileHop, stack := stack[0], stack[1:]
+	profileHop, stack := v.hops[0], v.hops[1:]
 	os.Setenv("AWS_PROFILE", profileHop.Profile)
 
 	for _, thisHop := range stack {
@@ -114,11 +94,11 @@ func NamedTravel(targetRole string, args []string, sessionName string) (speculat
 		assumption.Mfa.UseMfa = thisHop.Mfa
 		creds, err = assumption.ExecuteWithCreds(creds)
 		if err != nil {
-			return creds, err
+			return err
 		}
 	}
-
-	return creds, nil
+	v.creds = creds
+	return nil
 }
 
 func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) error {
