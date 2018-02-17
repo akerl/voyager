@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/akerl/voyager/utils"
+	"github.com/akerl/voyager/travel"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +27,11 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	creds, err := utils.SimpleGetCreds(flagRole, args)
+	i := travel.Itinerary{
+		Args:     args,
+		RoleName: flagRole,
+	}
+	creds, err := travel.Travel(i)
 	if err != nil {
 		return err
 	}

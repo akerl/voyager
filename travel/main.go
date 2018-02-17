@@ -1,4 +1,4 @@
-package utils
+package travel
 
 import (
 	"fmt"
@@ -6,7 +6,8 @@ import (
 
 	"github.com/akerl/voyager/cartogram"
 
-	speculate "github.com/akerl/speculate/utils"
+	"github.com/akerl/speculate/creds"
+	"github.com/akerl/speculate/executors"
 )
 
 type hop struct {
@@ -21,35 +22,41 @@ type voyage struct {
 	account cartogram.Account
 	role    string
 	hops    []hop
-	creds   speculate.Creds
+	creds   creds.Creds
 }
 
-// SimpleGetNamedCreds provides you with creds based on an optional role, session name, and filter args
-func SimpleGetNamedCreds(targetRole string, sessionName string, args []string) (speculate.Creds, error) {
-	var creds speculate.Creds
+// Itinerary describes a travel request
+type Itinerary struct {
+	Args        []string
+	RoleName    string
+	SessionName string
+	Policy      string
+	Lifetime    int64
+	MfaCode     string
+	MfaSerial   string
+}
+
+// TravelWithOptions loads creds from a full set of parameters
+func Travel(i Itinerary) (creds.Creds, error) {
+	var creds creds.Creds
 	v := voyage{}
 
 	if err := v.loadPack(); err != nil {
 		return creds, err
 	}
-	if err := v.loadAccount(args); err != nil {
+	if err := v.loadAccount(i.Args); err != nil {
 		return creds, err
 	}
-	if err := v.loadRole(targetRole); err != nil {
+	if err := v.loadRole(i.RoleName); err != nil {
 		return creds, err
 	}
 	if err := v.loadHops(); err != nil {
 		return creds, err
 	}
-	if err := v.loadCreds(sessionName); err != nil {
+	if err := v.loadCreds(i); err != nil {
 		return creds, err
 	}
 	return v.creds, nil
-}
-
-// SimpleGetCreds provides you with creds based on an optional role and filter args
-func SimpleGetCreds(targetRole string, args []string) (speculate.Creds, error) {
-	return SimpleGetNamedCreds(targetRole, "", args)
 }
 
 func (v *voyage) loadPack() error {
@@ -78,20 +85,44 @@ func (v *voyage) loadHops() error {
 	return nil
 }
 
-func (v *voyage) loadCreds(sessionName string) error {
-	var creds speculate.Creds
+func (v *voyage) loadCreds(i Itinerary) error {
+	var creds creds.Creds
 	var err error
 
 	profileHop, stack := v.hops[0], v.hops[1:]
 	os.Setenv("AWS_PROFILE", profileHop.Profile)
 
-	for _, thisHop := range stack {
-		assumption := speculate.Assumption{
-			RoleName:    thisHop.Role,
-			AccountID:   thisHop.Account,
-			SessionName: sessionName,
+	last := len(stack) - 1
+	for index, thisHop := range stack {
+		a := executors.Assumption{}
+		if err := a.SetAccountID(thisHop.Account); err != nil {
+			return err
 		}
-		assumption.Mfa.UseMfa = thisHop.Mfa
+		if err := a.SetRoleName(thisHop.Role); err != nil {
+			return err
+		}
+		if err := a.SetSessionName(i.SessionName); err != nil {
+			return err
+		}
+		if err := a.SetLifetime(i.Lifetime); err != nil {
+			return err
+		}
+		if index == last {
+			if err := a.SetPolicy(i.Policy); err != nil {
+				return err
+			}
+		}
+		if thisHop.Mfa {
+			if err := a.SetMfa(true); err != nil {
+				return err
+			}
+			if err := a.SetMfaSerial(i.MfaSerial); err != nil {
+				return err
+			}
+			if err := a.SetMfaCode(i.MfaCode); err != nil {
+				return err
+			}
+		}
 		creds, err = assumption.ExecuteWithCreds(creds)
 		if err != nil {
 			return err
