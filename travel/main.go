@@ -60,6 +60,7 @@ func Travel(i Itinerary) (creds.Creds, error) {
 }
 
 func (v *voyage) loadPack() error {
+	v.pack = make(cartogram.Pack)
 	return v.pack.Load()
 }
 
@@ -104,8 +105,10 @@ func (v *voyage) loadCreds(i Itinerary) error {
 		if err := a.SetSessionName(i.SessionName); err != nil {
 			return err
 		}
-		if err := a.SetLifetime(i.Lifetime); err != nil {
-			return err
+		if i.Lifetime != 0 {
+			if err := a.SetLifetime(i.Lifetime); err != nil {
+				return err
+			}
 		}
 		if index == last {
 			if err := a.SetPolicy(i.Policy); err != nil {

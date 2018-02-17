@@ -130,6 +130,7 @@ func (cp Pack) loadFromFiles(filePaths []string) error {
 		if err := newC.loadFromFile(filePath); err != nil {
 			return err
 		}
+		fmt.Printf("Adding cartogram to pack: %s\n", name)
 		cp[name] = newC
 	}
 	return nil
