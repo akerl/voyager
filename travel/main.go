@@ -36,7 +36,7 @@ type Itinerary struct {
 	MfaSerial   string
 }
 
-// TravelWithOptions loads creds from a full set of parameters
+// Travel loads creds from a full set of parameters
 func Travel(i Itinerary) (creds.Creds, error) {
 	var creds creds.Creds
 	v := voyage{}
@@ -123,7 +123,7 @@ func (v *voyage) loadCreds(i Itinerary) error {
 				return err
 			}
 		}
-		creds, err = assumption.ExecuteWithCreds(creds)
+		creds, err = a.ExecuteWithCreds(creds)
 		if err != nil {
 			return err
 		}
