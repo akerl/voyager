@@ -7,8 +7,8 @@
     "creds",
     "executors"
   ]
-  revision = "6d6094882f8c0ee8c929de41108a6cf2f15ce4cf"
-  version = "0.1.0"
+  revision = "8fff72129c20828927f6ded1ed5d09c422645a1e"
+  version = "0.1.1"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
