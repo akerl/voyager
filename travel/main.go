@@ -38,23 +38,23 @@ type Itinerary struct {
 
 // Travel loads creds from a full set of parameters
 func Travel(i Itinerary) (creds.Creds, error) {
-	var creds creds.Creds
+	var c creds.Creds
 	v := voyage{}
 
 	if err := v.loadPack(); err != nil {
-		return creds, err
+		return c, err
 	}
 	if err := v.loadAccount(i.Args); err != nil {
-		return creds, err
+		return c, err
 	}
 	if err := v.loadRole(i.RoleName); err != nil {
-		return creds, err
+		return c, err
 	}
 	if err := v.loadHops(); err != nil {
-		return creds, err
+		return c, err
 	}
 	if err := v.loadCreds(i); err != nil {
-		return creds, err
+		return c, err
 	}
 	return v.creds, nil
 }
@@ -87,10 +87,13 @@ func (v *voyage) loadHops() error {
 }
 
 func (v *voyage) loadCreds(i Itinerary) error {
-	var creds creds.Creds
+	var c creds.Creds
 	var err error
 
 	profileHop, stack := v.hops[0], v.hops[1:]
+	for varName := range creds.Translations["envvar"] {
+		os.Unsetenv(varName)
+	}
 	os.Setenv("AWS_PROFILE", profileHop.Profile)
 
 	last := len(stack) - 1
@@ -126,12 +129,12 @@ func (v *voyage) loadCreds(i Itinerary) error {
 				return err
 			}
 		}
-		creds, err = a.ExecuteWithCreds(creds)
+		c, err = a.ExecuteWithCreds(c)
 		if err != nil {
 			return err
 		}
 	}
-	v.creds = creds
+	v.creds = c
 	return nil
 }
 
