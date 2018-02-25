@@ -1,0 +1,2 @@
+PACKAGE = voyager
+NAMESPACE = github.com/akerl
