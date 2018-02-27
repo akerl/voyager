@@ -26,8 +26,8 @@
 
 
 [[constraint]]
+  branch = "master"
   name = "github.com/akerl/speculate"
-  version = "0.1.0"
 
 [[constraint]]
   name = "github.com/dixonwille/wmenu"

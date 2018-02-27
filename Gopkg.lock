@@ -2,13 +2,13 @@
 
 
 [[projects]]
+  branch = "master"
   name = "github.com/akerl/speculate"
   packages = [
     "creds",
     "executors"
   ]
-  revision = "5b41f35354b0d64ddfa9050ad35352ab6f353cc3"
-  version = "0.1.3"
+  revision = "49c8e15370a44e1a00ee5ce94b4643b66d3e6df3"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -38,14 +38,14 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "bff41fb23b7550368282029f6478819d6a99ae0f"
-  version = "v1.12.79"
+  revision = "ce48e67ca697079662aee65a13202f37a185962b"
+  version = "v1.13.6"
 
 [[projects]]
-  branch = "master"
   name = "github.com/daviddengcn/go-colortext"
   packages = ["."]
   revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
+  version = "1.0.0"
 
 [[projects]]
   name = "github.com/dixonwille/wmenu"
@@ -92,7 +92,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
+  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
@@ -103,6 +103,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "92c27dd8b9bd23a3df7547799e39b12437268298642ea8e00bf91dc177ec8830"
+  inputs-digest = "9b2f28f2436e9d7ed319cf22a099d4e9de43ae501e8324a3685bde6d555c3a3a"
   solver-name = "gps-cdcl"
   solver-version = 1
