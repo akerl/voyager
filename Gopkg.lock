@@ -2,13 +2,13 @@
 
 
 [[projects]]
-  branch = "master"
   name = "github.com/akerl/speculate"
   packages = [
     "creds",
     "executors"
   ]
-  revision = "49c8e15370a44e1a00ee5ce94b4643b66d3e6df3"
+  revision = "558b811539ef5e938a9178d0f1fb94ea64f68af6"
+  version = "0.3.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
