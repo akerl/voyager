@@ -38,8 +38,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "aace5875a5c3b85a3902c6d72b9caed301d64cce"
-  version = "v1.13.8"
+  revision = "45a97ce8abeff27aeeac668fa01cb85103b0d17e"
+  version = "v1.13.10"
 
 [[projects]]
   name = "github.com/daviddengcn/go-colortext"
@@ -103,6 +103,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9b2f28f2436e9d7ed319cf22a099d4e9de43ae501e8324a3685bde6d555c3a3a"
+  inputs-digest = "772dbe837243507878e34a1c839ebb4bee5e9317b6e4c98f4870bc78cbb7d2df"
   solver-name = "gps-cdcl"
   solver-version = 1
