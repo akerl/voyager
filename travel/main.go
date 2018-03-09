@@ -130,6 +130,7 @@ func (v *voyage) loadCreds(i Itinerary) error {
 			}
 		}
 		c, err = a.ExecuteWithCreds(c)
+		c.Region = thisHop.Account.Region
 		if err != nil {
 			return err
 		}
