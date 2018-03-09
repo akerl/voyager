@@ -13,6 +13,7 @@ import (
 type hop struct {
 	Profile string
 	Account string
+	Region  string
 	Role    string
 	Mfa     bool
 }
@@ -130,7 +131,7 @@ func (v *voyage) loadCreds(i Itinerary) error {
 			}
 		}
 		c, err = a.ExecuteWithCreds(c)
-		c.Region = thisHop.Account.Region
+		c.Region = thisHop.Region
 		if err != nil {
 			return err
 		}
@@ -140,7 +141,15 @@ func (v *voyage) loadCreds(i Itinerary) error {
 }
 
 func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) error {
-	*stack = append(*stack, hop{Account: a.Account, Role: r, Mfa: a.Roles[r].Mfa})
+	*stack = append(
+		*stack,
+		hop{
+			Account: a.Account,
+			Region:  a.Region,
+			Role:    r,
+			Mfa:     a.Roles[r].Mfa,
+		},
+	)
 	accountMatch := cartogram.AccountRegex.FindStringSubmatch(a.Source)
 	if len(accountMatch) != 4 {
 		*stack = append(*stack, hop{Profile: a.Source})
