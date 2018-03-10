@@ -7,8 +7,8 @@
     "creds",
     "executors"
   ]
-  revision = "1bd1540dd1a338df8cd087cf83c59b0a5d8bb328"
-  version = "0.3.3"
+  revision = "8b2b48329671a7e59cba8b3507ab5ebda714693c"
+  version = "0.3.4"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -103,6 +103,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a6f3a779e0172389712efce78aa1f8d2988d3b7903733c644829971439cb2cbd"
+  inputs-digest = "434985a4b49b208ee44708b03f8fa6e269efd6fca12d470deb4ceccfdb0c5e02"
   solver-name = "gps-cdcl"
   solver-version = 1
