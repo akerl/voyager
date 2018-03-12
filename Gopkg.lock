@@ -7,8 +7,8 @@
     "creds",
     "executors"
   ]
-  revision = "8b2b48329671a7e59cba8b3507ab5ebda714693c"
-  version = "0.3.4"
+  revision = "6ba9a922b4916528502ee48baa7cf1b86711aaa6"
+  version = "0.3.5"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -92,7 +92,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "7dca6fe1f43775aa6d1334576870ff63f978f539"
+  revision = "c28acc882ebcbfbe8ce9f0f14b9ac26ee138dd51"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
