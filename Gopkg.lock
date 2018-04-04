@@ -39,8 +39,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "74ca63959be8b9a9a24cd86eaaea8bf99de8022d"
-  version = "v1.13.25"
+  revision = "f6efafab9ddced9880456bc53096fa79f4596f5e"
+  version = "v1.13.27"
 
 [[projects]]
   name = "github.com/daviddengcn/go-colortext"
@@ -57,8 +57,8 @@
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "6333e38ac20b8949a8dd68baa3650f4dee8f39f0"
-  version = "v1.33.0"
+  revision = "5e9692864e22d02ac79e2fa499cffb00520b4fea"
+  version = "v1.34.0"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -93,7 +93,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "378d26f46672a356c46195c28f61bdb4c0a781dd"
+  revision = "f67933eaf9e2f750f58a234209a11ebc1107be38"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
