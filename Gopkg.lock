@@ -39,8 +39,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "f6efafab9ddced9880456bc53096fa79f4596f5e"
-  version = "v1.13.27"
+  revision = "7f68df2a5baf19398d17def23a514a6e617e5937"
+  version = "v1.13.28"
 
 [[projects]]
   name = "github.com/daviddengcn/go-colortext"
@@ -93,7 +93,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "f67933eaf9e2f750f58a234209a11ebc1107be38"
+  revision = "1d206c9fa8975fb4cf00df1dc8bf3283dc24ba0e"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
