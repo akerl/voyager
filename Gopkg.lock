@@ -7,8 +7,8 @@
     "creds",
     "executors"
   ]
-  revision = "6ba9a922b4916528502ee48baa7cf1b86711aaa6"
-  version = "0.3.5"
+  revision = "395fccd210018c2cefbe5c3a4521a6389d8e98d6"
+  version = "0.4.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -39,8 +39,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "827d8280a5c6590c21e2fc0a6a8b3242ee6e33f0"
-  version = "v1.13.29"
+  revision = "61ac2e639a3e5f940b62693f2f1db515e4f0325e"
+  version = "v1.13.30"
 
 [[projects]]
   name = "github.com/daviddengcn/go-colortext"
@@ -104,6 +104,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "434985a4b49b208ee44708b03f8fa6e269efd6fca12d470deb4ceccfdb0c5e02"
+  inputs-digest = "c973eabdd5ee656f71c648368ab7e2871290bf25706b6c7daaf6242ad448f515"
   solver-name = "gps-cdcl"
   solver-version = 1
