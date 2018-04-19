@@ -1,35 +1,39 @@
 package prompt
 
 import (
-	"os"
+	"context"
 
-	"github.com/dixonwille/wmenu"
+	"github.com/peco/peco"
 )
 
-// PromptWmenu picks using wmenu
-func PromptWmenu(message string, list []string, defaultOpt string) (string, error) {
-	c := make(chan string, 1)
+type pecoCollectResults interface {
+	CollectResults() bool
+}
 
-	// TODO: support picking by name
-	menu := wmenu.NewMenu(message)
-	menu.ChangeReaderWriter(os.Stdin, os.Stderr, os.Stderr)
-	menu.LoopOnInvalid()
-	menu.Action(func(opts []wmenu.Opt) error {
-		c <- opts[0].Value.(string)
-		return nil
-	})
+// PromptPeco picks using Peco
+func PromptPeco(message string, list []string, defaultOpt string) (string, error) {
+	// TODO: Use message
+	// TODO: use List
+	// TODO: set default
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	for _, item := range list {
-		isDefault := false
-		if item == defaultOpt {
-			isDefault = true
+	cli := peco.New()
+	cli.Argv = []string{}
+
+	err := cli.Run(ctx)
+	if err != nil {
+		if _, ok := err.(collectResults); !ok {
+			return "", err
 		}
-		menu.Option(item, item, isDefault, nil)
 	}
 
-	if err := menu.Run(); err != nil {
+	ln := cli.Location().LineNumber()
+	l, err := cli.CurrentLineBuffer().LineAt(ln)
+	if err != nil {
 		return "", err
 	}
 
-	return <-c, nil
+	o := l.Output()
+	return o, nil
 }
