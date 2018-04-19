@@ -21,7 +21,7 @@ type Pack map[string]Cartogram
 
 // Find checks both Lookup and Search for an account
 func (cp Pack) Find(args []string) (Account, error) {
-	return cp.FindWithPrompt(args, prompt.PickFromList)
+	return cp.FindWithPrompt(args, prompt.PromptWmenu)
 }
 
 // FindWithPrompt checks both Lookup and Search for an account with a custom prompt

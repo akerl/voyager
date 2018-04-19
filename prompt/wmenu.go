@@ -6,8 +6,8 @@ import (
 	"github.com/dixonwille/wmenu"
 )
 
-// PickFromList prompts for user input
-func PickFromList(message string, list []string, defaultOpt string) (string, error) {
+// PromptWmenu picks using wmenu
+func PromptWmenu(message string, list []string, defaultOpt string) (string, error) {
 	c := make(chan string, 1)
 
 	// TODO: support picking by name
