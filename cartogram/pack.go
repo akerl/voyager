@@ -21,6 +21,11 @@ type Pack map[string]Cartogram
 
 // Find checks both Lookup and Search for an account
 func (cp Pack) Find(args []string) (Account, error) {
+	return cp.FindWithPrompt(args, prompt.PickFromList)
+}
+
+// FindWithPrompt checks both Lookup and Search for an account with a custom prompt
+func (cp Pack) FindWithPrompt(args []string, pf promptFunc) (Account, error) {
 	var targetAccount Account
 	var err error
 	var found bool
@@ -30,7 +35,7 @@ func (cp Pack) Find(args []string) (Account, error) {
 		return targetAccount, err
 	}
 
-	found, targetAccount, err = cp.findMatchAccount(args)
+	found, targetAccount, err = cp.findMatchAccount(args, pf)
 	if err != nil || found {
 		return targetAccount, err
 	}
@@ -56,7 +61,7 @@ func (cp Pack) findDirectAccount(args []string) (bool, Account, error) {
 	return true, account, nil
 }
 
-func (cp Pack) findMatchAccount(args []string) (bool, Account, error) {
+func (cp Pack) findMatchAccount(args []string, pf promptFunc) (bool, Account, error) {
 	var account Account
 	tfs := TagFilterSet{}
 	if err := tfs.LoadFromArgs(args); err != nil {
@@ -77,7 +82,7 @@ func (cp Pack) findMatchAccount(args []string) (bool, Account, error) {
 			mapOfAccounts[name] = a
 			sliceOfNames = append(sliceOfNames, name)
 		}
-		chosen, err := prompt.PickFromList("Desired account:", sliceOfNames, "")
+		chosen, err := pf("Desired account:", sliceOfNames, "")
 		if err != nil {
 			return false, account, err
 		}

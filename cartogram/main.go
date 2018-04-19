@@ -31,3 +31,5 @@ func homeDir() (string, error) {
 	}
 	return usr.HomeDir, nil
 }
+
+type promptFunc func(string, []string, string) (string, error)

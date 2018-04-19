@@ -47,6 +47,11 @@ func (as AccountSet) Search(tfs TagFilterSet) AccountSet {
 
 // PickRole returns a role from the account
 func (a Account) PickRole(roleName string) (string, error) {
+	return a.PickRoleWithPrompt(roleName, prompt.PickFromList)
+}
+
+// PickRoleWithPrompt returns a role from the account with a custom prompt
+func (a Account) PickRoleWithPrompt(roleName string, pf promptFunc) (string, error) {
 	if roleName != "" {
 		if _, ok := a.Roles[roleName]; !ok {
 			return "", fmt.Errorf("Provided role not present in account")
