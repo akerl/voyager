@@ -10,8 +10,8 @@ type pecoCollectResults interface {
 	CollectResults() bool
 }
 
-// PromptPeco picks using Peco
-func PromptPeco(message string, list []string, defaultOpt string) (string, error) {
+// WithPeco picks using Peco
+func WithPeco(message string, list []string, defaultOpt string) (string, error) {
 	// TODO: Use message
 	// TODO: use List
 	// TODO: set default
@@ -23,7 +23,7 @@ func PromptPeco(message string, list []string, defaultOpt string) (string, error
 
 	err := cli.Run(ctx)
 	if err != nil {
-		if _, ok := err.(collectResults); !ok {
+		if _, ok := err.(pecoCollectResults); !ok {
 			return "", err
 		}
 	}
