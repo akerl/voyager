@@ -39,8 +39,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "70f8337208b7dfd7940a7e13dca0804464b74274"
-  version = "v1.13.45"
+  revision = "31a85efbe3bc741eb539d6310c8e66030b7c5cb7"
+  version = "v1.13.47"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -157,7 +157,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "7dfd1290c7917b7ba22824b9d24954ab3002fe24"
+  revision = "d0faeb539838e250bd0a9db4182d48d4a1915181"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
