@@ -40,8 +40,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "d2d4fca90395039f60821c231da759cab8f318c7"
-  version = "v1.14.4"
+  revision = "92c96c4f5ad419f2a72401c2f606d51e010cc110"
+  version = "v1.14.6"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -112,7 +112,7 @@
   branch = "master"
   name = "github.com/nsf/termbox-go"
   packages = ["."]
-  revision = "21a4d435a86280a2927985fd6296de56cbce453e"
+  revision = "5c94acc5e6eb520f1bcd183974e01171cc4c23b3"
 
 [[projects]]
   name = "github.com/peco/peco"
@@ -158,7 +158,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "a9e25c09b96b8870693763211309e213c6ef299d"
+  revision = "56ede360ec1c541828fb88741b3f1049406d28f5"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
