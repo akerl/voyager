@@ -40,8 +40,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "92c96c4f5ad419f2a72401c2f606d51e010cc110"
-  version = "v1.14.6"
+  revision = "bfc1a07cf158c30c41a3eefba8aae043d0bb5bff"
+  version = "v1.14.8"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -158,7 +158,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "56ede360ec1c541828fb88741b3f1049406d28f5"
+  revision = "6c888cc515d3ed83fc103cf1d84468aad274b0a7"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
