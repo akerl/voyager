@@ -158,7 +158,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "a200a19cb90b19de298170992778b1fda7217bd6"
+  revision = "c4afb3effaa53fd9a06ca61262dc7ce8df4c081b"
 
 [[projects]]
   name = "gopkg.in/dixonwille/wlog.v2"
