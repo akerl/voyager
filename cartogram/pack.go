@@ -25,7 +25,7 @@ func (cp Pack) Find(args []string) (Account, error) {
 }
 
 // FindWithPrompt checks both Lookup and Search for an account with a custom prompt
-func (cp Pack) FindWithPrompt(args []string, pf promptFunc) (Account, error) {
+func (cp Pack) FindWithPrompt(args []string, pf prompt.Func) (Account, error) {
 	var targetAccount Account
 	var err error
 	var found bool
@@ -61,7 +61,7 @@ func (cp Pack) findDirectAccount(args []string) (bool, Account, error) {
 	return true, account, nil
 }
 
-func (cp Pack) findMatchAccount(args []string, pf promptFunc) (bool, Account, error) {
+func (cp Pack) findMatchAccount(args []string, pf prompt.Func) (bool, Account, error) {
 	var account Account
 	tfs := TagFilterSet{}
 	if err := tfs.LoadFromArgs(args); err != nil {
@@ -82,7 +82,12 @@ func (cp Pack) findMatchAccount(args []string, pf promptFunc) (bool, Account, er
 			mapOfAccounts[name] = a
 			sliceOfNames = append(sliceOfNames, name)
 		}
-		chosen, err := pf("Desired account:", sliceOfNames, "")
+		a := prompt.Args{
+			Message: "Desired Account:",
+			Options: sliceOfNames,
+			Default: "",
+		}
+		chosen, err := pf(a)
 		if err != nil {
 			return false, account, err
 		}

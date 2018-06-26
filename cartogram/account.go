@@ -51,7 +51,7 @@ func (a Account) PickRole(roleName string) (string, error) {
 }
 
 // PickRoleWithPrompt returns a role from the account with a custom prompt
-func (a Account) PickRoleWithPrompt(roleName string, pf promptFunc) (string, error) {
+func (a Account) PickRoleWithPrompt(roleName string, pf prompt.Func) (string, error) {
 	if roleName != "" {
 		if _, ok := a.Roles[roleName]; !ok {
 			return "", fmt.Errorf("Provided role not present in account")
@@ -66,5 +66,11 @@ func (a Account) PickRoleWithPrompt(roleName string, pf promptFunc) (string, err
 		return roleNames[0], nil
 	}
 	sort.Strings(roleNames)
-	return pf("Desired Role:", roleNames, "")
+
+	pa := prompt.Args{
+		Message: "Desired Role:",
+		Options: roleNames,
+		Default: "",
+	}
+	return pf(pa)
 }

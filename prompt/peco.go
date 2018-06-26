@@ -11,9 +11,9 @@ type pecoCollectResults interface {
 }
 
 // WithPeco picks using Peco
-func WithPeco(message string, list []string, defaultOpt string) (string, error) {
+func WithPeco(a Args) (string, error) {
 	// TODO: Use message
-	// TODO: use List
+	// TODO: use options
 	// TODO: set default
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -7,11 +7,11 @@ import (
 )
 
 // WithWmenu picks using wmenu
-func WithWmenu(message string, list []string, defaultOpt string) (string, error) {
+func WithWmenu(a Args) (string, error) {
 	c := make(chan string, 1)
 
 	// TODO: support picking by name
-	menu := wmenu.NewMenu(message)
+	menu := wmenu.NewMenu(a.Message)
 	menu.ChangeReaderWriter(os.Stdin, os.Stderr, os.Stderr)
 	menu.LoopOnInvalid()
 	menu.Action(func(opts []wmenu.Opt) error {
@@ -19,9 +19,9 @@ func WithWmenu(message string, list []string, defaultOpt string) (string, error)
 		return nil
 	})
 
-	for _, item := range list {
+	for _, item := range a.Options {
 		isDefault := false
-		if item == defaultOpt {
+		if item == a.Default {
 			isDefault = true
 		}
 		menu.Option(item, item, isDefault, nil)
