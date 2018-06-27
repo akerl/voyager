@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"path"
 	"regexp"
+	"sort"
+	"strings"
 
 	"github.com/akerl/voyager/prompt"
 )
@@ -75,23 +77,28 @@ func (cp Pack) findMatchAccount(args []string, pf prompt.Func) (bool, Account, e
 	case 1:
 		return true, accounts[0], nil
 	default:
-		mapOfAccounts := map[string]Account{}
-		sliceOfNames := []string{}
+		sliceOfNames := [][]string{}
 		for _, a := range accounts {
-			name := fmt.Sprintf("%s (%s)", a.Account, a.Tags)
-			mapOfAccounts[name] = a
-			sliceOfNames = append(sliceOfNames, name)
+			accountSlice := []string{}
+			accountSlice = append(accountSlice, a.Account)
+			tagSlice := []string{}
+			for k, v := range a.Tags {
+				tagString := strings.Join([]string{k, v}, ":")
+				tagSlice = append(tagSlice, tagString)
+			}
+			sort.Strings(tagSlice)
+			accountSlice = append(accountSlice, tagSlice...)
+			sliceOfNames = append(sliceOfNames, accountSlice)
 		}
-		a := prompt.Args{
+		pa := prompt.Args{
 			Message: "Desired Account:",
 			Options: sliceOfNames,
-			Default: "",
 		}
-		chosen, err := pf(a)
+		chosen, err := pf(pa)
 		if err != nil {
 			return false, account, err
 		}
-		return true, mapOfAccounts[chosen], nil
+		return true, accounts[chosen], nil
 	}
 }
 

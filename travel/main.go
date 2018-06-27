@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/akerl/voyager/cartogram"
+	"github.com/akerl/voyager/prompt"
 
 	"github.com/akerl/speculate/creds"
 	"github.com/akerl/speculate/executors"
@@ -35,6 +36,7 @@ type Itinerary struct {
 	Lifetime    int64
 	MfaCode     string
 	MfaSerial   string
+	Prompt      prompt.Func
 }
 
 // Travel loads creds from a full set of parameters
@@ -42,13 +44,17 @@ func Travel(i Itinerary) (creds.Creds, error) {
 	var c creds.Creds
 	v := voyage{}
 
+	if i.Prompt == nil {
+		i.Prompt = prompt.WithDefault
+	}
+
 	if err := v.loadPack(); err != nil {
 		return c, err
 	}
-	if err := v.loadAccount(i.Args); err != nil {
+	if err := v.loadAccount(i.Args, i.Prompt); err != nil {
 		return c, err
 	}
-	if err := v.loadRole(i.RoleName); err != nil {
+	if err := v.loadRole(i.RoleName, i.Prompt); err != nil {
 		return c, err
 	}
 	if err := v.loadHops(); err != nil {
@@ -65,15 +71,15 @@ func (v *voyage) loadPack() error {
 	return v.pack.Load()
 }
 
-func (v *voyage) loadAccount(args []string) error {
+func (v *voyage) loadAccount(args []string, pf prompt.Func) error {
 	var err error
-	v.account, err = v.pack.Find(args)
+	v.account, err = v.pack.FindWithPrompt(args, pf)
 	return err
 }
 
-func (v *voyage) loadRole(roleName string) error {
+func (v *voyage) loadRole(roleName string, pf prompt.Func) error {
 	var err error
-	v.role, err = v.account.PickRole(roleName)
+	v.role, err = v.account.PickRoleWithPrompt(roleName, pf)
 	return err
 }
 

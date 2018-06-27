@@ -66,11 +66,19 @@ func (a Account) PickRoleWithPrompt(roleName string, pf prompt.Func) (string, er
 		return roleNames[0], nil
 	}
 	sort.Strings(roleNames)
+	roleSlices := [][]string{}
+	for _, k := range roleNames {
+		roleSlices = append(roleSlices, []string{k})
+	}
 
 	pa := prompt.Args{
 		Message: "Desired Role:",
-		Options: roleNames,
-		Default: "",
+		Options: roleSlices,
 	}
-	return pf(pa)
+	index, err := pf(pa)
+	if err != nil {
+		return "", err
+	}
+
+	return roleNames[index], nil
 }

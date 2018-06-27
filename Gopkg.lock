@@ -40,14 +40,8 @@
     "private/protocol/xml/xmlutil",
     "service/sts"
   ]
-  revision = "e79e9fd4ec11ccc242a472f980be78830f9eba80"
-  version = "v1.14.13"
-
-[[projects]]
-  name = "github.com/davecgh/go-spew"
-  packages = ["spew"]
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
+  revision = "aff39e8473db578a1cec9ac2f829a56813c1d631"
+  version = "v1.14.14"
 
 [[projects]]
   name = "github.com/daviddengcn/go-colortext"
@@ -68,22 +62,10 @@
   version = "v1.37.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/google/btree"
-  packages = ["."]
-  revision = "e89373fe6b4a7413d7acd6da1725b83ef713e6e4"
-
-[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
-
-[[projects]]
-  name = "github.com/jessevdk/go-flags"
-  packages = ["."]
-  revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
-  version = "v1.4.0"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -91,56 +73,10 @@
   revision = "0b12d6b5"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/lestrrat/go-pdebug"
-  packages = ["."]
-  revision = "569c97477ae8837e053e5a50bc739e15172b8ebe"
-
-[[projects]]
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
   version = "v0.0.3"
-
-[[projects]]
-  name = "github.com/mattn/go-runewidth"
-  packages = ["."]
-  revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
-  version = "v0.0.2"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/nsf/termbox-go"
-  packages = ["."]
-  revision = "5c94acc5e6eb520f1bcd183974e01171cc4c23b3"
-
-[[projects]]
-  name = "github.com/peco/peco"
-  packages = [
-    ".",
-    "filter",
-    "hub",
-    "internal/buffer",
-    "internal/keyseq",
-    "internal/util",
-    "line",
-    "pipeline",
-    "sig"
-  ]
-  revision = "814932819adaed444cdfd32747de7047329f573f"
-  version = "v0.5.3"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/petar/GoLLRB"
-  packages = ["llrb"]
-  revision = "53be0d36a84c2a886ca057d34b6aa4468df9ccb4"
-
-[[projects]]
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -169,6 +105,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "38347a0f63728ceeaa745eaf51363c7e9667c2ecadc016e6f8b10cbee0c4894a"
+  inputs-digest = "2723fbbcde0768b4bf28da100479fe4403f2b1d7b553e0ea8a2acd67eea5f3b4"
   solver-name = "gps-cdcl"
   solver-version = 1
