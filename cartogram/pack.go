@@ -54,8 +54,7 @@ func (cp Pack) findDirectAccount(args []string) (bool, Account, error) {
 	if len(accountMatch) == 0 {
 		return false, account, nil
 	}
-	var accountID string
-	accountID = accountMatch[1]
+	accountID := accountMatch[1]
 	found, account := cp.Lookup(accountID)
 	if !found {
 		return false, account, fmt.Errorf("Account not found: %s", accountID)
@@ -132,9 +131,9 @@ func (cp Pack) Load() error {
 	if err != nil {
 		return nil
 	}
-	var files []string
-	for _, fileObj := range fileObjs {
-		files = append(files, path.Join(config, fileObj.Name()))
+	files := make([]string, len(fileObjs))
+	for index, fileObj := range fileObjs {
+		files[index] = path.Join(config, fileObj.Name())
 	}
 	err = cp.loadFromFiles(files)
 	return err
