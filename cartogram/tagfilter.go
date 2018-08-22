@@ -32,7 +32,7 @@ func (t Tags) String() string {
 
 	var buffer bytes.Buffer
 	for _, k := range sortedTags {
-		buffer.WriteString(fmt.Sprintf("%s:%s, ", k, t[k]))
+		buffer.WriteString(fmt.Sprintf("%s:%s, ", k, t[k])) // #nosec
 	}
 	fullResult := buffer.String()
 	return strings.TrimSuffix(fullResult, ", ")

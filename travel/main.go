@@ -99,9 +99,15 @@ func (v *voyage) loadCreds(i Itinerary) error {
 
 	profileHop, stack := v.hops[0], v.hops[1:]
 	for varName := range creds.Translations["envvar"] {
-		os.Unsetenv(varName)
+		err = os.Unsetenv(varName)
+		if err != nil {
+			return err
+		}
 	}
-	os.Setenv("AWS_PROFILE", profileHop.Profile)
+	err = os.Setenv("AWS_PROFILE", profileHop.Profile)
+	if err != nil {
+		return err
+	}
 
 	last := len(stack) - 1
 	for index, thisHop := range stack {

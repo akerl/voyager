@@ -34,7 +34,7 @@ func (c Cartogram) Search(tfs TagFilterSet) AccountSet {
 }
 
 func (c *Cartogram) loadFromFile(filePath string) error {
-	data, err := ioutil.ReadFile(filePath)
+	data, err := ioutil.ReadFile(filePath) // #nosec
 	if err != nil {
 		return err
 	}
