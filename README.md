@@ -1,7 +1,7 @@
 voyager
 =========
 
-[![Build Status](https://img.shields.io/circleci/project/akerl/voyager/master.svg)](https://circleci.com/gh/akerl/voyager)
+[![Build Status](https://img.shields.io/travis/com/akerl/voyager.svg)](https://travis-ci.com/akerl/voyager)
 [![GitHub release](https://img.shields.io/github/release/akerl/voyager.svg)](https://github.com/akerl/voyager/releases)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-green.svg)](https://tldrlegal.com/license/mit-license)
 
