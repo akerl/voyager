@@ -13,7 +13,7 @@
   version = "0.4.0"
 
 [[projects]]
-  digest = "1:92e5524e92b45d70c770ea8ad7def2841a04cc3cb2d8bbbdec7c84e1823aed18"
+  digest = "1:c4e80121c48a062b9beaf5948d713c0c9795f86bc30367e5377ec83858e8ba02"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -45,8 +45,8 @@
     "service/sts",
   ]
   pruneopts = "UT"
-  revision = "0d5157217e4c72d0fc7fabad8e0501d3d5cb768d"
-  version = "v1.15.41"
+  revision = "85d9dfd77e6d694e83c3ac054141cb5e81eecc7f"
+  version = "v1.15.43"
 
 [[projects]]
   digest = "1:e921c3d4324ffdcb4fd39d5f47a832f2112d44731a5f21d8ae0ccfe82e608711"
@@ -113,11 +113,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:94952e2a064741ba4fb43b58794268a6798461f533c0c884f3c771a281357ee4"
+  digest = "1:d40e62a7b8e72fdc18e22ceddd3e6025e1d96f228b9a286abf3d3bd96d7d7a51"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "b09afc3d579e346c4a7e4705953acaf6f9e551bd"
+  revision = "c2ed4eda69e7f62900806e4cd6e45f0429f859fa"
 
 [[projects]]
   digest = "1:d8483668c9a3542585dc222d8a8aafb66d21bd153b9ea61c8e795a07d64488d0"
