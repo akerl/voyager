@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	accountRegexString = `(\d+)(/(\w+))?`
+	accountRegexString = `^(\d+)(/(\w+))?$`
 )
 
 // AccountRegex matches an account number with an optional role name
