@@ -54,7 +54,7 @@ func Travel(i Itinerary) (creds.Creds, error) {
 	if err := v.loadAccount(i.Args, i.Prompt); err != nil {
 		return c, err
 	}
-	if err := v.loadRole(i.RoleName, i.Prompt); err != nil {
+	if err := v.loadRole(i.RoleName, i.Args, i.Prompt); err != nil {
 		return c, err
 	}
 	if err := v.loadHops(); err != nil {
@@ -77,8 +77,14 @@ func (v *voyage) loadAccount(args []string, pf prompt.Func) error {
 	return err
 }
 
-func (v *voyage) loadRole(roleName string, pf prompt.Func) error {
+func (v *voyage) loadRole(roleName string, args []string, pf prompt.Func) error {
 	var err error
+	if roleName == "" && len(args) == 1 {
+		accountMatch := cartogram.AccountRegex.FindStringSubmatch(args[0])
+		if len(accountMatch) > 2 {
+			roleName = accountMatch[2]
+		}
+	}
 	v.role, err = v.account.PickRoleWithPrompt(roleName, pf)
 	return err
 }
@@ -163,12 +169,12 @@ func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) e
 		},
 	)
 	accountMatch := cartogram.AccountRegex.FindStringSubmatch(a.Source)
-	if len(accountMatch) != 4 {
+	if len(accountMatch) != 3 {
 		*stack = append(*stack, hop{Profile: a.Source})
 		return nil
 	}
 	sAccountID := accountMatch[1]
-	sRole := accountMatch[3]
+	sRole := accountMatch[2]
 	found, sAccount := cp.Lookup(sAccountID)
 	if !found {
 		return fmt.Errorf("Failed to resolve hop for %s", sAccountID)

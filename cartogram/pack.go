@@ -12,7 +12,10 @@ import (
 )
 
 const (
-	accountRegexString = `^(\d+)(/(\w+))?$`
+	// accountRegexString matches an account number with an optional /$role_name
+	// Per https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-limits.html .
+	// role names can contain alphanumeric characters, and these symbols: +=,.@_-
+	accountRegexString = `^(\d+)(?:/([a-zA-Z0-9+=,.@_-]+))?$`
 )
 
 // AccountRegex matches an account number with an optional role name
