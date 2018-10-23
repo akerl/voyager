@@ -13,7 +13,7 @@
   version = "0.4.0"
 
 [[projects]]
-  digest = "1:c8ee94930b323502db2da5a048e4d556c06f320166de80755c6703e9d1a644ce"
+  digest = "1:dc1a8708ed09bb6c18dc2be0a57d609710650c9b9009ad3f36829a532e91321e"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -33,6 +33,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/ini",
     "internal/sdkio",
     "internal/sdkrand",
     "internal/sdkuri",
@@ -45,8 +46,8 @@
     "service/sts",
   ]
   pruneopts = "UT"
-  revision = "2324d8a7db41970a80d19791bd30b94f632ce0cc"
-  version = "v1.15.58"
+  revision = "58fbceeaf77b78c7aa2d44b7a93431eba0468917"
+  version = "v1.15.60"
 
 [[projects]]
   digest = "1:e921c3d4324ffdcb4fd39d5f47a832f2112d44731a5f21d8ae0ccfe82e608711"
@@ -63,14 +64,6 @@
   pruneopts = "UT"
   revision = "8ae99891e0b971e497e4a591cf53974f0906a949"
   version = "v4.0.2"
-
-[[projects]]
-  digest = "1:15e27372d379b45b18ac917b9dafc45c45485239490ece18cca97a12f9591146"
-  name = "github.com/go-ini/ini"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "9c8236e659b76e87bf02044d06fde8683008ff3e"
-  version = "v1.39.0"
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
@@ -113,11 +106,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:be4f165c438aa39318fd5c8c180a95f4a52524641c0b714638b0fd9fd912b38d"
+  digest = "1:2e50f1b357b5045529ef66440674e7b17f5e433df8aaac85d10c4ab61dc70eb4"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "8e24a49d80f82323e1c4db1b5da3e0f31171a151"
+  revision = "44b849a8bc13eb42e95e6c6c5e360481b73ec710"
 
 [[projects]]
   digest = "1:d8483668c9a3542585dc222d8a8aafb66d21bd153b9ea61c8e795a07d64488d0"
