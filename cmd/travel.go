@@ -5,7 +5,6 @@ import (
 
 	"github.com/akerl/voyager/prompt"
 	"github.com/akerl/voyager/travel"
-
 	"github.com/spf13/cobra"
 )
 

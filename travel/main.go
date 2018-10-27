@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/akerl/voyager/cartogram"
-	"github.com/akerl/voyager/prompt"
-
 	"github.com/akerl/speculate/creds"
 	"github.com/akerl/speculate/executors"
+	"github.com/akerl/voyager/cartogram"
+	"github.com/akerl/voyager/prompt"
 )
 
 type hop struct {
