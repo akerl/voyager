@@ -176,7 +176,7 @@ func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) e
 	sRole := accountMatch[2]
 	found, sAccount := cp.Lookup(sAccountID)
 	if !found {
-		return fmt.Errorf("Failed to resolve hop for %s", sAccountID)
+		return fmt.Errorf("failed to resolve hop for %s", sAccountID)
 	}
 	return parseHops(stack, cp, sAccount, sRole)
 }

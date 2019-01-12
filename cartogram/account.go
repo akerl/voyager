@@ -54,7 +54,7 @@ func (a Account) PickRole(roleName string) (string, error) {
 func (a Account) PickRoleWithPrompt(roleName string, pf prompt.Func) (string, error) {
 	if roleName != "" {
 		if _, ok := a.Roles[roleName]; !ok {
-			return "", fmt.Errorf("Provided role not present in account")
+			return "", fmt.Errorf("provided role not present in account")
 		}
 		return roleName, nil
 	}

@@ -34,7 +34,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	}
 	promptFunc, ok := prompt.Types[promptFlag]
 	if !ok {
-		return fmt.Errorf("Prompt type not found: %s", promptFlag)
+		return fmt.Errorf("prompt type not found: %s", promptFlag)
 	}
 
 	i := travel.Itinerary{

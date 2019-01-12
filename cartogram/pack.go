@@ -45,7 +45,7 @@ func (cp Pack) FindWithPrompt(args []string, pf prompt.Func) (Account, error) {
 		return targetAccount, err
 	}
 
-	return targetAccount, fmt.Errorf("Unable to locate an account with provided info")
+	return targetAccount, fmt.Errorf("unable to locate an account with provided info")
 }
 
 func (cp Pack) findDirectAccount(args []string) (bool, Account, error) {
@@ -60,7 +60,7 @@ func (cp Pack) findDirectAccount(args []string) (bool, Account, error) {
 	accountID := accountMatch[1]
 	found, account := cp.Lookup(accountID)
 	if !found {
-		return false, account, fmt.Errorf("Account not found: %s", accountID)
+		return false, account, fmt.Errorf("account not found: %s", accountID)
 	}
 	return true, account, nil
 }

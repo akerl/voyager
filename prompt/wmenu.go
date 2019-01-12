@@ -14,10 +14,11 @@ func WithWmenu(a Args) (int, error) {
 	menu := wmenu.NewMenu(a.Message)
 	menu.ChangeReaderWriter(os.Stdin, os.Stderr, os.Stderr)
 	menu.LoopOnInvalid()
-	menu.Action(func(opts []wmenu.Opt) error {
+	actionFunc := func(opts []wmenu.Opt) error {
 		c <- opts[0].ID
 		return nil
-	})
+	}
+	menu.Action(actionFunc)
 
 	for _, item := range a.Options {
 		line := strings.Join(item, " ")
