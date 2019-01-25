@@ -1,5 +1,5 @@
-github.com/akerl/speculate v0.7.0 h1:5FPEidxd5Pd0HFrys37kC/eGdGGKMGp8z2WMesJOwKY=
-github.com/akerl/speculate v0.7.0/go.mod h1:wyudQ7SvApjMGdJiDMgTwMSv2wpgKcB5QKWdZkaKHsU=
+github.com/akerl/speculate v0.8.0 h1:rHyaJnwr7u+aRYEHhsUrEFJu+S5y6DElQZ7imdYxM2s=
+github.com/akerl/speculate v0.8.0/go.mod h1:wyudQ7SvApjMGdJiDMgTwMSv2wpgKcB5QKWdZkaKHsU=
 github.com/aws/aws-sdk-go v1.16.22 h1:9wop6aMrfW/bLaW+p/tNMfmeDmvErKXHqakSPqyYrHA=
 github.com/aws/aws-sdk-go v1.16.22/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/daviddengcn/go-colortext v0.0.0-20180409174941-186a3d44e920 h1:d/cVoZOrJPJHKH1NdeUjyVAWKp4OpOT+Q+6T1sH7jeU=
