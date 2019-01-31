@@ -5,6 +5,7 @@ import (
 
 	"github.com/akerl/voyager/prompt"
 	"github.com/akerl/voyager/travel"
+	"github.com/akerl/voyager/yubikey"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +19,7 @@ func init() {
 	rootCmd.AddCommand(travelCmd)
 	travelCmd.Flags().StringP("role", "r", "", "Choose role to use")
 	travelCmd.Flags().StringP("prompt", "p", "", "Choose prompt to use")
+	travelCmd.Flags().BoolP("yubikey", "y", false, "Use Yubikey for MFA")
 }
 
 func travelRunner(cmd *cobra.Command, args []string) error {
@@ -37,11 +39,21 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("prompt type not found: %s", promptFlag)
 	}
 
+	useYubikey, err := flags.GetBool("yubikey")
+	if err != nil {
+		return err
+	}
+
 	i := travel.Itinerary{
 		Args:     args,
 		RoleName: flagRole,
 		Prompt:   promptFunc,
 	}
+
+	if useYubikey {
+		i.MfaPrompt = &yubikey.Prompt{}
+	}
+
 	creds, err := travel.Travel(i)
 	if err != nil {
 		return err

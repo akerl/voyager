@@ -6,9 +6,13 @@ import (
 
 	"github.com/akerl/speculate/creds"
 	"github.com/akerl/speculate/executors"
+	"github.com/akerl/timber/log"
+
 	"github.com/akerl/voyager/cartogram"
 	"github.com/akerl/voyager/prompt"
 )
+
+var logger = log.NewLogger("voyager")
 
 type hop struct {
 	Profile string
@@ -35,6 +39,7 @@ type Itinerary struct {
 	Lifetime    int64
 	MfaCode     string
 	MfaSerial   string
+	MfaPrompt   executors.MfaPrompt
 	Prompt      prompt.Func
 }
 
@@ -44,6 +49,7 @@ func Travel(i Itinerary) (creds.Creds, error) {
 	v := voyage{}
 
 	if i.Prompt == nil {
+		logger.InfoMsg("Using default prompt")
 		i.Prompt = prompt.WithDefault
 	}
 
@@ -104,11 +110,13 @@ func (v *voyage) loadCreds(i Itinerary) error {
 
 	profileHop, stack := v.hops[0], v.hops[1:]
 	for varName := range creds.Translations["envvar"] {
+		logger.InfoMsg(fmt.Sprintf("Unsetting env var: %s", varName))
 		err = os.Unsetenv(varName)
 		if err != nil {
 			return err
 		}
 	}
+	logger.InfoMsg(fmt.Sprintf("Setting env var: AWS_PROFILE=%s", profileHop.Profile))
 	err = os.Setenv("AWS_PROFILE", profileHop.Profile)
 	if err != nil {
 		return err
@@ -116,6 +124,7 @@ func (v *voyage) loadCreds(i Itinerary) error {
 
 	last := len(stack) - 1
 	for index, thisHop := range stack {
+		logger.InfoMsg(fmt.Sprintf("Executing hop: %+v", thisHop))
 		a := executors.Assumption{}
 		if err := a.SetAccountID(thisHop.Account); err != nil {
 			return err
@@ -144,6 +153,9 @@ func (v *voyage) loadCreds(i Itinerary) error {
 				return err
 			}
 			if err := a.SetMfaCode(i.MfaCode); err != nil {
+				return err
+			}
+			if err := a.SetMfaPrompt(i.MfaPrompt); err != nil {
 				return err
 			}
 		}
