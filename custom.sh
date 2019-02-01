@@ -7,4 +7,5 @@ if [[ ! -v DUCKTAPE_VERSION ]] ; then
     exit 0
 fi
 
-pacman -Syu pcsclite
+pacman -Syu --noconfirm --needed pcsclite
+

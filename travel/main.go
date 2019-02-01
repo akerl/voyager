@@ -82,8 +82,9 @@ func (v *voyage) loadAccount(args []string, pf prompt.Func) error {
 	return err
 }
 
-func (v *voyage) loadRole(roleName string, args []string, pf prompt.Func) error {
+func (v *voyage) loadRole(inputRoleName string, args []string, pf prompt.Func) error {
 	var err error
+	roleName := inputRoleName
 	if roleName == "" && len(args) == 1 {
 		accountMatch := cartogram.AccountRegex.FindStringSubmatch(args[0])
 		if len(accountMatch) > 2 {
@@ -104,7 +105,7 @@ func (v *voyage) loadHops() error {
 	return nil
 }
 
-func (v *voyage) loadCreds(i Itinerary) error {
+func (v *voyage) loadCreds(i Itinerary) error { //revive:disable-line:cyclomatic
 	var c creds.Creds
 	var err error
 

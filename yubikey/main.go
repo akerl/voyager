@@ -92,7 +92,7 @@ func (p *Prompt) AddMappingFromFile(file string) error {
 	return nil
 }
 
-// AddMappingFromFile adds a mapping for OTP names
+// AddMapping adds a mapping for OTP names
 func (p *Prompt) AddMapping(mapping map[string]string) {
 	logger.DebugMsg(fmt.Sprintf("Adding mapping: %+v", mapping))
 	p.mapping = mapping
@@ -107,7 +107,7 @@ func (p *Prompt) Prompt() (string, error) {
 			fallback := executors.DefaultMfaPrompt{}
 			return fallback.Prompt()
 		}
-		return "", fmt.Errorf("Failed to connect to yubikey")
+		return "", fmt.Errorf("failed to connect to yubikey")
 	}
 
 	return p.otpCode(name)

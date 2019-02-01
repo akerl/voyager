@@ -1,2 +1,3 @@
 PACKAGE = voyager
 NAMESPACE = github.com/akerl
+OSLIST = linux
