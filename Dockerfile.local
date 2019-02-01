@@ -13,5 +13,5 @@ ENV OSX_SDK_CHECKSUM=694a66095a3514328e970b14978dc78c0f4d170e590fa7b2c3d3674b75f
 RUN curl -sLo "$OSX_SDK_PATH" "$OSX_SDK_URL"
 RUN if [[ "$(sha256sum "${OSX_SDK_PATH}" | cut -d' ' -f1)" != "${OSX_SDK_CHECKSUM}" ]] ; then echo 'OSX SDK Checksum mismatch' && exit 1 ; fi
 
-RUN UNATTENDED=yes OSX_VERSION_MIN=10.11 /opt/osxcross/build.sh
+RUN UNATTENDED=yes OSX_VERSION_MIN=10.6 /opt/osxcross/build.sh
 RUN mv "/opt/osxcross/target" "$OSX_NDK_X86"
