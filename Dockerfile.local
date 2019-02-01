@@ -1,0 +1,2 @@
+FROM dock0/pkgforge-golang
+RUN pacman -Syu --noconfirm --needed pcsclite

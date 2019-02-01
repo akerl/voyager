@@ -24,6 +24,8 @@ github.com/dixonwille/wmenu v4.0.2+incompatible h1:lxrPJsx9LpdUFD5T+dOfl6gPKLbBm
 github.com/dixonwille/wmenu v4.0.2+incompatible/go.mod h1:DnajdZEKFQksxBctWekpWaQXQrDUHRBco6b8MyZnR1s=
 github.com/ebfe/scard v0.0.0-20180829124254-7c31d2fd1987 h1:KjkkybvhDJ7GCp7AM8pX1EjyaR5PMaaj3JqCFziro9s=
 github.com/ebfe/scard v0.0.0-20180829124254-7c31d2fd1987/go.mod h1:8hHvF8DlEq5kE3KWOsZQezdWq1OTOVxZArZMscS954E=
+github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
+github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af h1:pmfjZENx5imkbgOkpRUYLnmbU7UEFbjtDA2hxJ1ichM=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=
