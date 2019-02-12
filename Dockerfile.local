@@ -1,2 +1,3 @@
 FROM dock0/pkgforge-golang-cross
 RUN pacman -Syu --noconfirm --needed pcsclite
+RUN gem install --no-user-install --no-document pkgforge
