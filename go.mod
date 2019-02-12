@@ -13,3 +13,5 @@ require (
 	github.com/yawn/ykoath v1.0.1
 	gopkg.in/dixonwille/wlog.v2 v2.0.0 // indirect
 )
+
+replace github.com/ebfe/scard => github.com/akerl/scard c1bfaac
