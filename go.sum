@@ -1,3 +1,5 @@
+github.com/akerl/scard v0.0.0-20190212113543-c1bfaace99e2 h1:R53hGHLW+QEufcXGW0wGhMFwvROIWQ/P62ViTfqdYcY=
+github.com/akerl/scard v0.0.0-20190212113543-c1bfaace99e2/go.mod h1:syHnqrFQaYep3Cv5oyOD60OtejvfiPBfxZWsZSONWJM=
 github.com/akerl/speculate v0.8.0 h1:rHyaJnwr7u+aRYEHhsUrEFJu+S5y6DElQZ7imdYxM2s=
 github.com/akerl/speculate v0.8.0/go.mod h1:wyudQ7SvApjMGdJiDMgTwMSv2wpgKcB5QKWdZkaKHsU=
 github.com/akerl/speculate v0.9.0 h1:0UqEp2nTZh0Oj1sFkVQtVPNZHhRsV6A/6K+xnpIMuOM=

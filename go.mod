@@ -14,4 +14,4 @@ require (
 	gopkg.in/dixonwille/wlog.v2 v2.0.0 // indirect
 )
 
-replace github.com/ebfe/scard => github.com/akerl/scard c1bfaac
+replace github.com/ebfe/scard => github.com/akerl/scard v0.0.0-20190212113543-c1bfaace99e2
