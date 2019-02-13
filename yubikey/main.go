@@ -18,6 +18,8 @@ var logger = log.NewLogger("voyager")
 const (
 	configName  = ".voyager"
 	mappingName = "yubikey"
+	// EnvVarName defines where to pass the profile name between disconnected functions
+	EnvVarName = "VOYAGER_PROFILE"
 )
 
 type config struct {
@@ -114,7 +116,7 @@ func (p *Prompt) Prompt() (string, error) {
 }
 
 func (p *Prompt) otpName() string {
-	profile := os.Getenv("AWS_PROFILE")
+	profile := os.Getenv(EnvVarName)
 	if profile == "" {
 		profile = "default"
 	}
@@ -147,6 +149,7 @@ func (p *Prompt) otpExists(name string) bool {
 			logger.InfoMsg(fmt.Sprintf("Found matching OTP: %s", otp.Name))
 			return true
 		}
+
 		logger.InfoMsg(fmt.Sprintf("Found non-matching OTP: %s", otp.Name))
 	}
 	return false

@@ -9,6 +9,7 @@ import (
 	"github.com/akerl/timber/log"
 
 	"github.com/akerl/voyager/cartogram"
+	"github.com/akerl/voyager/profiles"
 	"github.com/akerl/voyager/prompt"
 )
 
@@ -32,15 +33,16 @@ type voyage struct {
 
 // Itinerary describes a travel request
 type Itinerary struct {
-	Args        []string
-	RoleName    string
-	SessionName string
-	Policy      string
-	Lifetime    int64
-	MfaCode     string
-	MfaSerial   string
-	MfaPrompt   executors.MfaPrompt
-	Prompt      prompt.Func
+	Args             []string
+	RoleName         string
+	SessionName      string
+	Policy           string
+	Lifetime         int64
+	MfaCode          string
+	MfaSerial        string
+	MfaPrompt        executors.MfaPrompt
+	Prompt           prompt.Func
+	ProfileStoreName string
 }
 
 // Travel loads creds from a full set of parameters
@@ -117,11 +119,12 @@ func (v *voyage) loadCreds(i Itinerary) error { //revive:disable-line:cyclomatic
 			return err
 		}
 	}
-	logger.InfoMsg(fmt.Sprintf("Setting env var: AWS_PROFILE=%s", profileHop.Profile))
-	err = os.Setenv("AWS_PROFILE", profileHop.Profile)
+	store := profiles.Store{Name: i.ProfileStoreName}
+	err = store.SetProfile(profileHop.Profile)
 	if err != nil {
 		return err
 	}
+	err = os.Setenv("AWS_DEFAULT_REGION", profileHop.Region)
 
 	last := len(stack) - 1
 	for index, thisHop := range stack {
@@ -182,7 +185,13 @@ func parseHops(stack *[]hop, cp cartogram.Pack, a cartogram.Account, r string) e
 	)
 	accountMatch := cartogram.AccountRegex.FindStringSubmatch(a.Source)
 	if len(accountMatch) != 3 {
-		*stack = append(*stack, hop{Profile: a.Source})
+		*stack = append(
+			*stack,
+			hop{
+				Profile: a.Source,
+				Region:  a.Region,
+			},
+		)
 		return nil
 	}
 	sAccountID := accountMatch[1]

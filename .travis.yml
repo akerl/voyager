@@ -6,9 +6,6 @@ env:
   global:
   - PKGFORGE_STATEFILE=/tmp/pkgforge
   - secure: X9hBR3K0OirRFbkOGqFfIlLFzFBXykUHHdCdXFvlVqukY659BnHqC9rAA6DrLHhzAhF11OvEx5+hOeQ+nKRaSoBDWQUp4wwAZw5y1KnBgd1teTcPl3v8IPiHQIxLaQSqGdjY3Gnz1NbY49uE3wa1x34bhqqnvayBUCpaz4hGaK3AOj7ICmUfeTvcBFCLKsb+HakGdbRf3qblcL2BjGoYJWeCfRRF7Goc1KqZb0dQ9Q2lvmR5e802WuhFmiKpoovCYt7Ux2qN+42mnwN2CKLkI+ztopXW+79O4pxpdMQ9PS4nw2l68fSjLtT1uUX/7cDnYhtf69AE4FBib0tJ8HQ9Vt7yz9okcH2R+VB0wX+N86BFCYnevjf9RHgYV/0nANpwZPflYcI0QkivwPOEXPS5+BnQJx6i6NzIH1WnHnj79FbnOyeXg/BdFXNwMT6gpcJUfV+4zkkukwo3eBJHOfUXa/OrjS7QEVXNh7PiHG2H954/guACIMUGOiZeEyeklh+nw5V1t8OYlpcifc8/Jqz5rSYvgwfZwfJrkB8HKhoAgBroQ5sxkdFpgnde+kkZJFwjDngCEYDtI8DG45fhhlM1LJsNz+sqfbod/wxL2lacqlN0p0hJYBhgtuDDPRZAVjGya+1JkjQJWUxuMFquQBWcpFH2h/ARuv2Vx/a+6FyJ5T4=
-before_install:
-- git clone http://github.com/dock0/pkgforge-golang-cross
-- docker build -t dock0/pkgforge-golang-cross pkgforge-golang-cross
 script: make
 deploy:
   provider: script
