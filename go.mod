@@ -13,9 +13,9 @@ require (
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/keybase/go-keychain v0.0.0-20181011010623-f1daa725cce4 // indirect
+	github.com/ktr0731/go-fuzzyfinder v0.1.1
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/yawn/ykoath v1.0.1

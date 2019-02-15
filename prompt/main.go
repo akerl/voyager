@@ -13,6 +13,7 @@ type Func func(Args) (int, error)
 var Types = map[string]Func{
 	"":      WithDefault,
 	"wmenu": WithWmenu,
+	"fuzzy": WithFuzzy,
 }
 
 // WithDefault uses the default prompt method
