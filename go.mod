@@ -7,7 +7,7 @@ require (
 	github.com/akerl/speculate v0.10.2
 	github.com/akerl/timber v0.0.3
 	github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0 // indirect
-	github.com/aws/aws-sdk-go v1.18.2
+	github.com/aws/aws-sdk-go v1.19.0
 	github.com/daviddengcn/go-colortext v0.0.0-20180409174941-186a3d44e920 // indirect
 	github.com/dixonwille/wmenu v4.0.2+incompatible
 	github.com/dvsekhvalnov/jose2go v0.0.0-20180829124132-7f401d37b68a // indirect
@@ -19,6 +19,6 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/yawn/ykoath v1.0.2
-	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a // indirect
+	golang.org/x/crypto v0.0.0-20190320223903-b7391e95e576 // indirect
 	gopkg.in/dixonwille/wlog.v2 v2.0.0 // indirect
 )

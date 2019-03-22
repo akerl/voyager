@@ -8,8 +8,8 @@ github.com/akerl/timber v0.0.3/go.mod h1:LFiUpCR4BAfk6HMg6t45XIfmXcNJubA+wnw4uq2
 github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0 h1:EEDvbomAQ+MFWqJ9FM6RXyJTkc4lckyWsbc5CGQkG1Y=
 github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0/go.mod h1:VHvUx+4lTCaJ8zUnEXF4cWEc9c8lnDt4PGLwlZ+3yaM=
 github.com/aws/aws-sdk-go v1.16.26/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
-github.com/aws/aws-sdk-go v1.18.2 h1:GcmH9zTLXpWLyijotBQ1i83sslnkuORZVot+yAsj/LQ=
-github.com/aws/aws-sdk-go v1.18.2/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.19.0 h1:3d9Htr/dl/+8xJYx/fpjEifvfpabZB1YUu61i/WX87Q=
+github.com/aws/aws-sdk-go v1.19.0/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/daviddengcn/go-colortext v0.0.0-20180409174941-186a3d44e920 h1:d/cVoZOrJPJHKH1NdeUjyVAWKp4OpOT+Q+6T1sH7jeU=
@@ -51,8 +51,8 @@ github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/yawn/ykoath v1.0.2 h1:BYrUYmzu7nRjiqx5olhVhVZqh5NEUUMJf49ZqgrlEnc=
 github.com/yawn/ykoath v1.0.2/go.mod h1:dcXMmLrvt6WFkySkG2k8ZEqxiTbu/TWSI4+/Cb54+Lg=
-golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a h1:YX8ljsm6wXlHZO+aRz9Exqr0evNhKRNe5K/gi+zKh4U=
-golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
+golang.org/x/crypto v0.0.0-20190320223903-b7391e95e576 h1:aUX/1G2gFSs4AsJJg2cL3HuoRhCSCz733FE5GUSuaT4=
+golang.org/x/crypto v0.0.0-20190320223903-b7391e95e576/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223 h1:DH4skfRX4EBpamg7iV4ZlCpblAHI6s6TDM39bFZumv8=
 golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
