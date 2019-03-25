@@ -7,7 +7,7 @@ require (
 	github.com/akerl/speculate v0.10.2
 	github.com/akerl/timber v0.0.3
 	github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0 // indirect
-	github.com/aws/aws-sdk-go v1.19.0
+	github.com/aws/aws-sdk-go v1.19.1
 	github.com/daviddengcn/go-colortext v0.0.0-20180409174941-186a3d44e920 // indirect
 	github.com/dixonwille/wmenu v4.0.2+incompatible
 	github.com/dvsekhvalnov/jose2go v0.0.0-20180829124132-7f401d37b68a // indirect
