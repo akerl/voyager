@@ -1,6 +1,9 @@
 github.com/99designs/keyring v0.0.0-20190620041230-372329baeea2 h1:z5Ly2IJlr6IqiUuroZzpu7kBXzDHxPYEjb+LH5bFXV0=
 github.com/99designs/keyring v0.0.0-20190620041230-372329baeea2/go.mod h1:qVCfjMddwdzjgy848stNe9eTPmovvxF1lhJvOD6LUEo=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/akerl/keyring v0.0.0-20190620041230-372329baeea2/go.mod h1:qVCfjMddwdzjgy848stNe9eTPmovvxF1lhJvOD6LUEo=
+github.com/akerl/keyring v0.0.0-20190625154334-6409680b37b7 h1:y64injLihgD1RR9rGs8eQcy1mLxcKzmiOFWFSNn7mBk=
+github.com/akerl/keyring v0.0.0-20190625154334-6409680b37b7/go.mod h1:qVCfjMddwdzjgy848stNe9eTPmovvxF1lhJvOD6LUEo=
 github.com/akerl/speculate v0.10.3 h1:Sgka2TSsnv5hqsL6RmI5iYO9eZ5Au9NBT3ETtHeRtzE=
 github.com/akerl/speculate v0.10.3/go.mod h1:eVLJBh/AD4q0yThwGzR6K7mY1A+WiPozRTz63FjMX2Y=
 github.com/akerl/timber v0.0.3 h1:xTqH54vCSLjDlAsHkDL5+sZuO8xPdqsamTUk9ense/w=

@@ -15,3 +15,5 @@ require (
 	github.com/yawn/ykoath v1.0.2
 	gopkg.in/dixonwille/wlog.v2 v2.0.0 // indirect
 )
+
+replace github.com/99designs/keyring => github.com/akerl/keyring v0.0.0-20190625154334-6409680b37b7
