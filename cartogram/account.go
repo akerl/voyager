@@ -14,14 +14,19 @@ type AccountSet []Account
 type Account struct {
 	Account string          `json:"account"`
 	Region  string          `json:"region"`
-	Source  string          `json:"source"`
 	Roles   map[string]Role `json:"roles"`
 	Tags    Tags            `json:"tags"`
 }
 
 // Role holds information about authenticating to a role
 type Role struct {
-	Mfa bool `json:"mfa"`
+	Sources []Source `json:"sources"`
+}
+
+// Source defines the previous hop for accessing a role
+type Source struct {
+	Mfa  bool   `json:"mfa"`
+	Path string `json:"path"`
 }
 
 // Lookup finds an account in a Cartogram based on its ID

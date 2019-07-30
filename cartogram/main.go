@@ -8,7 +8,7 @@ import (
 
 const (
 	configName  = ".cartograms"
-	specVersion = 1
+	specVersion = 2
 )
 
 func configDir() (string, error) {
