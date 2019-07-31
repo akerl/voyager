@@ -12,14 +12,15 @@ type AccountSet []Account
 
 // Account defines the spec for a role assumption target
 type Account struct {
-	Account string          `json:"account"`
-	Region  string          `json:"region"`
-	Roles   map[string]Role `json:"roles"`
-	Tags    Tags            `json:"tags"`
+	Account string `json:"account"`
+	Region  string `json:"region"`
+	Roles   []Role `json:"roles"`
+	Tags    Tags   `json:"tags"`
 }
 
 // Role holds information about authenticating to a role
 type Role struct {
+	Name    string   `json:"name"`
 	Sources []Source `json:"sources"`
 }
 
@@ -50,26 +51,43 @@ func (as AccountSet) Search(tfs TagFilterSet) AccountSet {
 	return results
 }
 
+func (a Account) rolesAsMap() map[string]Role {
+	roles := make(map[string]Role, len(a.Roles))
+	for _, i := range a.Roles {
+		roles[i.Name] = i
+	}
+	return roles
+}
+
+func (a Account) roleNames() []string {
+	names := make([]string, len(a.Roles))
+	for index, item := range a.Roles {
+		names[index] = item.Name
+	}
+	return names
+}
+
 // PickRole returns a role from the account
-func (a Account) PickRole(roleName string) (string, error) {
+func (a Account) PickRole(roleName string) (Role, error) {
 	return a.PickRoleWithPrompt(roleName, prompt.WithDefault)
 }
 
 // PickRoleWithPrompt returns a role from the account with a custom prompt
-func (a Account) PickRoleWithPrompt(roleName string, pf prompt.Func) (string, error) {
+func (a Account) PickRoleWithPrompt(roleName string, pf prompt.Func) (Role, error) {
+	rolesAsMap := a.rolesAsMap()
 	if roleName != "" {
-		if _, ok := a.Roles[roleName]; !ok {
-			return "", fmt.Errorf("provided role not present in account")
+		r, ok := rolesAsMap[roleName]
+		if !ok {
+			return Role{}, fmt.Errorf("provided role not present in account")
 		}
-		return roleName, nil
+		return r, nil
 	}
-	roleNames := []string{}
-	for k := range a.Roles {
-		roleNames = append(roleNames, k)
+
+	if len(a.Roles) == 1 {
+		return a.Roles[0], nil
 	}
-	if len(roleNames) == 1 {
-		return roleNames[0], nil
-	}
+
+	roleNames := a.roleNames()
 	sort.Strings(roleNames)
 	roleSlices := [][]string{}
 	for _, k := range roleNames {
@@ -82,8 +100,8 @@ func (a Account) PickRoleWithPrompt(roleName string, pf prompt.Func) (string, er
 	}
 	index, err := pf(pa)
 	if err != nil {
-		return "", err
+		return Role{}, err
 	}
 
-	return roleNames[index], nil
+	return rolesAsMap[roleNames[index]], nil
 }

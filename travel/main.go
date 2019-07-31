@@ -1,15 +1,11 @@
 package travel
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/akerl/speculate/creds"
 	"github.com/akerl/speculate/executors"
 	"github.com/akerl/timber/log"
 
 	"github.com/akerl/voyager/cartogram"
-	"github.com/akerl/voyager/profiles"
 	"github.com/akerl/voyager/prompt"
 )
 
@@ -20,14 +16,12 @@ type hop struct {
 	Account string
 	Region  string
 	Role    cartogram.Role
-	sources []hop
 }
 
 type voyage struct {
 	pack    cartogram.Pack
 	account cartogram.Account
-	role    string
-	hops    []hop
+	paths   [][]hop
 	creds   creds.Creds
 }
 
@@ -49,7 +43,6 @@ type Itinerary struct {
 func Travel(i Itinerary) (creds.Creds, error) {
 	var c creds.Creds
 	v := voyage{}
-	v.role = i.RoleName
 
 	if i.Prompt == nil {
 		logger.InfoMsg("Using default prompt")
@@ -62,7 +55,7 @@ func Travel(i Itinerary) (creds.Creds, error) {
 	if err := v.loadAccount(i.Args, i.Prompt); err != nil {
 		return c, err
 	}
-	if err := v.loadHops(); err != nil {
+	if err := v.loadPaths(i); err != nil {
 		return c, err
 	}
 	if err := v.loadCreds(i); err != nil {
@@ -82,29 +75,10 @@ func (v *voyage) loadAccount(args []string, pf prompt.Func) error {
 	return err
 }
 
-func (v *voyage) loadHops() error {
-	for i, j := 0, len(v.hops)-1; i < j; i, j = i+1, j-1 {
-		v.hops[i], v.hops[j] = v.hops[j], v.hops[i]
-	}
+func (v *voyage) loadPaths(i Itinerary) error {
 	return nil
 }
 
-func (v *voyage) loadCreds(i Itinerary) error { //revive:disable-line:cyclomatic
-	var err error
-
-	profileHop, _ := v.hops[0], v.hops[1:]
-	for varName := range creds.Translations["envvar"] {
-		logger.InfoMsg(fmt.Sprintf("Unsetting env var: %s", varName))
-		err = os.Unsetenv(varName)
-		if err != nil {
-			return err
-		}
-	}
-	store := profiles.Store{Name: i.ProfileStoreName}
-	err = store.SetProfile(profileHop.Profile)
-	if err != nil {
-		return err
-	}
-	err = os.Setenv("AWS_DEFAULT_REGION", profileHop.Region)
-	return err
+func (v *voyage) loadCreds(i Itinerary) error {
+	return nil
 }
