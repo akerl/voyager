@@ -106,7 +106,7 @@ func (v *voyage) loadPath(i Itinerary) error {
 	}
 
 	allRoles := keys(mapRoles)
-	role, err := prompt.PromptWithDefault(i.RoleName, allRoles, "Desired target role:", i.Prompt)
+	role, err := i.Prompt.Simple(i.RoleName, allRoles, "Desired target role:")
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (v *voyage) loadPath(i Itinerary) error {
 	}
 
 	allProfiles := keys(mapProfiles)
-	profile, err := prompt.PromptWithDefault(i.ProfileName, allProfiles, "Desired target profile:", i.Prompt)
+	profile, err := i.Prompt.Simple(i.ProfileName, allProfiles, "Desired target profile:")
 	if err != nil {
 		return err
 	}
@@ -155,7 +155,9 @@ func (v *voyage) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop,
 			srcRoleName := pathMatch[2]
 			ok, srcRole := srcAcc.Roles.Lookup(srcRoleName)
 			if !ok {
-				logger.DebugMsg(fmt.Sprintf("Found dead end due to missing role: %s/%s", srcAccID, srcRoleName))
+				logger.DebugMsg(fmt.Sprintf(
+					"Found dead end due to missing role: %s/%s", srcAccID, srcRoleName,
+				))
 				continue
 			}
 			newPaths, err := v.tracePath(srcAcc, srcRole)
@@ -172,7 +174,9 @@ func (v *voyage) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop,
 			//	return srcHops, err
 			//}
 			//if !exists {
-			//	logger.DebugMsg(fmt.Sprintf("Found dead end due to missing credentials: %s", item.Path))
+			//	logger.DebugMsg(fmt.Sprintf(
+			//      "Found dead end due to missing credentials: %s", item.Path,
+			//  ))
 			//	continue
 			//}
 			srcHops = append(srcHops, []hop{{Profile: item.Path}})

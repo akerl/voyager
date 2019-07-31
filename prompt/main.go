@@ -26,14 +26,15 @@ func WithDefault(a Args) (int, error) {
 	return WithWmenu(a)
 }
 
-func PromptWithDefault(val string, options []string, msg string, pf Func) (string, error) {
+// Simple returns either the pre-provided selection or the result of a user prompt
+func (f Func) Simple(val string, options []string, msg string) (string, error) {
 	if val != "" {
 		for _, item := range options {
 			if item == val {
 				return val, nil
 			}
 		}
-		return "", fmt.Errorf("User provided selection not found: %s", val)
+		return "", fmt.Errorf("user provided selection not found: %s", val)
 	}
 	if len(options) == 1 {
 		return options[0], nil
@@ -50,7 +51,7 @@ func PromptWithDefault(val string, options []string, msg string, pf Func) (strin
 		Message: msg,
 		Options: slices,
 	}
-	index, err := pf(pa)
+	index, err := f(pa)
 	if err != nil {
 		return "", err
 	}
