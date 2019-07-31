@@ -164,7 +164,7 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 				srcHops = append(srcHops, np)
 			}
 		} else {
-			store := i.GetStore()
+			store := i.getStore()
 			res, _ := store.Lookup(item.Path)
 			if len(res.AccessKeyID) == 0 {
 				logger.DebugMsg(fmt.Sprintf(
@@ -189,7 +189,7 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 	return srcHops, nil
 }
 
-func (i *Itinerary) GetStore() profiles.Store {
+func (i *Itinerary) getStore() profiles.Store {
 	if i.Store == nil {
 		i.Store = profiles.NewDefaultStore()
 	}
@@ -208,7 +208,7 @@ func (i *Itinerary) loadCreds() error {
 			return err
 		}
 	}
-	store := i.GetStore()
+	store := i.getStore()
 	err = profiles.SetProfile(profileHop.Profile, store)
 	if err != nil {
 		return err

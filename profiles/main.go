@@ -48,6 +48,7 @@ func SetProfile(profile string, s Store) error {
 	return nil
 }
 
+// NewDefaultStore returns the default backend set
 func NewDefaultStore() Store {
 	return &MultiStore{
 		Backends: []Store{

@@ -12,6 +12,7 @@ import (
 // PromptStore is a storage backend which asks the user for input
 type PromptStore struct{}
 
+// Lookup asks the user for credentials
 func (p *PromptStore) Lookup(profile string) (credentials.Value, error) {
 	fmt.Printf("Please enter your credentials for profile: %s\n", profile)
 	accessKey, err := p.getUserInput("AWS Access Key: ")

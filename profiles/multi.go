@@ -11,6 +11,7 @@ type MultiStore struct {
 	Backends []Store
 }
 
+// Lookup looks up creds from the list of backends
 func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 	var err error
 	var writer WritableStore
@@ -40,6 +41,7 @@ func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 	return creds, nil
 }
 
+// WritableStore defines a backend which can save credentials
 type WritableStore interface {
 	Write(string, credentials.Value) error
 }

@@ -13,6 +13,7 @@ type KeyringStore struct {
 	Name string
 }
 
+// Lookup checks the keyring for credentials
 func (k *KeyringStore) Lookup(profile string) (credentials.Value, error) {
 	ring, err := k.keyring()
 	if err != nil {
