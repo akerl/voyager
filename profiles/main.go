@@ -46,7 +46,7 @@ func (s *Store) SetProfile(profile string) error {
 		return fmt.Errorf("profile not set")
 	}
 
-	item, err := s.getItem(profile)
+	item, err := s.GetItem(profile, true)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,8 @@ func (s *Store) parseItem(item keyring.Item) (map[string]string, error) {
 	return is.EnvVars, err
 }
 
-func (s *Store) getItem(profile string) (map[string]string, error) {
+// GetItem returns the item from the keychain
+func (s *Store) GetItem(profile string, fallback bool) (map[string]string, error) {
 	k, err := s.keyring()
 	if err != nil {
 		return map[string]string{}, err
@@ -116,9 +117,12 @@ func (s *Store) getItem(profile string) (map[string]string, error) {
 	itemName := s.itemName(profile)
 	logger.InfoMsg(fmt.Sprintf("looking up in keyring: %s", itemName))
 	item, err := k.Get(itemName)
-	if err != nil && err.Error() == keyring.ErrKeyNotFound.Error() {
-		logger.InfoMsg("falling back to env")
-		return s.fallbackToCustom(profile)
+	if err != nil {
+		if err.Error() == keyring.ErrKeyNotFound.Error() && fallback {
+			logger.InfoMsg("falling back to env")
+			return s.fallbackToCustom(profile)
+		}
+		return map[string]string{}, err
 	}
 	return s.parseItem(item)
 }
