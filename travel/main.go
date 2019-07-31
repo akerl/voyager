@@ -23,61 +23,57 @@ type hop struct {
 	Mfa     bool
 }
 
-type voyage struct {
-	pack    cartogram.Pack
-	account cartogram.Account
-	path    []hop
-	creds   creds.Creds
-}
-
 // Itinerary describes a travel request
 type Itinerary struct {
-	Args             []string
-	RoleName         string
-	ProfileName      string
-	SessionName      string
-	Policy           string
-	Lifetime         int64
-	MfaCode          string
-	MfaSerial        string
-	MfaPrompt        executors.MfaPrompt
-	Prompt           prompt.Func
-	ProfileStoreName string
+	Args        []string
+	RoleName    string
+	ProfileName string
+	SessionName string
+	Policy      string
+	Lifetime    int64
+	MfaCode     string
+	MfaSerial   string
+	MfaPrompt   executors.MfaPrompt
+	Prompt      prompt.Func
+	Store       *profiles.Store
+	pack        cartogram.Pack
+	account     cartogram.Account
+	path        []hop
+	creds       creds.Creds
 }
 
 // Travel loads creds from a full set of parameters
-func Travel(i Itinerary) (creds.Creds, error) {
+func (i *Itinerary) Travel() (creds.Creds, error) {
 	var c creds.Creds
-	v := voyage{}
 
 	if i.Prompt == nil {
 		logger.InfoMsg("Using default prompt")
 		i.Prompt = prompt.WithDefault
 	}
 
-	if err := v.loadPack(); err != nil {
+	if err := i.loadPack(); err != nil {
 		return c, err
 	}
-	if err := v.loadAccount(i.Args, i.Prompt); err != nil {
+	if err := i.loadAccount(); err != nil {
 		return c, err
 	}
-	if err := v.loadPath(i); err != nil {
+	if err := i.loadPath(); err != nil {
 		return c, err
 	}
-	if err := v.loadCreds(i); err != nil {
+	if err := i.loadCreds(); err != nil {
 		return c, err
 	}
-	return v.creds, nil
+	return i.creds, nil
 }
 
-func (v *voyage) loadPack() error {
-	v.pack = make(cartogram.Pack)
-	return v.pack.Load()
+func (i *Itinerary) loadPack() error {
+	i.pack = make(cartogram.Pack)
+	return i.pack.Load()
 }
 
-func (v *voyage) loadAccount(args []string, pf prompt.Func) error {
+func (i *Itinerary) loadAccount() error {
 	var err error
-	v.account, err = v.pack.FindWithPrompt(args, pf)
+	i.account, err = i.pack.FindWithPrompt(i.Args, i.Prompt)
 	return err
 }
 
@@ -89,13 +85,13 @@ func keys(input map[string]bool) []string {
 	return list
 }
 
-func (v *voyage) loadPath(i Itinerary) error {
+func (i *Itinerary) loadPath() error {
 	var paths [][]hop
 	mapProfiles := make(map[string]bool)
 	mapRoles := make(map[string]bool)
 
-	for _, r := range v.account.Roles {
-		p, err := v.tracePath(v.account, r)
+	for _, r := range i.account.Roles {
+		p, err := i.tracePath(i.account, r)
 		if err != nil {
 			return err
 		}
@@ -133,12 +129,12 @@ func (v *voyage) loadPath(i Itinerary) error {
 	if len(hopsWithMatchingProfiles) > 1 {
 		logger.InfoMsg("Multiple valid paths detected. Selecting the first option")
 	}
-	v.path = hopsWithMatchingProfiles[0]
+	i.path = hopsWithMatchingProfiles[0]
 
 	return nil
 }
 
-func (v *voyage) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop, error) {
+func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop, error) {
 	var srcHops [][]hop
 
 	logger.DebugMsg(fmt.Sprintf("Tracing from %s / %s", acc.Account, role.Name))
@@ -147,7 +143,7 @@ func (v *voyage) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop,
 		pathMatch := cartogram.AccountRegex.FindStringSubmatch(item.Path)
 		if len(pathMatch) == 3 {
 			srcAccID := pathMatch[1]
-			ok, srcAcc := v.pack.Lookup(srcAccID)
+			ok, srcAcc := i.pack.Lookup(srcAccID)
 			if !ok {
 				logger.DebugMsg(fmt.Sprintf("Found dead end due to missing account: %s", srcAccID))
 				continue
@@ -160,7 +156,7 @@ func (v *voyage) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop,
 				))
 				continue
 			}
-			newPaths, err := v.tracePath(srcAcc, srcRole)
+			newPaths, err := i.tracePath(srcAcc, srcRole)
 			if err != nil {
 				return srcHops, err
 			}
@@ -168,17 +164,6 @@ func (v *voyage) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop,
 				srcHops = append(srcHops, np)
 			}
 		} else {
-			//store := profiles.Store{Name: v.ProfileStoreName}
-			//exists, err := store.CheckExists(item.Path)
-			//if err != nil {
-			//	return srcHops, err
-			//}
-			//if !exists {
-			//	logger.DebugMsg(fmt.Sprintf(
-			//      "Found dead end due to missing credentials: %s", item.Path,
-			//  ))
-			//	continue
-			//}
 			srcHops = append(srcHops, []hop{{Profile: item.Path}})
 		}
 	}
@@ -196,11 +181,18 @@ func (v *voyage) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop,
 	return srcHops, nil
 }
 
-func (v *voyage) loadCreds(i Itinerary) error {
+func (i *Itinerary) GetStore() profiles.Store {
+	if i.Store == nil {
+		i.Store = &profiles.Store{}
+	}
+	return *i.Store
+}
+
+func (i *Itinerary) loadCreds() error {
 	var c creds.Creds
 	var err error
 
-	profileHop, stack := v.path[0], v.path[1:]
+	profileHop, stack := i.path[0], i.path[1:]
 	for varName := range creds.Translations["envvar"] {
 		logger.InfoMsg(fmt.Sprintf("Unsetting env var: %s", varName))
 		err = os.Unsetenv(varName)
@@ -208,7 +200,7 @@ func (v *voyage) loadCreds(i Itinerary) error {
 			return err
 		}
 	}
-	store := profiles.Store{Name: i.ProfileStoreName}
+	store := i.GetStore()
 	err = store.SetProfile(profileHop.Profile)
 	if err != nil {
 		return err
@@ -258,6 +250,6 @@ func (v *voyage) loadCreds(i Itinerary) error {
 			return err
 		}
 	}
-	v.creds = c
+	i.creds = c
 	return nil
 }

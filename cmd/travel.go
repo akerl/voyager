@@ -61,7 +61,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		i.MfaPrompt = yubikey.NewPrompt()
 	}
 
-	creds, err := travel.Travel(i)
+	creds, err := i.Travel()
 	if err != nil {
 		return err
 	}
