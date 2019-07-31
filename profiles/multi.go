@@ -41,6 +41,16 @@ func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 	return creds, nil
 }
 
+// Check returns true if any backend has the credentials cached
+func (m *MultiStore) Check(profile string) bool {
+	for _, item := range m.Backends {
+		if item.Check(profile) {
+			return true
+		}
+	}
+	return false
+}
+
 // WritableStore defines a backend which can save credentials
 type WritableStore interface {
 	Write(string, credentials.Value) error

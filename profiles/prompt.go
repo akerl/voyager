@@ -29,6 +29,11 @@ func (p *PromptStore) Lookup(profile string) (credentials.Value, error) {
 	}, nil
 }
 
+// Check is always false, because user input is never cached
+func (p *PromptStore) Check(_ string) bool {
+	return false
+}
+
 func (p *PromptStore) getUserInput(message string) (string, error) {
 	infoReader := bufio.NewReader(os.Stdin)
 	fmt.Fprint(os.Stderr, message)

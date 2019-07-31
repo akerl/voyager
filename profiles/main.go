@@ -19,6 +19,7 @@ const (
 // Store is an object which can look up credentials
 type Store interface {
 	Lookup(string) (credentials.Value, error)
+	Check(string) bool
 }
 
 // SetProfile exports variables from a lookup

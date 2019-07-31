@@ -28,6 +28,7 @@ func (k *KeyringStore) Lookup(profile string) (credentials.Value, error) {
 	return k.parseItem(item)
 }
 
+// Write caches the credentials for the user
 func (k *KeyringStore) Write(profile string, creds credentials.Value) error {
 	is := itemStruct{EnvVars: map[string]string{
 		"AWS_ACCESS_KEY_ID":     creds.AccessKeyID,
@@ -48,6 +49,12 @@ func (k *KeyringStore) Write(profile string, creds credentials.Value) error {
 		Label: itemName,
 		Data:  data,
 	})
+}
+
+// Check returns if the credentials are cached in the keyring
+func (k *KeyringStore) Check(profile string) bool {
+	res, _ := k.Lookup(profile)
+	return res.AccessKeyID != ""
 }
 
 func (k *KeyringStore) config() keyring.Config {
