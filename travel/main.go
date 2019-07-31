@@ -165,8 +165,8 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 			}
 		} else {
 			store := i.getStore()
-			res, _ := store.Lookup(item.Path)
-			if len(res.AccessKeyID) == 0 {
+			ok := store.Check(item.Path)
+			if !ok {
 				logger.DebugMsg(fmt.Sprintf(
 					"Found dead end due to missing credentials: %s", item.Path,
 				))
