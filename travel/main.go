@@ -164,6 +164,17 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 				srcHops = append(srcHops, np)
 			}
 		} else {
+			store := i.GetStore()
+			exists, err := store.CheckExists(item.Path)
+			if err != nil {
+				return srcHops, err
+			}
+			if !exists {
+				logger.DebugMsg(fmt.Sprintf(
+					"Found dead end due to missing credentials: %s", item.Path,
+				))
+				continue
+			}
 			srcHops = append(srcHops, []hop{{Profile: item.Path}})
 		}
 	}
