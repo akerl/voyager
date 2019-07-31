@@ -120,7 +120,7 @@ func (i *Itinerary) loadPath() error {
 		return err
 	}
 	hopsWithMatchingProfiles := [][]hop{}
-	for _, item := range paths {
+	for _, item := range hopsWithMatchingRoles {
 		if item[0].Profile == profile {
 			hopsWithMatchingProfiles = append(hopsWithMatchingProfiles, item)
 		}
