@@ -35,7 +35,7 @@ type Itinerary struct {
 	MfaSerial   string
 	MfaPrompt   executors.MfaPrompt
 	Prompt      prompt.Func
-	Store       *profiles.Store
+	Store       profiles.Store
 	pack        cartogram.Pack
 	account     cartogram.Account
 	path        []hop
@@ -165,11 +165,8 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 			}
 		} else {
 			store := i.GetStore()
-			exists, err := store.CheckExists(item.Path)
-			if err != nil {
-				return srcHops, err
-			}
-			if !exists {
+			res, _ := store.Lookup(item.Path)
+			if len(res.AccessKeyID) == 0 {
 				logger.DebugMsg(fmt.Sprintf(
 					"Found dead end due to missing credentials: %s", item.Path,
 				))
@@ -194,9 +191,9 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 
 func (i *Itinerary) GetStore() profiles.Store {
 	if i.Store == nil {
-		i.Store = &profiles.Store{}
+		i.Store = profiles.NewDefaultStore()
 	}
-	return *i.Store
+	return i.Store
 }
 
 func (i *Itinerary) loadCreds() error {
@@ -212,7 +209,7 @@ func (i *Itinerary) loadCreds() error {
 		}
 	}
 	store := i.GetStore()
-	err = store.SetProfile(profileHop.Profile)
+	err = profiles.SetProfile(profileHop.Profile, store)
 	if err != nil {
 		return err
 	}
