@@ -11,14 +11,14 @@ import (
 
 	"github.com/99designs/keyring"
 	"github.com/akerl/timber/log"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 var logger = log.NewLogger("voyager")
 
 // Store holds a set of profiles
 type Store struct {
-	Name string
+	Name         string
+	CustomLookup func(string, Store) (map[string]string, error)
 }
 
 func (s *Store) config() keyring.Config {
@@ -28,10 +28,11 @@ func (s *Store) config() keyring.Config {
 			"wincred",
 			"file",
 		},
-		KeychainName:     "login",
-		FilePasswordFunc: filePasswordShim,
-		FileDir:          "~/.voyager/" + s.getName(),
-		ServiceName:      "voyager:" + s.Name,
+		KeychainName:             "login",
+		KeychainTrustApplication: true,
+		FilePasswordFunc:         filePasswordShim,
+		FileDir:                  "~/.voyager/" + s.getName(),
+		ServiceName:              "voyager:" + s.Name,
 	}
 }
 
@@ -54,8 +55,7 @@ func (s *Store) SetProfile(profile string) error {
 	if err != nil {
 		return err
 	}
-	variables, err := s.parseItem(item)
-	for k, v := range variables {
+	for k, v := range item {
 		logger.InfoMsg(fmt.Sprintf("Setting env var: %s", k))
 		err = os.Setenv(k, v)
 		if err != nil {
@@ -108,65 +108,65 @@ func (s *Store) parseItem(item keyring.Item) (map[string]string, error) {
 	return is.EnvVars, err
 }
 
-func (s *Store) getItem(profile string) (keyring.Item, error) {
+func (s *Store) getItem(profile string) (map[string]string, error) {
 	k, err := s.keyring()
 	if err != nil {
-		return keyring.Item{}, err
+		return map[string]string{}, err
 	}
 	itemName := s.itemName(profile)
 	logger.InfoMsg(fmt.Sprintf("looking up in keyring: %s", itemName))
 	item, err := k.Get(itemName)
 	if err != nil && err.Error() == keyring.ErrKeyNotFound.Error() {
 		logger.InfoMsg("falling back to env")
-		return s.fallbackToEnv(profile)
+		return s.fallbackToCustom(profile)
 	}
-	return item, err
+	return s.parseItem(item)
 }
 
-func (s *Store) fallbackToEnv(profile string) (keyring.Item, error) {
-	logger.InfoMsg(fmt.Sprintf("looking up env: %s", profile))
-	sc := credentials.NewSharedCredentials("", profile)
-	v, err := sc.Get()
-	if err != nil {
+func (s *Store) fallbackToCustom(profile string) (map[string]string, error) {
+	var err error
+	var v map[string]string
+
+	if s.CustomLookup != nil {
+		logger.InfoMsg(fmt.Sprintf("looking up via custom lookup: %s", profile))
+		v, err = s.CustomLookup(profile, *s)
+	}
+	if err != nil || s.CustomLookup == nil {
 		logger.InfoMsg("falling back to prompt")
 		v, err = s.fallbackToPrompt(profile)
 		if err != nil {
-			return keyring.Item{}, err
+			return map[string]string{}, err
 		}
 	}
 	return s.migrateToStore(profile, v)
 }
 
-func (s *Store) fallbackToPrompt(profile string) (credentials.Value, error) {
+func (s *Store) fallbackToPrompt(profile string) (map[string]string, error) {
 	fmt.Printf("Please enter your credentials for profile: %s\n", profile)
 	accessKey, err := promptForInfo("AWS Access Key: ")
 	if err != nil {
-		return credentials.Value{}, err
+		return map[string]string{}, err
 	}
 	secretKey, err := promptForInfo("AWS Secret Key: ")
 	if err != nil {
-		return credentials.Value{}, err
+		return map[string]string{}, err
 	}
-	c := credentials.NewStaticCredentials(accessKey, secretKey, "")
-	v, err := c.Get()
-	return v, err
+	return map[string]string{
+		"AWS_ACCESS_KEY_ID":     accessKey,
+		"AWS_SECRET_ACCESS_KEY": secretKey,
+	}, nil
 }
 
-func (s *Store) migrateToStore(profile string, value credentials.Value) (keyring.Item, error) {
-	is := itemStruct{
-		EnvVars: map[string]string{
-			"AWS_ACCESS_KEY_ID":     value.AccessKeyID,
-			"AWS_SECRET_ACCESS_KEY": value.SecretAccessKey,
-		},
-	}
+func (s *Store) migrateToStore(profile string, value map[string]string) (map[string]string, error) {
+	is := itemStruct{EnvVars: value}
 	data, err := json.Marshal(is)
 	if err != nil {
-		return keyring.Item{}, err
+		return map[string]string{}, err
 	}
 	logger.InfoMsg("storing profile in keyring")
 	k, err := s.keyring()
 	if err != nil {
-		return keyring.Item{}, err
+		return map[string]string{}, err
 	}
 	itemName := s.itemName(profile)
 	err = k.Set(keyring.Item{
@@ -175,14 +175,18 @@ func (s *Store) migrateToStore(profile string, value credentials.Value) (keyring
 		Data:  data,
 	})
 	if err != nil {
-		return keyring.Item{}, err
+		return map[string]string{}, err
 	}
 	k, err = s.keyring()
 	if err != nil {
-		return keyring.Item{}, err
+		return map[string]string{}, err
 	}
 	logger.InfoMsg("looking up profile in keyring")
-	return k.Get(itemName)
+	item, err := k.Get(itemName)
+	if err != nil {
+		return map[string]string{}, err
+	}
+	return s.parseItem(item)
 }
 
 func promptForInfo(message string) (string, error) {
