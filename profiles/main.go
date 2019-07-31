@@ -65,6 +65,27 @@ func (s *Store) SetProfile(profile string) error {
 	return nil
 }
 
+// CheckExists checks if a key exists in the keyring
+func (s *Store) CheckExists(profile string) (bool, error) {
+	if profile == "" {
+		return false, fmt.Errorf("profile not set")
+	}
+	k, err := s.keyring()
+	if err != nil {
+		return false, err
+	}
+	itemName := s.itemName(profile)
+	logger.InfoMsg(fmt.Sprintf("looking up in keyring: %s", itemName))
+	_, err = k.Get(itemName)
+	if err != nil {
+		if err.Error() == keyring.ErrKeyNotFound.Error() {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 type itemStruct struct {
 	EnvVars map[string]string
 }
