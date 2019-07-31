@@ -17,7 +17,7 @@ type RoleSet []Role
 // Role holds information about authenticating to a role
 type Role struct {
 	Name    string   `json:"name"`
-	Mfa     bool     `json:mfa"`
+	Mfa     bool     `json:"mfa"`
 	Sources []Source `json:"sources"`
 }
 
