@@ -121,7 +121,7 @@ func clearEnvironment() error {
 	return nil
 }
 
-func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) { //revive:disable-line cyclomatic
+func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) { //revive:disable-line:cyclomatic
 	var newCreds creds.Creds
 	logger.InfoMsg(fmt.Sprintf("Executing hop: %+v", thisHop))
 	a := executors.Assumption{}
@@ -159,7 +159,7 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) 
 	return newCreds, err
 }
 
-func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line cyclomatic
+func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line:cyclomatic
 	var paths [][]hop
 	mapProfiles := make(map[string]bool)
 	mapRoles := make(map[string]bool)
