@@ -121,7 +121,8 @@ func clearEnvironment() error {
 	return nil
 }
 
-func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) { //revive:disable-line:cyclomatic
+//revive:disable-next-line:cyclomatic
+func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) {
 	var newCreds creds.Creds
 	logger.InfoMsg(fmt.Sprintf("Executing hop: %+v", thisHop))
 	a := executors.Assumption{}
