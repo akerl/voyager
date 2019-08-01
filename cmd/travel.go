@@ -17,7 +17,8 @@ var travelCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(travelCmd)
-	travelCmd.Flags().StringP("role", "r", "", "Choose role to use")
+	travelCmd.Flags().StringP("role", "r", "", "Choose target role to use")
+	travelCmd.Flags().String("profile", "", "Choose source profile to use")
 	travelCmd.Flags().StringP("prompt", "p", "", "Choose prompt to use")
 	travelCmd.Flags().BoolP("yubikey", "y", false, "Use Yubikey for MFA")
 }
@@ -26,6 +27,11 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	flags := cmd.Flags()
 
 	flagRole, err := flags.GetString("role")
+	if err != nil {
+		return err
+	}
+
+	flagProfile, err := flags.GetString("profile")
 	if err != nil {
 		return err
 	}
@@ -45,16 +51,17 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	}
 
 	i := travel.Itinerary{
-		Args:     args,
-		RoleName: flagRole,
-		Prompt:   promptFunc,
+		Args:        args,
+		RoleName:    []string{flagRole},
+		ProfileName: []string{flagProfile},
+		Prompt:      promptFunc,
 	}
 
 	if useYubikey {
 		i.MfaPrompt = yubikey.NewPrompt()
 	}
 
-	creds, err := travel.Travel(i)
+	creds, err := i.Travel()
 	if err != nil {
 		return err
 	}

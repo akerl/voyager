@@ -11,6 +11,8 @@ import (
 	"github.com/akerl/speculate/executors"
 	"github.com/akerl/timber/log"
 	"github.com/yawn/ykoath"
+
+	"github.com/akerl/voyager/profiles"
 )
 
 var logger = log.NewLogger("voyager")
@@ -18,8 +20,6 @@ var logger = log.NewLogger("voyager")
 const (
 	configName  = ".voyager"
 	mappingName = "yubikey"
-	// EnvVarName defines where to pass the profile name between disconnected functions
-	EnvVarName = "VOYAGER_PROFILE"
 )
 
 type config struct {
@@ -116,7 +116,7 @@ func (p *Prompt) Prompt() (string, error) {
 }
 
 func (p *Prompt) otpName() string {
-	profile := os.Getenv(EnvVarName)
+	profile := os.Getenv(profiles.EnvVarName)
 	if profile == "" {
 		profile = "default"
 	}
