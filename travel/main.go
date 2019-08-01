@@ -21,6 +21,7 @@ type hop struct {
 	Region  string
 	Role    string
 	Mfa     bool
+	Policy  string
 }
 
 // Itinerary describes a travel request
@@ -99,9 +100,9 @@ func (i *Itinerary) getCreds() (creds.Creds, error) {
 	}
 	err = os.Setenv("AWS_DEFAULT_REGION", profileHop.Region)
 
-	last := len(stack) - 1
-	for index, thisHop := range stack {
-		c, err = i.executeHop(thisHop, c, index == last)
+	stack[len(stack)-1].Policy = i.Policy
+	for _, thisHop := range stack {
+		c, err = i.executeHop(thisHop, c)
 		if err != nil {
 			break
 		}
@@ -120,7 +121,7 @@ func clearEnvironment() error {
 	return nil
 }
 
-func (i *Itinerary) executeHop(thisHop hop, c creds.Creds, isLast bool) (creds.Creds, error) {
+func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) { //revive:disable-line cyclomatic
 	var newCreds creds.Creds
 	logger.InfoMsg(fmt.Sprintf("Executing hop: %+v", thisHop))
 	a := executors.Assumption{}
@@ -136,10 +137,8 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds, isLast bool) (creds.C
 	if err := a.SetLifetime(i.Lifetime); err != nil {
 		return newCreds, err
 	}
-	if isLast {
-		if err := a.SetPolicy(i.Policy); err != nil {
-			return newCreds, err
-		}
+	if err := a.SetPolicy(thisHop.Policy); err != nil {
+		return newCreds, err
 	}
 	if thisHop.Mfa {
 		if err := a.SetMfa(true); err != nil {
@@ -160,7 +159,7 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds, isLast bool) (creds.C
 	return newCreds, err
 }
 
-func (i *Itinerary) getPath() ([]hop, error) {
+func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line cyclomatic
 	var paths [][]hop
 	mapProfiles := make(map[string]bool)
 	mapRoles := make(map[string]bool)
