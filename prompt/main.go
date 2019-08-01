@@ -58,3 +58,24 @@ func (f Func) Simple(val string, options []string, msg string) (string, error) {
 
 	return options[index], nil
 }
+
+// Filtered filters options based on a provided slice and then performs a simple prompt
+func (f Func) Filtered(list []string, options []string, msg string) (string, error) {
+	switch len(list) {
+	case 0:
+		return f.Simple("", options, msg)
+	case 1:
+		return f.Simple(list[0], options, msg)
+	default:
+		var matchList []string
+		for _, item := range list {
+			for _, option := range options {
+				if option == item {
+					matchList = append(matchList, item)
+					break
+				}
+			}
+		}
+		return f.Simple("", matchList, msg)
+	}
+}

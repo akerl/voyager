@@ -26,8 +26,8 @@ type hop struct {
 // Itinerary describes a travel request
 type Itinerary struct {
 	Args        []string
-	RoleName    string
-	ProfileName string
+	RoleName    []string
+	ProfileName []string
 	SessionName string
 	Policy      string
 	Lifetime    int64
@@ -102,7 +102,7 @@ func (i *Itinerary) loadPath() error {
 	}
 
 	allRoles := keys(mapRoles)
-	role, err := i.Prompt.Simple(i.RoleName, allRoles, "Desired target role:")
+	role, err := i.Prompt.Filtered(i.RoleName, allRoles, "Desired target role:")
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func (i *Itinerary) loadPath() error {
 	}
 
 	allProfiles := keys(mapProfiles)
-	profile, err := i.Prompt.Simple(i.ProfileName, allProfiles, "Desired target profile:")
+	profile, err := i.Prompt.Filtered(i.ProfileName, allProfiles, "Desired target profile:")
 	if err != nil {
 		return err
 	}
@@ -164,14 +164,6 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 				srcHops = append(srcHops, np)
 			}
 		} else {
-			store := i.getStore()
-			ok := store.Check(item.Path)
-			if !ok {
-				logger.DebugMsg(fmt.Sprintf(
-					"Found dead end due to missing credentials: %s", item.Path,
-				))
-				continue
-			}
 			srcHops = append(srcHops, []hop{{Profile: item.Path}})
 		}
 	}

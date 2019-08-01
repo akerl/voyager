@@ -52,8 +52,8 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 
 	i := travel.Itinerary{
 		Args:        args,
-		RoleName:    flagRole,
-		ProfileName: flagProfile,
+		RoleName:    []string{flagRole},
+		ProfileName: []string{flagProfile},
 		Prompt:      promptFunc,
 	}
 
