@@ -128,11 +128,11 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) 
 	a := executors.Assumption{}
 
 	logger.InfoMsg(fmt.Sprintf("Setting AWS_DEFAULT_REGION to %s", thisHop.Region))
-	err = os.Setenv("AWS_DEFAULT_REGION", thisHop.Region)
-
+	err := os.Setenv("AWS_DEFAULT_REGION", thisHop.Region)
 	if err != nil {
 		return newCreds, err
 	}
+
 	if err := a.SetAccountID(thisHop.Account); err != nil {
 		return newCreds, err
 	}
@@ -162,7 +162,7 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) 
 			return newCreds, err
 		}
 	}
-	newCreds, err := a.ExecuteWithCreds(c)
+	newCreds, err = a.ExecuteWithCreds(c)
 	newCreds.Region = thisHop.Region
 	return newCreds, err
 }
