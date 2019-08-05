@@ -167,6 +167,25 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) 
 	return newCreds, err
 }
 
+func stringInSlice(list []string, key string) bool {
+	for _, item := range list {
+		if item == key {
+			return true
+		}
+	}
+	return false
+}
+
+func sliceUnion(a []string, b []string) []string {
+	var res []string
+	for _, item := range a {
+		if stringInSlice(b, item) {
+			res = append(res, item)
+		}
+	}
+	return res
+}
+
 func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line:cyclomatic
 	var paths [][]hop
 	mapProfiles := make(map[string]bool)
@@ -202,7 +221,8 @@ func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line:cyclomatic
 	}
 
 	allProfiles := keys(mapProfiles)
-	profile, err := i.getPrompt().Filtered(i.ProfileName, allProfiles, "Desired target profile:")
+	unionProfiles := sliceUnion(allProfiles, i.ProfileName)
+	profile, err := i.getPrompt().Filtered(unionProfiles, allProfiles, "Desired target profile:")
 	if err != nil {
 		return []hop{}, err
 	}
