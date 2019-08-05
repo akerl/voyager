@@ -21,8 +21,10 @@ func init() {
 	travelCmd.Flags().String("profile", "", "Choose source profile to use")
 	travelCmd.Flags().StringP("prompt", "p", "", "Choose prompt to use")
 	travelCmd.Flags().BoolP("yubikey", "y", false, "Use Yubikey for MFA")
+	travelCmd.Flags().String("service", "", "Service path for console URL")
 }
 
+// revive:disable-next-line:cyclomatic
 func travelRunner(cmd *cobra.Command, args []string) error {
 	flags := cmd.Flags()
 
@@ -50,6 +52,11 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	servicePath, err := flags.GetString("service")
+	if err != nil {
+		return err
+	}
+
 	i := travel.Itinerary{
 		Args:        args,
 		RoleName:    []string{flagRole},
@@ -69,7 +76,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	for _, line := range creds.ToEnvVars() {
 		fmt.Println(line)
 	}
-	url, err := creds.ToConsoleURL()
+	url, err := creds.ToCustomConsoleURL(servicePath)
 	if err != nil {
 		return err
 	}
