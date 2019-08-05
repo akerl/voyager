@@ -99,11 +99,6 @@ func (i *Itinerary) getCreds() (creds.Creds, error) {
 	if err != nil {
 		return c, err
 	}
-	logger.InfoMsg(fmt.Sprintf("Setting AWS_DEFAULT_REGION to %s", profileHop.Region))
-	err = os.Setenv("AWS_DEFAULT_REGION", profileHop.Region)
-	if err != nil {
-		return c, err
-	}
 
 	stack[len(stack)-1].Policy = i.Policy
 	for _, thisHop := range stack {
@@ -131,6 +126,13 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) 
 	var newCreds creds.Creds
 	logger.InfoMsg(fmt.Sprintf("Executing hop: %+v", thisHop))
 	a := executors.Assumption{}
+
+	logger.InfoMsg(fmt.Sprintf("Setting AWS_DEFAULT_REGION to %s", thisHop.Region))
+	err := os.Setenv("AWS_DEFAULT_REGION", thisHop.Region)
+	if err != nil {
+		return newCreds, err
+	}
+
 	if err := a.SetAccountID(thisHop.Account); err != nil {
 		return newCreds, err
 	}
@@ -160,7 +162,7 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) 
 			return newCreds, err
 		}
 	}
-	newCreds, err := a.ExecuteWithCreds(c)
+	newCreds, err = a.ExecuteWithCreds(c)
 	newCreds.Region = thisHop.Region
 	return newCreds, err
 }
@@ -230,7 +232,6 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 		} else {
 			srcHops = append(srcHops, []hop{{
 				Profile: item.Path,
-				Region:  acc.Region,
 			}})
 		}
 	}
