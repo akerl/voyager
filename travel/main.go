@@ -93,12 +93,17 @@ func (i *Itinerary) getCreds() (creds.Creds, error) {
 	}
 
 	profileHop, stack := path[0], path[1:]
+	logger.InfoMsg(fmt.Sprintf("Setting origin hop: %+v", profileHop))
 	store := i.getStore()
 	err = profiles.SetProfile(profileHop.Profile, store)
 	if err != nil {
 		return c, err
 	}
+	logger.InfoMsg(fmt.Sprintf("Setting AWS_DEFAULT_REGION to %s", profileHop.Region))
 	err = os.Setenv("AWS_DEFAULT_REGION", profileHop.Region)
+	if err != nil {
+		return c, err
+	}
 
 	stack[len(stack)-1].Policy = i.Policy
 	for _, thisHop := range stack {
@@ -223,7 +228,10 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 				return [][]hop{}, err
 			}
 		} else {
-			srcHops = append(srcHops, []hop{{Profile: item.Path}})
+			srcHops = append(srcHops, []hop{{
+				Profile: item.Path,
+				Region:  acc.Region,
+			}})
 		}
 	}
 
