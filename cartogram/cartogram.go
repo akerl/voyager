@@ -2,7 +2,6 @@ package cartogram
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"time"
 )
@@ -12,6 +11,12 @@ type Cartogram struct {
 	Version    int        `json:"version"`
 	Created    time.Time  `json:"created"`
 	AccountSet AccountSet `json:"accounts"`
+}
+
+// dummyCartogram just parses the Version
+// this is used to test for schema version mismatch
+type dummyCartogram struct {
+	Version int `json:"version"`
 }
 
 // NewCartogram creates a new cartogram from an account set
@@ -42,11 +47,19 @@ func (c *Cartogram) loadFromFile(filePath string) error {
 }
 
 func (c *Cartogram) loadFromString(data []byte) error {
+	if err := schemaVersionCheck(data); err != nil {
+		return err
+	}
+	return json.Unmarshal(data, &c)
+}
+
+func schemaVersionCheck(data []byte) error {
+	var c Cartogram
 	if err := json.Unmarshal(data, &c); err != nil {
 		return err
 	}
 	if c.Version != specVersion {
-		return fmt.Errorf("spec version mismatch: expected %d, got %d", specVersion, c.Version)
+		return SpecVersionError{ActualVersion: c.Version, ExpectedVersion: specVersion}
 	}
 	return nil
 }
