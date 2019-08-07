@@ -163,6 +163,7 @@ func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) 
 		}
 	}
 	newCreds, err = a.ExecuteWithCreds(c)
+	fmt.Println("Got here")
 	newCreds.Region = thisHop.Region
 	return newCreds, err
 }
