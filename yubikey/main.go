@@ -115,6 +115,19 @@ func (p *Prompt) Prompt() (string, error) {
 	return p.otpCode(name)
 }
 
+// Store writes an OTP to the yubikey
+func (p *Prompt) Store(base32seed []byte) error {
+	name := p.otpName()
+	oath, err := p.getDevice()
+	if err != nil {
+		logger.InfoMsg(fmt.Sprintf("Failed to access yubikey: %s", err))
+		return err
+	}
+	defer oath.Close()
+
+	return oath.Put(name, ykoath.HmacSha1, ykoath.Totp, 6, base32seed, true)
+}
+
 func (p *Prompt) otpName() string {
 	profile := os.Getenv(profiles.EnvVarName)
 	if profile == "" {
