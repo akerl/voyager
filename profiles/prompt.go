@@ -34,6 +34,11 @@ func (p *PromptStore) Check(_ string) bool {
 	return false
 }
 
+// Delete is a no-op, as Prompt never stores credentials
+func (p *PromptStore) Delete(_ string) error {
+	return nil
+}
+
 func (p *PromptStore) getUserInput(message string) (string, error) {
 	infoReader := bufio.NewReader(os.Stdin)
 	fmt.Fprint(os.Stderr, message)

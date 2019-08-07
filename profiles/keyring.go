@@ -57,6 +57,18 @@ func (k *KeyringStore) Check(profile string) bool {
 	return res.AccessKeyID != ""
 }
 
+// Delete removes a profile from the keyring
+func (k *KeyringStore) Delete(profile string) error {
+	ring, err := k.keyring()
+	if err != nil {
+		return err
+	}
+	itemName := k.itemName(profile)
+	logger.InfoMsg(fmt.Sprintf("deleting from keyring: %s", itemName))
+
+	return ring.Remove(itemName)
+}
+
 func (k *KeyringStore) config() keyring.Config {
 	return keyring.Config{
 		AllowedBackends: []keyring.BackendType{
