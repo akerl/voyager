@@ -1,6 +1,7 @@
 package yubikey
 
 import (
+	"encoding/base32"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -113,6 +114,24 @@ func (p *Prompt) Prompt() (string, error) {
 	}
 
 	return p.otpCode(name)
+}
+
+// Store writes an OTP to the yubikey
+func (p *Prompt) Store(base32seed string) error {
+	name := p.otpName()
+	oath, err := p.getDevice()
+	if err != nil {
+		logger.InfoMsg(fmt.Sprintf("Failed to access yubikey: %s", err))
+		return err
+	}
+	defer oath.Close()
+
+	secret, err := base32.StdEncoding.DecodeString(base32seed)
+	if err != nil {
+		logger.InfoMsg("Failed to decode Base32 seed")
+		return err
+	}
+	return oath.Put(name, ykoath.HmacSha1, ykoath.Totp, 6, secret, true)
 }
 
 func (p *Prompt) otpName() string {

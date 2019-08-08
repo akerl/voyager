@@ -20,6 +20,7 @@ const (
 type Store interface {
 	Lookup(string) (credentials.Value, error)
 	Check(string) bool
+	Delete(string) error
 }
 
 // SetProfile exports variables from a lookup

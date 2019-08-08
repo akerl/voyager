@@ -51,6 +51,17 @@ func (m *MultiStore) Check(profile string) bool {
 	return false
 }
 
+// Delete removes a profile from all backends
+func (m *MultiStore) Delete(profile string) error {
+	for _, item := range m.Backends {
+		err := item.Delete(profile)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // WritableStore defines a backend which can save credentials
 type WritableStore interface {
 	Write(string, credentials.Value) error
