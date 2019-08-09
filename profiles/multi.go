@@ -13,6 +13,8 @@ type MultiStore struct {
 
 // Lookup looks up creds from the list of backends
 func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
+	logger.InfoMsgf("looking up %s in multi store", profile)
+
 	var err error
 	var writer WritableStore
 	var creds credentials.Value
@@ -32,6 +34,7 @@ func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 	}
 
 	if writer != nil {
+		logger.InfoMsg("found writer before credentials, writing")
 		err := writer.Write(profile, creds)
 		if err != nil {
 			return credentials.Value{}, err
@@ -43,6 +46,7 @@ func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 
 // Check returns true if any backend has the credentials cached
 func (m *MultiStore) Check(profile string) bool {
+	logger.InfoMsgf("checking for %s in multi store", profile)
 	for _, item := range m.Backends {
 		if item.Check(profile) {
 			return true
@@ -53,6 +57,7 @@ func (m *MultiStore) Check(profile string) bool {
 
 // Delete removes a profile from all backends
 func (m *MultiStore) Delete(profile string) error {
+	logger.InfoMsgf("deleting %s from multi store", profile)
 	for _, item := range m.Backends {
 		err := item.Delete(profile)
 		if err != nil {

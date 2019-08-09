@@ -64,7 +64,7 @@ func (i *Itinerary) getStore() profiles.Store {
 func (i *Itinerary) getPrompt() list.Prompt {
 	if i.Prompt == nil {
 		logger.InfoMsg("Using default prompt")
-		i.Prompt = list.Default()
+		i.Prompt = list.WmenuPrompt{}
 	}
 	return i.Prompt
 }
@@ -87,28 +87,32 @@ func (i *Itinerary) getAccount() (cartogram.Account, error) {
 }
 
 func (i *Itinerary) getCreds() (creds.Creds, error) {
-	var c creds.Creds
-	var err error
-
 	path, err := i.getPath()
 	if err != nil {
-		return c, err
+		return creds.Creds{}, err
 	}
 
 	err = clearEnvironment()
 	if err != nil {
-		return c, err
+		return creds.Creds{}, err
 	}
 
 	profileHop, stack := path[0], path[1:]
 	logger.InfoMsgf("Setting origin hop: %+v", profileHop)
 	store := i.getStore()
-	err = profiles.SetProfile(profileHop.Profile, store)
+	profileCreds, err := store.Lookup(profileHop.Profile)
 	if err != nil {
-		return c, err
+		return creds.Creds{}, err
+	}
+	// TODO: move this to creds.NewFromValue
+	c := creds.Creds{
+		AccessKey: profileCreds.AccessKeyID,
+		SecretKey: profileCreds.SecretAccessKey,
+		Region:    stack[0].Region,
 	}
 
 	stack[len(stack)-1].Policy = i.Policy
+
 	for _, thisHop := range stack {
 		c, err = i.executeHop(thisHop, c)
 		if err != nil {
@@ -132,46 +136,23 @@ func clearEnvironment() error {
 //revive:disable-next-line:cyclomatic
 func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) {
 	var newCreds creds.Creds
+	var err error
+
 	logger.InfoMsgf("Executing hop: %+v", thisHop)
-	a := executors.Assumption{}
-
-	logger.InfoMsgf("Setting AWS_DEFAULT_REGION to %s", thisHop.Region)
-	err := os.Setenv("AWS_DEFAULT_REGION", thisHop.Region)
-	if err != nil {
-		return newCreds, err
+	a := creds.AssumeRoleOptions{
+		RoleName:    thisHop.Role,
+		AccountID:   thisHop.Account,
+		SessionName: i.SessionName,
+		Policy:      thisHop.Policy,
+		Lifetime:    i.Lifetime,
 	}
 
-	if err := a.SetAccountID(thisHop.Account); err != nil {
-		return newCreds, err
-	}
-	if err := a.SetRoleName(thisHop.Role); err != nil {
-		return newCreds, err
-	}
-	if err := a.SetSessionName(i.SessionName); err != nil {
-		return newCreds, err
-	}
-	if err := a.SetLifetime(i.Lifetime); err != nil {
-		return newCreds, err
-	}
-	if err := a.SetPolicy(thisHop.Policy); err != nil {
-		return newCreds, err
-	}
 	if thisHop.Mfa {
-		if err := a.SetMfa(true); err != nil {
-			return newCreds, err
-		}
-		if err := a.SetMfaSerial(i.MfaSerial); err != nil {
-			return newCreds, err
-		}
-		if err := a.SetMfaCode(i.MfaCode); err != nil {
-			return newCreds, err
-		}
-		if err := a.SetMfaPrompt(i.MfaPrompt); err != nil {
-			return newCreds, err
-		}
+		a.UseMfa = true
+		a.MfaCode = i.MfaCode
+		a.MfaPrompt = i.MfaPrompt
 	}
-	newCreds, err = a.ExecuteWithCreds(c)
-	newCreds.Region = thisHop.Region
+	newCreds, err = c.AssumeRole(a)
 	return newCreds, err
 }
 

@@ -43,10 +43,11 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	prompt, ok := list.Types[promptFlag]
+	promptGenerator, ok := list.Types[promptFlag]
 	if !ok {
 		return fmt.Errorf("prompt type not found: %s", promptFlag)
 	}
+	prompt := promptGenerator()
 
 	useYubikey, err := flags.GetBool("yubikey")
 	if err != nil {
@@ -59,10 +60,10 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	}
 
 	i := travel.Itinerary{
-		Args:        args,
-		RoleName:    []string{flagRole},
-		ProfileName: []string{flagProfile},
-		Prompt:      prompt,
+		Args:         args,
+		RoleNames:    []string{flagRole},
+		ProfileNames: []string{flagProfile},
+		Prompt:       prompt,
 	}
 
 	if useYubikey {

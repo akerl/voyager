@@ -14,6 +14,7 @@ type PromptStore struct{}
 
 // Lookup asks the user for credentials
 func (p *PromptStore) Lookup(profile string) (credentials.Value, error) {
+	logger.InfoMsgf("looking up %s in prompt store", profile)
 	fmt.Printf("Please enter your credentials for profile: %s\n", profile)
 	accessKey, err := p.getUserInput("AWS Access Key: ")
 	if err != nil {
