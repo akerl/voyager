@@ -211,7 +211,12 @@ func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line:cyclomatic
 
 	allProfiles := keys(mapProfiles)
 	unionProfiles := sliceUnion(allProfiles, i.ProfileNames)
-	profile, err := list.WithInputSlice(i.getPrompt(), allProfiles, unionProfiles, "Pick a profile:")
+	profile, err := list.WithInputSlice(
+		i.getPrompt(),
+		allProfiles,
+		unionProfiles,
+		"Pick a profile:",
+	)
 	if err != nil {
 		return []hop{}, err
 	}
