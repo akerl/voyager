@@ -20,7 +20,7 @@ func (k *KeyringStore) Lookup(profile string) (credentials.Value, error) {
 		return credentials.Value{}, err
 	}
 	itemName := k.itemName(profile)
-	logger.InfoMsg(fmt.Sprintf("looking up in keyring: %s", itemName))
+	logger.InfoMsgf("looking up in keyring: %s", itemName)
 	item, err := ring.Get(itemName)
 	if err != nil {
 		return credentials.Value{}, err
@@ -64,7 +64,7 @@ func (k *KeyringStore) Delete(profile string) error {
 		return err
 	}
 	itemName := k.itemName(profile)
-	logger.InfoMsg(fmt.Sprintf("deleting from keyring: %s", itemName))
+	logger.InfoMsgf("deleting from keyring: %s", itemName)
 
 	return ring.Remove(itemName)
 }
@@ -86,7 +86,7 @@ func (k *KeyringStore) config() keyring.Config {
 
 func (k *KeyringStore) getName() string {
 	if k.Name == "" {
-		logger.InfoMsg(fmt.Sprintf("set keyring store to default"))
+		logger.InfoMsgf("set keyring store to default")
 		k.Name = "default"
 	}
 	return k.Name

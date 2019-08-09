@@ -1,19 +1,27 @@
 package travel
 
 import (
-	"fmt"
 	"os"
+	"regexp"
 
-	"github.com/akerl/speculate/creds"
-	"github.com/akerl/speculate/executors"
-	"github.com/akerl/timber/log"
+	"github.com/akerl/voyager/v2/cartogram"
+	"github.com/akerl/voyager/v2/profiles"
 
-	"github.com/akerl/voyager/cartogram"
-	"github.com/akerl/voyager/profiles"
-	"github.com/akerl/voyager/prompt"
+	"github.com/akerl/input/list"
+	"github.com/akerl/speculate/v2/creds"
+	"github.com/akerl/timber/v2/log"
 )
 
 var logger = log.NewLogger("voyager")
+
+const (
+	// roleSourceRegexString matches an account number and role name, /-delimited
+	// Per https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-limits.html .
+	// role names can contain alphanumeric characters, and these symbols: +=,.@_-
+	roleSourceRegexString = `^(\d{12})/([a-zA-Z0-9+=,.@_-]+)$`
+)
+
+var roleSourceRegex = regexp.MustCompile(roleSourceRegexString)
 
 type hop struct {
 	Profile string
@@ -26,18 +34,18 @@ type hop struct {
 
 // Itinerary describes a travel request
 type Itinerary struct {
-	Args        []string
-	RoleName    []string
-	ProfileName []string
-	SessionName string
-	Policy      string
-	Lifetime    int64
-	MfaCode     string
-	MfaSerial   string
-	MfaPrompt   executors.MfaPrompt
-	Prompt      prompt.Func
-	Store       profiles.Store
-	pack        *cartogram.Pack
+	Args         []string
+	RoleNames    []string
+	ProfileNames []string
+	SessionName  string
+	Policy       string
+	Lifetime     int64
+	MfaCode      string
+	MfaSerial    string
+	MfaPrompt    creds.MfaPrompt
+	Prompt       list.Prompt
+	Store        profiles.Store
+	pack         cartogram.Pack
 }
 
 // Travel loads creds from a full set of parameters
@@ -53,21 +61,21 @@ func (i *Itinerary) getStore() profiles.Store {
 	return i.Store
 }
 
-func (i *Itinerary) getPrompt() prompt.Func {
+func (i *Itinerary) getPrompt() list.Prompt {
 	if i.Prompt == nil {
 		logger.InfoMsg("Using default prompt")
-		i.Prompt = prompt.WithDefault
+		i.Prompt = list.Default()
 	}
 	return i.Prompt
 }
 
 func (i *Itinerary) getPack() (cartogram.Pack, error) {
 	if i.pack != nil {
-		return *i.pack, nil
+		return i.pack, nil
 	}
-	i.pack = &cartogram.Pack{}
+	i.pack = cartogram.Pack{}
 	err := i.pack.Load()
-	return *i.pack, err
+	return i.pack, err
 }
 
 func (i *Itinerary) getAccount() (cartogram.Account, error) {
@@ -93,7 +101,7 @@ func (i *Itinerary) getCreds() (creds.Creds, error) {
 	}
 
 	profileHop, stack := path[0], path[1:]
-	logger.InfoMsg(fmt.Sprintf("Setting origin hop: %+v", profileHop))
+	logger.InfoMsgf("Setting origin hop: %+v", profileHop)
 	store := i.getStore()
 	err = profiles.SetProfile(profileHop.Profile, store)
 	if err != nil {
@@ -112,7 +120,7 @@ func (i *Itinerary) getCreds() (creds.Creds, error) {
 
 func clearEnvironment() error {
 	for varName := range creds.Translations["envvar"] {
-		logger.InfoMsg(fmt.Sprintf("Unsetting env var: %s", varName))
+		logger.InfoMsgf("Unsetting env var: %s", varName)
 		err := os.Unsetenv(varName)
 		if err != nil {
 			return err
@@ -124,10 +132,10 @@ func clearEnvironment() error {
 //revive:disable-next-line:cyclomatic
 func (i *Itinerary) executeHop(thisHop hop, c creds.Creds) (creds.Creds, error) {
 	var newCreds creds.Creds
-	logger.InfoMsg(fmt.Sprintf("Executing hop: %+v", thisHop))
+	logger.InfoMsgf("Executing hop: %+v", thisHop)
 	a := executors.Assumption{}
 
-	logger.InfoMsg(fmt.Sprintf("Setting AWS_DEFAULT_REGION to %s", thisHop.Region))
+	logger.InfoMsgf("Setting AWS_DEFAULT_REGION to %s", thisHop.Region)
 	err := os.Setenv("AWS_DEFAULT_REGION", thisHop.Region)
 	if err != nil {
 		return newCreds, err
@@ -208,7 +216,7 @@ func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line:cyclomatic
 	}
 
 	allRoles := keys(mapRoles)
-	role, err := i.getPrompt().Filtered(i.RoleName, allRoles, "Desired target role:")
+	role, err := list.WithInputSlice(i.getPrompt(), allRoles, i.RoleNames, "Pick a role:")
 	if err != nil {
 		return []hop{}, err
 	}
@@ -221,8 +229,8 @@ func (i *Itinerary) getPath() ([]hop, error) { //revive:disable-line:cyclomatic
 	}
 
 	allProfiles := keys(mapProfiles)
-	unionProfiles := sliceUnion(allProfiles, i.ProfileName)
-	profile, err := i.getPrompt().Filtered(unionProfiles, allProfiles, "Desired target profile:")
+	unionProfiles := sliceUnion(allProfiles, i.ProfileNames)
+	profile, err := list.WithInputSlice(i.getPrompt(), allProfiles, unionProfiles, "Pick a profile:")
 	if err != nil {
 		return []hop{}, err
 	}
@@ -243,9 +251,9 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 	var srcHops [][]hop
 
 	for _, item := range role.Sources {
-		pathMatch := cartogram.AccountRegex.FindStringSubmatch(item.Path)
-		if len(pathMatch) == 3 {
-			err := i.testSourcePath(pathMatch[1], pathMatch[2], &srcHops)
+		sourceMatch := roleSourceRegex.FindStringSubmatch(item.Path)
+		if len(sourceMatch) == 3 {
+			err := i.testSourcePath(sourceMatch[1], sourceMatch[2], &srcHops)
 			if err != nil {
 				return [][]hop{}, err
 			}
@@ -272,14 +280,14 @@ func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]h
 func (i *Itinerary) testSourcePath(srcAccID, srcRoleName string, srcHops *[][]hop) error {
 	ok, srcAcc := i.pack.Lookup(srcAccID)
 	if !ok {
-		logger.DebugMsg(fmt.Sprintf("Found dead end due to missing account: %s", srcAccID))
+		logger.DebugMsgf("Found dead end due to missing account: %s", srcAccID)
 		return nil
 	}
 	ok, srcRole := srcAcc.Roles.Lookup(srcRoleName)
 	if !ok {
-		logger.DebugMsg(fmt.Sprintf(
+		logger.DebugMsgf(
 			"Found dead end due to missing role: %s/%s", srcAccID, srcRoleName,
-		))
+		)
 		return nil
 	}
 	newPaths, err := i.tracePath(srcAcc, srcRole)

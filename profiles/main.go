@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/akerl/timber/log"
+	"github.com/akerl/timber/v2/log"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
@@ -40,7 +40,7 @@ func SetProfile(profile string, s Store) error {
 		"AWS_SECRET_ACCESS_KEY": creds.SecretAccessKey,
 	}
 	for k, v := range credsAsMap {
-		logger.InfoMsg(fmt.Sprintf("Setting env var: %s", k))
+		logger.InfoMsgf("Setting env var: %s", k)
 		err = os.Setenv(k, v)
 		if err != nil {
 			return fmt.Errorf("failed to set env var: %s = %s", k, v)

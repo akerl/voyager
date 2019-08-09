@@ -25,7 +25,7 @@ func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 		if writer == nil {
 			writer = item.(WritableStore)
 		}
-		logger.DebugMsg(fmt.Sprintf("backend failed with error: %s", err))
+		logger.DebugMsgf("backend failed with error: %s", err)
 	}
 	if creds.AccessKeyID == "" {
 		return credentials.Value{}, fmt.Errorf("all backends failed to return creds")

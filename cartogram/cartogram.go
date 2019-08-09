@@ -39,7 +39,8 @@ func (c Cartogram) Search(tfs TagFilterSet) AccountSet {
 }
 
 func (c *Cartogram) loadFromFile(filePath string) error {
-	data, err := ioutil.ReadFile(filePath) // #nosec
+	logger.InfoMsgf("loading cartogram from %s", filePath)
+	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -65,6 +66,7 @@ func schemaVersionCheck(data []byte) error {
 }
 
 func (c Cartogram) writeToFile(filePath string) error {
+	logger.InfoMsgf("writing cartogram to %s", filePath)
 	data, err := c.writeToString()
 	if err != nil {
 		return err

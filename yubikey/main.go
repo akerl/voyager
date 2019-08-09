@@ -9,11 +9,9 @@ import (
 	"os/user"
 	"path"
 
-	"github.com/akerl/speculate/executors"
-	"github.com/akerl/timber/log"
+	"github.com/akerl/speculate/v2/creds"
+	"github.com/akerl/timber/v2/log"
 	"github.com/yawn/ykoath"
-
-	"github.com/akerl/voyager/profiles"
 )
 
 var logger = log.NewLogger("voyager")
@@ -28,16 +26,18 @@ type config struct {
 }
 
 func mappingFile() (string, error) {
+	logger.InfoMsg("looking up yubikey mapping file path")
 	dir, err := configDir()
 	if err != nil {
 		return "", err
 	}
 	mapping := path.Join(dir, mappingName)
-	logger.InfoMsg(fmt.Sprintf("Resolved mapping file path: %s", mapping))
+	logger.InfoMsgf("resolved yubikey mapping file path: %s", mapping)
 	return mapping, nil
 }
 
 func configDir() (string, error) {
+	logger.InfoMsg("looking up config dir")
 	home, err := homeDir()
 	if err != nil {
 		return "", err
@@ -47,14 +47,17 @@ func configDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	logger.InfoMsgf("resolved yubikey config dir: %s", dir)
 	return dir, nil
 }
 
 func homeDir() (string, error) {
+	logger.InfoMsg("looking up home dir")
 	usr, err := user.Current()
 	if err != nil {
 		return "", err
 	}
+	logger.InfoMsgf("resolved yubikey home dir: %s", usr.HomeDir)
 	return usr.HomeDir, nil
 }
 
@@ -66,22 +69,23 @@ type Prompt struct {
 
 // NewPrompt populates the yubikey mapping from a dotfile, if it exists
 func NewPrompt() *Prompt {
+	logger.InfoMsg("creating new yubikey prompt object")
 	p := Prompt{}
 	file, err := mappingFile()
 	if err != nil {
-		logger.InfoMsg(fmt.Sprintf("Failed to load mapping file: %s", err))
+		logger.InfoMsgf("failed to load mapping file: %s", err)
 		return &p
 	}
 	err = p.AddMappingFromFile(file)
 	if err != nil {
-		logger.InfoMsg(fmt.Sprintf("Failed to load mapping: %s", err))
+		logger.InfoMsgf("failed to load mapping: %s", err)
 	}
 	return &p
 }
 
 // AddMappingFromFile adds a mapping for OTP names from a file
 func (p *Prompt) AddMappingFromFile(file string) error {
-	logger.DebugMsg(fmt.Sprintf("Reading mapping file: %s", file))
+	logger.InfoMsgf("attempting to read mapping file: %s", file)
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
@@ -90,25 +94,25 @@ func (p *Prompt) AddMappingFromFile(file string) error {
 	if err := json.Unmarshal(data, &c); err != nil {
 		return err
 	}
-	logger.DebugMsg(fmt.Sprintf("Parsed mapping file: %+v", c.Mapping))
 	p.AddMapping(c.Mapping)
 	return nil
 }
 
 // AddMapping adds a mapping for OTP names
 func (p *Prompt) AddMapping(mapping map[string]string) {
-	logger.DebugMsg(fmt.Sprintf("Adding mapping: %+v", mapping))
+	logger.InfoMsgf("adding mapping: %+v", mapping)
 	p.mapping = mapping
 }
 
 // Prompt asks the yubikey for a code
-func (p *Prompt) Prompt() (string, error) {
-	name := p.otpName()
+func (p *Prompt) Prompt(arn string) (string, error) {
+	logger.InfoMsgf("prompting for yubikey mfa for %s", arn)
+	name := p.otpName(arn)
 	exists := p.otpExists(name)
 	if !exists {
 		if p.Fallback {
-			fallback := executors.DefaultMfaPrompt{}
-			return fallback.Prompt()
+			fallback := creds.DefaultMfaPrompt{}
+			return fallback.Prompt(arn)
 		}
 		return "", fmt.Errorf("failed to connect to yubikey")
 	}
@@ -117,67 +121,63 @@ func (p *Prompt) Prompt() (string, error) {
 }
 
 // Store writes an OTP to the yubikey
-func (p *Prompt) Store(base32seed string) error {
-	name := p.otpName()
+func (p *Prompt) Store(arn, base32seed string) error {
+	logger.InfoMsgf("storing mfa for %s", arn)
+	name := p.otpName(arn)
 	oath, err := p.getDevice()
 	if err != nil {
-		logger.InfoMsg(fmt.Sprintf("Failed to access yubikey: %s", err))
+		logger.InfoMsgf("failed to access yubikey: %s", err)
 		return err
 	}
 	defer oath.Close()
 
 	secret, err := base32.StdEncoding.DecodeString(base32seed)
 	if err != nil {
-		logger.InfoMsg("Failed to decode Base32 seed")
+		logger.InfoMsg("failed to decode Base32 seed")
 		return err
 	}
 	return oath.Put(name, ykoath.HmacSha1, ykoath.Totp, 6, secret, true)
 }
 
-func (p *Prompt) otpName() string {
-	profile := os.Getenv(profiles.EnvVarName)
-	if profile == "" {
-		profile = "default"
+func (p *Prompt) otpName(arn string) string {
+	if translated, ok := p.mapping[arn]; ok {
+		logger.InfoMsgf("translating %s to %s", arn, translated)
+		return translated
 	}
-	logger.InfoMsg(fmt.Sprintf("Yubikey prompt found AWS Profile: %s", profile))
-
-	otpName := fmt.Sprintf("aws:%s", profile)
-	if translated, ok := p.mapping[otpName]; ok {
-		otpName = translated
-	}
-	logger.InfoMsg(fmt.Sprintf("Yubikey prompt using OTP name: %s", otpName))
-
-	return otpName
+	return arn
 }
 
 func (p *Prompt) otpExists(name string) bool {
+	logger.InfoMsgf("checking for existing of %s", name)
 	oath, err := p.getDevice()
 	if err != nil {
-		logger.InfoMsg(fmt.Sprintf("Failed to access yubikey: %s", err))
+		logger.InfoMsgf("failed to access yubikey: %s", err)
 		return false
 	}
 	defer oath.Close()
 
 	otps, err := oath.List()
 	if err != nil {
-		logger.InfoMsg(fmt.Sprintf("Failed to list yubikey: %s", err))
+		logger.InfoMsgf("failed to list yubikey: %s", err)
+		return false
 	}
 
 	for _, otp := range otps {
 		if otp.Name == name {
-			logger.InfoMsg(fmt.Sprintf("Found matching OTP: %s", otp.Name))
+			logger.InfoMsgf("found matching OTP: %s", otp.Name)
 			return true
 		}
 
-		logger.InfoMsg(fmt.Sprintf("Found non-matching OTP: %s", otp.Name))
+		logger.InfoMsgf("found non-matching OTP: %s", otp.Name)
 	}
 	return false
 }
 
 func (p *Prompt) otpCode(name string) (string, error) {
+	logger.InfoMsgf("prompting for code for %s", name)
 	oath, err := p.getDevice()
 	if err != nil {
-		logger.InfoMsg(fmt.Sprintf("Failed to access yubikey: %s", err))
+		logger.InfoMsgf("failed to access yubikey: %s", err)
 		return "", err
 	}
 	defer oath.Close()
@@ -189,6 +189,7 @@ func (p *Prompt) otpCode(name string) (string, error) {
 }
 
 func (p *Prompt) getDevice() (*ykoath.OATH, error) {
+	logger.InfoMsg("creating new yubikey oath device")
 	oath, err := ykoath.New()
 	if err != nil {
 		return nil, err

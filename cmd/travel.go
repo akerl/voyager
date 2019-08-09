@@ -3,9 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/akerl/voyager/prompt"
-	"github.com/akerl/voyager/travel"
-	"github.com/akerl/voyager/yubikey"
+	"github.com/akerl/voyager/v2/travel"
+	"github.com/akerl/voyager/v2/yubikey"
+
+	"github.com/akerl/input/list"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +43,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	promptFunc, ok := prompt.Types[promptFlag]
+	prompt, ok := list.Types[promptFlag]
 	if !ok {
 		return fmt.Errorf("prompt type not found: %s", promptFlag)
 	}
@@ -61,7 +62,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		Args:        args,
 		RoleName:    []string{flagRole},
 		ProfileName: []string{flagProfile},
-		Prompt:      promptFunc,
+		Prompt:      prompt,
 	}
 
 	if useYubikey {

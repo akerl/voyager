@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/akerl/voyager/cmd"
+	"github.com/akerl/voyager/v2/cmd"
 )
 
 func main() {
