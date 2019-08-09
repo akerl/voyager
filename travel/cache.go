@@ -1,17 +1,21 @@
-package main
+package travel
 
 import (
-	"os"
-	"regexp"
-
-	"github.com/akerl/voyager/v2/cartogram"
-	"github.com/akerl/voyager/v2/profiles"
-
-	"github.com/akerl/input/list"
 	"github.com/akerl/speculate/v2/creds"
-	"github.com/akerl/timber/v2/log"
 )
 
 type Cache struct {
 	creds map[string]creds.Creds
+}
+
+func (c *Cache) Put(h Hop, c creds.Creds) error {
+	// TODO: write
+}
+
+func (c *Cache) Get(h Hop) (creds.Creds, bool) {
+	// TODO: write
+}
+
+func (c *Cache) hopToKey(h Hop) string {
+	// TODO: write
 }

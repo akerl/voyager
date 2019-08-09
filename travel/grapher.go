@@ -1,18 +1,11 @@
-package main
+package travel
 
 import (
-	"os"
-	"regexp"
-
 	"github.com/akerl/voyager/v2/cartogram"
 	"github.com/akerl/voyager/v2/profiles"
 
 	"github.com/akerl/input/list"
-	"github.com/akerl/speculate/v2/creds"
-	"github.com/akerl/timber/v2/log"
 )
-
-var logger = log.NewLogger("voyager")
 
 const (
 	// roleSourceRegexString matches an account number and role name, /-delimited
@@ -20,6 +13,8 @@ const (
 	// role names can contain alphanumeric characters, and these symbols: +=,.@_-
 	roleSourceRegexString = `^(\d{12})/([a-zA-Z0-9+=,.@_-]+)$`
 )
+
+var roleSourceRegex = regexp.MustCompile(roleSourceRegexString)
 
 type Grapher struct {
 	Prompt list.Prompt
