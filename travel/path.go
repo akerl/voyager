@@ -6,8 +6,11 @@ import (
 	"github.com/akerl/speculate/v2/creds"
 )
 
+// Path defines a set of hops to reach the target account
 type Path []Hop
 
+// Hop defines an individual node on the path from initial credentials
+// to the target role
 type Hop struct {
 	Profile string
 	Account string
@@ -16,6 +19,7 @@ type Hop struct {
 	Region  string
 }
 
+// TraverseOptions defines the parameters for traversing a path
 type TraverseOptions struct {
 	MfaCode    string
 	MfaPrompt  creds.MfaPrompt
@@ -25,6 +29,7 @@ type TraverseOptions struct {
 	Lifetime   int64
 }
 
+// DefaultTraverseOptions returns a standard set of TraverseOptions
 func DefaultTraverseOptions() TraverseOptions {
 	return TraverseOptions{
 		MfaPrompt: &creds.DefaultMfaPrompt{},
@@ -33,10 +38,13 @@ func DefaultTraverseOptions() TraverseOptions {
 	}
 }
 
+// Traverse executes a path and returns the final resulting credentials
+// using the default set of TraverseOptions
 func (p Path) Traverse() (creds.Creds, error) {
 	return p.TraverseWithOptions(DefaultTraverseOptions())
 }
 
+// TraverseWithOptions executes a path and returns the final resulting credentials
 func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 	logger.InfoMsgf("traversing path %+v with options %+v", p, opts)
 
@@ -65,6 +73,7 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 	return c, err
 }
 
+// Traverse executes a Hop, returning the new credentials
 func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) {
 	if cached, ok := CheckCache(opts.Cache, h); ok {
 		return cached, nil

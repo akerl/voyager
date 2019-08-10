@@ -17,11 +17,13 @@ const (
 
 var roleSourceRegex = regexp.MustCompile(roleSourceRegexString)
 
+// Grapher defines a graph resolution object for finding paths to accounts
 type Grapher struct {
 	Prompt list.Prompt
 	Pack   cartogram.Pack
 }
 
+// Resolve selects a valid path to the target account and role
 func (g *Grapher) Resolve(args, roleNames, profileNames []string) (Path, error) {
 	logger.InfoMsgf("resolving a path based on %v / %v / %v", args, roleNames, profileNames)
 	account, err := g.selectTargetAccount(args)
