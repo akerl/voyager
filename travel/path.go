@@ -20,7 +20,7 @@ type TraverseOptions struct {
 	MfaCode    string
 	MfaPrompt  creds.MfaPrompt
 	Store      profiles.Store
-	Cache      *Cache
+	Cache      Cache
 	SessioName string
 	Lifetime   int64
 }
@@ -29,7 +29,7 @@ func DefaultTraverseOptions() TraverseOptions {
 	return TraverseOptions{
 		MfaPrompt: &creds.DefaultMfaPrompt{},
 		Store:     profiles.NewDefaultStore(),
-		Cache:     &Cache{},
+		Cache:     &MapCache{},
 	}
 }
 
@@ -66,6 +66,9 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 }
 
 func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) {
+	if cached, ok := CheckCache(opts.Cache, h); ok {
+		return cached, nil
+	}
 	logger.InfoMsgf("Executing hop: %+v", h)
 	a := creds.AssumeRoleOptions{
 		RoleName:    h.Role,
