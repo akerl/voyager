@@ -1,6 +1,8 @@
 package travel
 
 import (
+	"regexp"
+
 	"github.com/akerl/voyager/v2/cartogram"
 	"github.com/akerl/voyager/v2/profiles"
 
@@ -23,112 +25,130 @@ type Grapher struct {
 }
 
 func (g *Grapher) Resolve(args, roleNames, profileNames []string) (Path, error) {
-	var paths [][]hop
-	mapProfiles := make(map[string]bool)
-	mapRoles := make(map[string]bool)
-
-	account, err := i.getAccount()
+	account, err := g.selectTargetAccount(args)
 	if err != nil {
-		return []hop{}, err
+		return Path{}, err
 	}
 
-	for _, r := range account.Roles {
-		p, err := i.tracePath(account, r)
-		if err != nil {
-			return []hop{}, err
-		}
-		for _, item := range p {
-			paths = append(paths, item)
-			mapRoles[item[len(item)-1].Role] = true
-		}
-	}
-
-	allRoles := keys(mapRoles)
-	role, err := list.WithInputSlice(i.getPrompt(), allRoles, i.RoleNames, "Pick a role:")
+	paths, err := g.findAllPaths(account)
 	if err != nil {
-		return []hop{}, err
-	}
-	hopsWithMatchingRoles := [][]hop{}
-	for _, item := range paths {
-		if item[len(item)-1].Role == role {
-			hopsWithMatchingRoles = append(hopsWithMatchingRoles, item)
-			mapProfiles[item[0].Profile] = true
-		}
+		return Path{}, err
 	}
 
-	allProfiles := keys(mapProfiles)
-	unionProfiles := sliceUnion(allProfiles, i.ProfileNames)
-	profile, err := list.WithInputSlice(
-		i.getPrompt(),
-		allProfiles,
-		unionProfiles,
-		"Pick a profile:",
-	)
+	paths, err = g.filterByRole(paths, roleNames)
 	if err != nil {
-		return []hop{}, err
-	}
-	hopsWithMatchingProfiles := [][]hop{}
-	for _, item := range hopsWithMatchingRoles {
-		if item[0].Profile == profile {
-			hopsWithMatchingProfiles = append(hopsWithMatchingProfiles, item)
-		}
+		return Path{}, err
 	}
 
-	if len(hopsWithMatchingProfiles) > 1 {
-		logger.InfoMsg("Multiple valid paths detected. Selecting the first option")
+	paths, err = g.filterByProfile(paths, profileNames)
+	if err != nil {
+		return Path{}, err
 	}
-	return hopsWithMatchingProfiles[0], nil
+
+	if len(paths) > 1 {
+		logger.InfoMsg("multiple valid paths detected. Selecting the first option")
+	}
+	return paths[0], nil
 }
 
-func (i *Itinerary) tracePath(acc cartogram.Account, role cartogram.Role) ([][]hop, error) {
-	var srcHops [][]hop
+func (g *Grapher) selectTargetAccount(args []string) (cartogram.Account, error) {
+	return g.Pack.FindWithPrompt(args, g.Prompt)
+}
+
+func (g *Grapher) findAllPaths(account cartogram.Account) ([]Path, error) {
+	var allPaths []Path
+
+	for _, r := range account.Roles {
+		paths, err := g.findPathToRole(account, r)
+		if err != nil {
+			return []Path{}, err
+		}
+		allPaths = append(allPaths, paths...)
+	}
+
+	return allPaths, nil
+}
+
+func (g *Grapher) findPathToRole(account cartogram.Account, role cartogram.Role) ([]Path, error) {
+	var allPaths []Path
 
 	for _, item := range role.Sources {
 		sourceMatch := roleSourceRegex.FindStringSubmatch(item.Path)
 		if len(sourceMatch) == 3 {
-			err := i.testSourcePath(sourceMatch[1], sourceMatch[2], &srcHops)
-			if err != nil {
-				return [][]hop{}, err
+			newAccount, newRole, ok := g.pathIsViable(sourceMatch[1], sourceMatch[2])
+			if !ok {
+				continue
 			}
+			newPaths, err := g.findPathToRole(newAccount, newRole)
+			if err != nil {
+				return []Path{}, err
+			}
+			allPaths = append(allPaths, newPaths...)
 		} else {
-			srcHops = append(srcHops, []hop{{
+			allPaths = append(allPaths, Path{{
 				Profile: item.Path,
 			}})
 		}
 	}
 
-	myHop := hop{
+	myHop := Hop{
 		Role:    role.Name,
-		Account: acc.Account,
-		Region:  acc.Region,
+		Account: account.Account,
 		Mfa:     role.Mfa,
 	}
 
-	for i := range srcHops {
-		srcHops[i] = append(srcHops[i], myHop)
+	for i := range allPaths {
+		allPaths[i] = append(allPaths[i], myHop)
 	}
-	return srcHops, nil
+	return allPaths, nil
 }
 
-func (i *Itinerary) testSourcePath(srcAccID, srcRoleName string, srcHops *[][]hop) error {
-	ok, srcAcc := i.pack.Lookup(srcAccID)
+func (g *Grapher) pathIsViable(accountID, roleName string) (cartogram.Account, cartogram.Role, bool) {
+	ok, account := g.Pack.Lookup(accountID)
 	if !ok {
-		logger.DebugMsgf("Found dead end due to missing account: %s", srcAccID)
-		return nil
+		logger.DebugMsgf("found dead end due to missing account: %s", accountID)
+		return cartogram.Account{}, cartogram.Role{}, false
 	}
-	ok, srcRole := srcAcc.Roles.Lookup(srcRoleName)
+	ok, role := account.Roles.Lookup(roleName)
 	if !ok {
 		logger.DebugMsgf(
-			"Found dead end due to missing role: %s/%s", srcAccID, srcRoleName,
+			"Found dead end due to missing role: %s/%s", accountID, roleName,
 		)
-		return nil
+		return cartogram.Account{}, cartogram.Role{}, false
 	}
-	newPaths, err := i.tracePath(srcAcc, srcRole)
+	return account, role, true
+}
+
+func (g *Grapher) filterByRole(paths []Path, roleNames []string) ([]Path, error) {
+	af := func(p Path) string { return p[len(p)-1].Role }
+	allRoles := uniquePathAttributes(paths, af)
+	role, err := list.WithInputSlice(
+		g.Prompt,
+		allRoles,
+		roleNames,
+		"Pick a role:",
+	)
 	if err != nil {
-		return err
+		return []Path{}, err
 	}
-	for _, np := range newPaths {
-		*srcHops = append(*srcHops, np)
+	return filterPathsByAttribute(paths, role, af), nil
+}
+
+func (g *Grapher) filterByProfile(paths []Path, profileNames []string) ([]Path, error) {
+	af := func(p Path) string { return p[0].Profile }
+
+	allProfiles := uniquePathAttributes(paths, af)
+	unionProfiles := sliceUnion(allProfiles, profileNames)
+
+	profile, err := list.WithInputSlice(
+		g.Prompt,
+		allProfiles,
+		unionProfiles,
+		"Pick a profile:",
+	)
+	if err != nil {
+		return []Path{}, err
 	}
-	return nil
+
+	return filterPathsByAttribute(paths, profile, af), nil
 }

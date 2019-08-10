@@ -1,43 +1,5 @@
 package travel
 
-// Travel loads creds from a full set of parameters
-func (i *Itinerary) Travel() (creds.Creds, error) {
-	return i.getCreds()
-}
-
-func (i *Itinerary) getStore() profiles.Store {
-	if i.Store == nil {
-		logger.InfoMsg("Using default profile store")
-		i.Store = profiles.NewDefaultStore()
-	}
-	return i.Store
-}
-
-func (i *Itinerary) getPrompt() list.Prompt {
-	if i.Prompt == nil {
-		logger.InfoMsg("Using default prompt")
-		i.Prompt = list.WmenuPrompt{}
-	}
-	return i.Prompt
-}
-
-func (i *Itinerary) getPack() (cartogram.Pack, error) {
-	if i.pack != nil {
-		return i.pack, nil
-	}
-	i.pack = cartogram.Pack{}
-	err := i.pack.Load()
-	return i.pack, err
-}
-
-func (i *Itinerary) getAccount() (cartogram.Account, error) {
-	pack, err := i.getPack()
-	if err != nil {
-		return cartogram.Account{}, err
-	}
-	return pack.FindWithPrompt(i.Args, i.getPrompt())
-}
-
 func stringInSlice(list []string, key string) bool {
 	for _, item := range list {
 		if item == key {
@@ -57,10 +19,27 @@ func sliceUnion(a []string, b []string) []string {
 	return res
 }
 
-func keys(input map[string]bool) []string {
-	list := []string{}
-	for k := range input {
-		list = append(list, k)
+type attrFunc func(Path) string
+
+func uniquePathAttributes(paths []Path, af attrFunc) []string {
+	tmpMap := map[string]bool{}
+	for _, item := range paths {
+		attr := af(item)
+		tmpMap[attr] = true
 	}
-	return list
+	tmpList := []string{}
+	for item := range tmpMap {
+		tmpList := append(tmpList, item)
+	}
+	return tmpList
+}
+
+func filterPathsByAttribute(paths []Path, match string, af attrFunc) []Path {
+	filteredPaths := []Path{}
+	for _, item := range paths {
+		if af(item) == match {
+			filteredPaths = append(filteredPaths, item)
+		}
+	}
+	return filteredPaths
 }

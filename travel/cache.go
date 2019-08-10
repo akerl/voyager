@@ -8,14 +8,17 @@ type Cache struct {
 	creds map[string]creds.Creds
 }
 
-func (c *Cache) Put(h Hop, c creds.Creds) error {
+func (cache *Cache) Put(h Hop, c creds.Creds) error {
 	// TODO: write
+	return nil
 }
 
-func (c *Cache) Get(h Hop) (creds.Creds, bool) {
+func (cache *Cache) Get(h Hop) (creds.Creds, bool) {
 	// TODO: write
+	return creds.Creds{}, false
 }
 
-func (c *Cache) hopToKey(h Hop) string {
+func (cache *Cache) hopToKey(h Hop) string {
 	// TODO: write
+	return ""
 }

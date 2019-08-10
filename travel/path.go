@@ -6,9 +6,9 @@ import (
 	"github.com/akerl/speculate/v2/creds"
 )
 
-type Path []hop
+type Path []Hop
 
-type hop struct {
+type Hop struct {
 	Profile string
 	Account string
 	Role    string
@@ -19,6 +19,8 @@ type TraverseOptions struct {
 	MfaPrompt creds.MfaPrompt
 	Cache     *Cache
 }
+
+// TODO: clean up all Path.go code
 
 func (p Path) Traverse() (creds.Creds, error) {
 	return p.TraverseWithOptions(TraverseOptions{})
@@ -36,7 +38,7 @@ func clearEnvironment() error {
 }
 
 func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
-	err = clearEnvironment()
+	err := clearEnvironment()
 	if err != nil {
 		return creds.Creds{}, err
 	}

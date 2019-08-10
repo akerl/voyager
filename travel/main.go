@@ -5,3 +5,5 @@ import (
 )
 
 var logger = log.NewLogger("voyager")
+
+// TODO: use logging
