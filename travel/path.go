@@ -1,7 +1,7 @@
 package travel
 
 import (
-	"os"
+	"github.com/akerl/voyager/v2/profiles"
 
 	"github.com/akerl/speculate/v2/creds"
 )
@@ -13,54 +13,51 @@ type Hop struct {
 	Account string
 	Role    string
 	Mfa     bool
+	Region  string
 }
 
 type TraverseOptions struct {
-	MfaPrompt creds.MfaPrompt
-	Cache     *Cache
+	MfaCode    string
+	MfaPrompt  creds.MfaPrompt
+	Store      profiles.Store
+	Cache      *Cache
+	SessioName string
+	Lifetime   int64
 }
 
-// TODO: clean up all Path.go code
+func DefaultTraverseOptions() TraverseOptions {
+	return TraverseOptions{
+		MfaPrompt: &creds.DefaultMfaPrompt{},
+		Store:     profiles.NewDefaultStore(),
+		Cache:     &Cache{},
+	}
+}
 
 func (p Path) Traverse() (creds.Creds, error) {
-	return p.TraverseWithOptions(TraverseOptions{})
-}
-
-func clearEnvironment() error {
-	for varName := range creds.Translations["envvar"] {
-		logger.InfoMsgf("Unsetting env var: %s", varName)
-		err := os.Unsetenv(varName)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return p.TraverseWithOptions(DefaultTraverseOptions())
 }
 
 func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
+	logger.InfoMsgf("traversing path %+v with options %+v", p, opts)
+
 	err := clearEnvironment()
 	if err != nil {
 		return creds.Creds{}, err
 	}
 
-	profileHop, stack := path[0], path[1:]
-	logger.InfoMsgf("Setting origin hop: %+v", profileHop)
-	store := i.getStore()
-	profileCreds, err := store.Lookup(profileHop.Profile)
+	profileHop, stack := p[0], p[1:]
+	logger.InfoMsgf("loading origin hop: %+v", profileHop)
+	profileCreds, err := opts.Store.Lookup(profileHop.Profile)
 	if err != nil {
 		return creds.Creds{}, err
 	}
-	// TODO: move this to creds.NewFromValue
 	c := creds.Creds{
 		AccessKey: profileCreds.AccessKeyID,
 		SecretKey: profileCreds.SecretAccessKey,
-		Region:    stack[0].Region,
 	}
 
-	stack[len(stack)-1].Policy = i.Policy
-
 	for _, thisHop := range stack {
-		c, err = i.executeHop(thisHop, c)
+		c, err = thisHop.Traverse(c, opts)
 		if err != nil {
 			break
 		}
@@ -68,24 +65,22 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 	return c, err
 }
 
-func (h Hop) Traverse(c creds.Creds) (creds.Creds, error) {
-	var newCreds creds.Creds
-	var err error
-
-	logger.InfoMsgf("Executing hop: %+v", thisHop)
+func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) {
+	logger.InfoMsgf("Executing hop: %+v", h)
 	a := creds.AssumeRoleOptions{
-		RoleName:    thisHop.Role,
-		AccountID:   thisHop.Account,
-		SessionName: i.SessionName,
-		Policy:      thisHop.Policy,
-		Lifetime:    i.Lifetime,
+		RoleName:    h.Role,
+		AccountID:   h.Account,
+		SessionName: opts.SessioName,
+		Lifetime:    opts.Lifetime,
 	}
 
-	if thisHop.Mfa {
+	if h.Mfa {
 		a.UseMfa = true
-		a.MfaCode = i.MfaCode
-		a.MfaPrompt = i.MfaPrompt
+		a.MfaCode = opts.MfaCode
+		a.MfaPrompt = opts.MfaPrompt
 	}
-	newCreds, err = c.AssumeRole(a)
+
+	c.Region = h.Region
+	newCreds, err := c.AssumeRole(a)
 	return newCreds, err
 }

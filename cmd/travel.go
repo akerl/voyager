@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/akerl/voyager/v2/cartogram"
 	"github.com/akerl/voyager/v2/travel"
 	"github.com/akerl/voyager/v2/yubikey"
 
@@ -59,18 +60,27 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	i := travel.Itinerary{
-		Args:         args,
-		RoleNames:    []string{flagRole},
-		ProfileNames: []string{flagProfile},
-		Prompt:       prompt,
+	pack := cartogram.Pack{}
+	if err := pack.Load(); err != nil {
+		return err
 	}
 
+	grapher := travel.Grapher{
+		Prompt: prompt,
+		Pack:   pack,
+	}
+
+	path, err := grapher.Resolve(args, []string{flagRole}, []string{flagProfile})
+	if err != nil {
+		return err
+	}
+
+	opts := travel.DefaultTraverseOptions()
 	if useYubikey {
-		i.MfaPrompt = yubikey.NewPrompt()
+		opts.MfaPrompt = yubikey.NewPrompt()
 	}
 
-	creds, err := i.Travel()
+	creds, err := path.TraverseWithOptions(opts)
 	if err != nil {
 		return err
 	}

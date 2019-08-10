@@ -4,7 +4,6 @@ import (
 	"regexp"
 
 	"github.com/akerl/voyager/v2/cartogram"
-	"github.com/akerl/voyager/v2/profiles"
 
 	"github.com/akerl/input/list"
 )
@@ -20,11 +19,11 @@ var roleSourceRegex = regexp.MustCompile(roleSourceRegexString)
 
 type Grapher struct {
 	Prompt list.Prompt
-	Store  profiles.Store
 	Pack   cartogram.Pack
 }
 
 func (g *Grapher) Resolve(args, roleNames, profileNames []string) (Path, error) {
+	logger.InfoMsgf("resolving a path based on %v / %v / %v", args, roleNames, profileNames)
 	account, err := g.selectTargetAccount(args)
 	if err != nil {
 		return Path{}, err
@@ -52,6 +51,7 @@ func (g *Grapher) Resolve(args, roleNames, profileNames []string) (Path, error) 
 }
 
 func (g *Grapher) selectTargetAccount(args []string) (cartogram.Account, error) {
+	logger.InfoMsgf("looking up account based on %v", args)
 	return g.Pack.FindWithPrompt(args, g.Prompt)
 }
 
@@ -66,6 +66,7 @@ func (g *Grapher) findAllPaths(account cartogram.Account) ([]Path, error) {
 		allPaths = append(allPaths, paths...)
 	}
 
+	logger.InfoMsgf("found %d paths", len(allPaths))
 	return allPaths, nil
 }
 
@@ -95,6 +96,7 @@ func (g *Grapher) findPathToRole(account cartogram.Account, role cartogram.Role)
 		Role:    role.Name,
 		Account: account.Account,
 		Mfa:     role.Mfa,
+		Region:  account.Region,
 	}
 
 	for i := range allPaths {
@@ -111,9 +113,7 @@ func (g *Grapher) pathIsViable(accountID, roleName string) (cartogram.Account, c
 	}
 	ok, role := account.Roles.Lookup(roleName)
 	if !ok {
-		logger.DebugMsgf(
-			"Found dead end due to missing role: %s/%s", accountID, roleName,
-		)
+		logger.DebugMsgf("found dead end due to missing role: %s/%s", accountID, roleName)
 		return cartogram.Account{}, cartogram.Role{}, false
 	}
 	return account, role, true
@@ -121,7 +121,9 @@ func (g *Grapher) pathIsViable(accountID, roleName string) (cartogram.Account, c
 
 func (g *Grapher) filterByRole(paths []Path, roleNames []string) ([]Path, error) {
 	af := func(p Path) string { return p[len(p)-1].Role }
+
 	allRoles := uniquePathAttributes(paths, af)
+
 	role, err := list.WithInputSlice(
 		g.Prompt,
 		allRoles,
@@ -131,6 +133,7 @@ func (g *Grapher) filterByRole(paths []Path, roleNames []string) ([]Path, error)
 	if err != nil {
 		return []Path{}, err
 	}
+
 	return filterPathsByAttribute(paths, role, af), nil
 }
 

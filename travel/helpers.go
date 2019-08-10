@@ -1,5 +1,22 @@
 package travel
 
+import (
+	"os"
+
+	"github.com/akerl/speculate/v2/creds"
+)
+
+func clearEnvironment() error {
+	for varName := range creds.Translations["envvar"] {
+		logger.InfoMsgf("Unsetting env var: %s", varName)
+		err := os.Unsetenv(varName)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func stringInSlice(list []string, key string) bool {
 	for _, item := range list {
 		if item == key {
@@ -29,7 +46,7 @@ func uniquePathAttributes(paths []Path, af attrFunc) []string {
 	}
 	tmpList := []string{}
 	for item := range tmpMap {
-		tmpList := append(tmpList, item)
+		tmpList = append(tmpList, item)
 	}
 	return tmpList
 }
