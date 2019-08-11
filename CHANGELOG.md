@@ -1,3 +1,7 @@
+# 2.0.1 / 2019-08-11
+
+* [BUGFIX] Fix SessionName typo
+
 # 2.0.0 / 2019-08-11
 
 * [BREAKING] Updated to speculate v2
