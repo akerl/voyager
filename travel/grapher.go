@@ -113,7 +113,7 @@ func (g *Grapher) pathIsViable(account, role string) (cartogram.Account, cartogr
 		logger.DebugMsgf("found dead end due to missing account: %s", account)
 		return cartogram.Account{}, cartogram.Role{}, false
 	}
-	ok, roleObj := account.Roles.Lookup(role)
+	ok, roleObj := accountObj.Roles.Lookup(role)
 	if !ok {
 		logger.DebugMsgf("found dead end due to missing role: %s/%s", account, role)
 		return cartogram.Account{}, cartogram.Role{}, false
