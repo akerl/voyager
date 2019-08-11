@@ -15,12 +15,13 @@ type KeyringStore struct {
 
 // Lookup checks the keyring for credentials
 func (k *KeyringStore) Lookup(profile string) (credentials.Value, error) {
+	logger.InfoMsgf("looking up %s in keyring store", profile)
 	ring, err := k.keyring()
 	if err != nil {
 		return credentials.Value{}, err
 	}
 	itemName := k.itemName(profile)
-	logger.InfoMsg(fmt.Sprintf("looking up in keyring: %s", itemName))
+	logger.InfoMsgf("converted profile to item name: %s", itemName)
 	item, err := ring.Get(itemName)
 	if err != nil {
 		return credentials.Value{}, err
@@ -30,6 +31,7 @@ func (k *KeyringStore) Lookup(profile string) (credentials.Value, error) {
 
 // Write caches the credentials for the user
 func (k *KeyringStore) Write(profile string, creds credentials.Value) error {
+	logger.InfoMsgf("writing %s in keyring store", profile)
 	is := itemStruct{EnvVars: map[string]string{
 		"AWS_ACCESS_KEY_ID":     creds.AccessKeyID,
 		"AWS_SECRET_ACCESS_KEY": creds.SecretAccessKey,
@@ -38,12 +40,12 @@ func (k *KeyringStore) Write(profile string, creds credentials.Value) error {
 	if err != nil {
 		return err
 	}
-	logger.InfoMsg("storing profile in keyring")
 	ring, err := k.keyring()
 	if err != nil {
 		return err
 	}
 	itemName := k.itemName(profile)
+	logger.InfoMsgf("converted profile to item name: %s", itemName)
 	return ring.Set(keyring.Item{
 		Key:   itemName,
 		Label: itemName,
@@ -53,18 +55,20 @@ func (k *KeyringStore) Write(profile string, creds credentials.Value) error {
 
 // Check returns if the credentials are cached in the keyring
 func (k *KeyringStore) Check(profile string) bool {
+	logger.InfoMsgf("checking for %s in keyring store", profile)
 	res, _ := k.Lookup(profile)
 	return res.AccessKeyID != ""
 }
 
 // Delete removes a profile from the keyring
 func (k *KeyringStore) Delete(profile string) error {
+	logger.InfoMsgf("deleting for %s from keyring store", profile)
 	ring, err := k.keyring()
 	if err != nil {
 		return err
 	}
 	itemName := k.itemName(profile)
-	logger.InfoMsg(fmt.Sprintf("deleting from keyring: %s", itemName))
+	logger.InfoMsgf("converted profile to item name: %s", itemName)
 
 	return ring.Remove(itemName)
 }
@@ -86,7 +90,7 @@ func (k *KeyringStore) config() keyring.Config {
 
 func (k *KeyringStore) getName() string {
 	if k.Name == "" {
-		logger.InfoMsg(fmt.Sprintf("set keyring store to default"))
+		logger.InfoMsgf("set keyring store to default")
 		k.Name = "default"
 	}
 	return k.Name

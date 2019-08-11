@@ -28,6 +28,7 @@ type Source struct {
 
 // Lookup finds an account in a Cartogram based on its ID
 func (as AccountSet) Lookup(accountID string) (bool, Account) {
+	logger.InfoMsgf("looking up accountID %s in set", accountID)
 	for _, a := range as {
 		if a.Account == accountID {
 			return true, a
@@ -38,6 +39,7 @@ func (as AccountSet) Lookup(accountID string) (bool, Account) {
 
 // Search finds accounts based on their tags
 func (as AccountSet) Search(tfs TagFilterSet) AccountSet {
+	logger.InfoMsgf("searching for %v in set", tfs)
 	results := AccountSet{}
 	for _, a := range as {
 		if tfs.Match(a) {
@@ -49,6 +51,7 @@ func (as AccountSet) Search(tfs TagFilterSet) AccountSet {
 
 // Lookup searches for a role by name
 func (rs RoleSet) Lookup(name string) (bool, Role) {
+	logger.InfoMsgf("looking up role %s in set", name)
 	for _, r := range rs {
 		if r.Name == name {
 			return true, r

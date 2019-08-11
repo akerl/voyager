@@ -40,6 +40,7 @@ func (t Tags) String() string {
 
 // LoadFromArgs parses key:value args into a TagFilterSet
 func (tfs *TagFilterSet) LoadFromArgs(args []string) error {
+	logger.InfoMsgf("loading args into tagfilterset: %s", args)
 	var err error
 	for _, a := range args {
 		tf := TagFilter{}

@@ -3,9 +3,11 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/akerl/voyager/prompt"
-	"github.com/akerl/voyager/travel"
-	"github.com/akerl/voyager/yubikey"
+	"github.com/akerl/voyager/v2/cartogram"
+	"github.com/akerl/voyager/v2/travel"
+	"github.com/akerl/voyager/v2/yubikey"
+
+	"github.com/akerl/input/list"
 	"github.com/spf13/cobra"
 )
 
@@ -42,10 +44,11 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	promptFunc, ok := prompt.Types[promptFlag]
+	promptGenerator, ok := list.Types[promptFlag]
 	if !ok {
 		return fmt.Errorf("prompt type not found: %s", promptFlag)
 	}
+	prompt := promptGenerator()
 
 	useYubikey, err := flags.GetBool("yubikey")
 	if err != nil {
@@ -57,18 +60,27 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	i := travel.Itinerary{
-		Args:        args,
-		RoleName:    []string{flagRole},
-		ProfileName: []string{flagProfile},
-		Prompt:      promptFunc,
+	pack := cartogram.Pack{}
+	if err := pack.Load(); err != nil {
+		return err
 	}
 
+	grapher := travel.Grapher{
+		Prompt: prompt,
+		Pack:   pack,
+	}
+
+	path, err := grapher.Resolve(args, []string{flagRole}, []string{flagProfile})
+	if err != nil {
+		return err
+	}
+
+	opts := travel.DefaultTraverseOptions()
 	if useYubikey {
-		i.MfaPrompt = yubikey.NewPrompt()
+		opts.MfaPrompt = yubikey.NewPrompt()
 	}
 
-	creds, err := i.Travel()
+	creds, err := path.TraverseWithOptions(opts)
 	if err != nil {
 		return err
 	}
