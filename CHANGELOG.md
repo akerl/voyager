@@ -1,3 +1,7 @@
+# 2.0.3 / 2019-08-12
+
+* [BUGFIX] Update input dependency to fix prompt formatting bug
+
 # 2.0.2 / 2019-08-11
 
 * [ENHANCEMENT] Update go.mod to remove cruft
