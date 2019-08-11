@@ -1,3 +1,7 @@
+# 2.0.2 / 2019-08-11
+
+* [ENHANCEMENT] Update go.mod to remove cruft
+
 # 2.0.1 / 2019-08-11
 
 * [BUGFIX] Fix SessionName typo
