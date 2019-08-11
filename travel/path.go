@@ -21,12 +21,12 @@ type Hop struct {
 
 // TraverseOptions defines the parameters for traversing a path
 type TraverseOptions struct {
-	MfaCode    string
-	MfaPrompt  creds.MfaPrompt
-	Store      profiles.Store
-	Cache      Cache
-	SessioName string
-	Lifetime   int64
+	MfaCode     string
+	MfaPrompt   creds.MfaPrompt
+	Store       profiles.Store
+	Cache       Cache
+	SessionName string
+	Lifetime    int64
 }
 
 // DefaultTraverseOptions returns a standard set of TraverseOptions
@@ -82,7 +82,7 @@ func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) 
 	a := creds.AssumeRoleOptions{
 		RoleName:    h.Role,
 		AccountID:   h.Account,
-		SessionName: opts.SessioName,
+		SessionName: opts.SessionName,
 		Lifetime:    opts.Lifetime,
 	}
 
