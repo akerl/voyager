@@ -6,12 +6,15 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
+// Cache defines a credential caching object
 type Cache interface {
 	Get(Hop) (creds.Creds, bool)
 	Put(Hop, creds.Creds) error
 	Delete(Hop) error
 }
 
+// CheckCache returns credentials if they exist in the cache and are still valid
+// If the credentials exist but are invalid/expired, it removes them from the cache
 func CheckCache(c Cache, h Hop) (creds.Creds, bool) {
 	cachedCreds, ok := c.Get(h)
 	if !ok {
@@ -28,24 +31,30 @@ func CheckCache(c Cache, h Hop) (creds.Creds, bool) {
 	return creds.Creds{}, false
 }
 
+// NullCache implements an empty cache which stores nothing
 type NullCache struct{}
 
+// Put is a no-op for NullCache
 func (nc *NullCache) Put(_ Hop, _ creds.Creds) error {
 	return nil
 }
 
+// Get for NullCache always returns empty Creds / false
 func (nc *NullCache) Get(_ Hop) (creds.Creds, bool) {
 	return creds.Creds{}, false
 }
 
+// Delete is a no-op for NullCache
 func (nc *NullCache) Delete(_ Hop) error {
 	return nil
 }
 
+// MapCache stores credentials in a map object based on the hop information
 type MapCache struct {
 	creds map[string]creds.Creds
 }
 
+// Put stores the credentials in the map
 func (mc *MapCache) Put(h Hop, c creds.Creds) error {
 	key := mc.hopToKey(h)
 	if mc.creds == nil {
@@ -55,12 +64,14 @@ func (mc *MapCache) Put(h Hop, c creds.Creds) error {
 	return nil
 }
 
+// Get returns credentials from the map, if they exist
 func (mc *MapCache) Get(h Hop) (creds.Creds, bool) {
 	key := mc.hopToKey(h)
 	creds, ok := mc.creds[key]
 	return creds, ok
 }
 
+// Delete removes credentials from the cache
 func (mc *MapCache) Delete(h Hop) error {
 	key := mc.hopToKey(h)
 	delete(mc.creds, key)

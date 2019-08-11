@@ -107,18 +107,18 @@ func (g *Grapher) findPathToRole(account cartogram.Account, role cartogram.Role)
 	return allPaths, nil
 }
 
-func (g *Grapher) pathIsViable(accountID, roleName string) (cartogram.Account, cartogram.Role, bool) {
-	ok, account := g.Pack.Lookup(accountID)
+func (g *Grapher) pathIsViable(account, role string) (cartogram.Account, cartogram.Role, bool) {
+	ok, accountObj := g.Pack.Lookup(account)
 	if !ok {
-		logger.DebugMsgf("found dead end due to missing account: %s", accountID)
+		logger.DebugMsgf("found dead end due to missing account: %s", account)
 		return cartogram.Account{}, cartogram.Role{}, false
 	}
-	ok, role := account.Roles.Lookup(roleName)
+	ok, roleObj := account.Roles.Lookup(role)
 	if !ok {
-		logger.DebugMsgf("found dead end due to missing role: %s/%s", accountID, roleName)
+		logger.DebugMsgf("found dead end due to missing role: %s/%s", account, role)
 		return cartogram.Account{}, cartogram.Role{}, false
 	}
-	return account, role, true
+	return accountObj, roleObj, true
 }
 
 func (g *Grapher) filterByRole(paths []Path, roleNames []string) ([]Path, error) {
