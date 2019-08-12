@@ -1,3 +1,7 @@
+# 2.0.6 / 2019-08-12
+
+* [ENHANCEMENT] Support speculate MultiMfaPrompt
+
 # 2.0.5 / 2019-08-12
 
 * [BUGFIX] Update speculate dep to fix empty parameter bug

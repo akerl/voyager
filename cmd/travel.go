@@ -8,6 +8,7 @@ import (
 	"github.com/akerl/voyager/v2/yubikey"
 
 	"github.com/akerl/input/list"
+	"github.com/akerl/speculate/v2/creds"
 	"github.com/spf13/cobra"
 )
 
@@ -77,7 +78,10 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 
 	opts := travel.DefaultTraverseOptions()
 	if useYubikey {
-		opts.MfaPrompt = yubikey.NewPrompt()
+		opts.MfaPrompt = &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
+			yubikey.NewPrompt(),
+			&creds.DefaultMfaPrompt{},
+		}}
 	}
 
 	creds, err := path.TraverseWithOptions(opts)
