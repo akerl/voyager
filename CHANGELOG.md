@@ -1,3 +1,7 @@
+# 2.0.4 / 2019-08-12
+
+* [BUGFIX] Update timber dependency to fix logging bug
+
 # 2.0.3 / 2019-08-12
 
 * [BUGFIX] Update input dependency to fix prompt formatting bug
