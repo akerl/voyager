@@ -1,3 +1,7 @@
+# 2.0.7 / 2019-08-12
+
+* [BUGFIX] Bring in speculate upgrade to fix MultiMfaPrompt chaining bug
+
 # 2.0.6 / 2019-08-12
 
 * [ENHANCEMENT] Support speculate MultiMfaPrompt
