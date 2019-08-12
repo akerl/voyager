@@ -9,7 +9,6 @@ import (
 	"os/user"
 	"path"
 
-	"github.com/akerl/speculate/v2/creds"
 	"github.com/akerl/timber/v2/log"
 	"github.com/yawn/ykoath"
 )
@@ -63,8 +62,7 @@ func homeDir() (string, error) {
 
 // Prompt defines a yubikey prompt object
 type Prompt struct {
-	mapping  map[string]string
-	Fallback bool
+	mapping map[string]string
 }
 
 // NewPrompt populates the yubikey mapping from a dotfile, if it exists
@@ -110,10 +108,6 @@ func (p *Prompt) Prompt(arn string) (string, error) {
 	name := p.otpName(arn)
 	exists := p.otpExists(name)
 	if !exists {
-		if p.Fallback {
-			fallback := creds.DefaultMfaPrompt{}
-			return fallback.Prompt(arn)
-		}
 		return "", fmt.Errorf("failed to connect to yubikey")
 	}
 
