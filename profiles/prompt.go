@@ -47,7 +47,7 @@ func (p *PromptStore) getUserInput(message string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	info = strings.TrimRight(info, "\n")
+	info = strings.TrimSpace(info)
 	if info == "" {
 		return "", fmt.Errorf("no input provided")
 	}

@@ -1,3 +1,7 @@
+# 2.0.8 / 2019-08-13
+
+* [BUGFIX] Trim all whitespace from profiles/prompt, including on Windows
+
 # 2.0.7 / 2019-08-12
 
 * [BUGFIX] Bring in speculate upgrade to fix MultiMfaPrompt chaining bug
