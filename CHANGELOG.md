@@ -1,3 +1,7 @@
+# 2.0.9 / 2019-08-15
+
+* [FEATURE] Update speculate to handle platform-specific env vars
+
 # 2.0.8 / 2019-08-13
 
 * [BUGFIX] Trim all whitespace from profiles/prompt, including on Windows
