@@ -31,12 +31,6 @@ func init() {
 	xargsCmd.Flags().StringP("command", "c", "", "Command to execute")
 }
 
-type xargsOutput struct {
-	ExitCode int    `json:"exitcode"`
-	StdOut   string `json:"stdout"`
-	StdErr   string `json:"stderr"`
-}
-
 // revive:disable-next-line:cyclomatic
 func xargsRunner(cmd *cobra.Command, args []string) error {
 	flags := cmd.Flags()
@@ -110,37 +104,9 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 		allCreds[accountId] = c
 	}
 
-	output := map[string]xargsOutput{}
+	output := map[string]creds.ExecResult{}
 	for accountId, c := range allCreds {
-		envCreds := c.Translate(creds.Translations["envvar"])
-		env := os.Environ()
-		for k, v := range envCreds {
-			if v != "" {
-				env = append(env, fmt.Sprintf("%s=%s", k, v))
-			}
-		}
-
-		command := exec.Command(commandStr)
-		command.Env = env
-
-		var stdout, stderr bytes.Buffer
-		command.Stdout = &stdout
-		command.Stderr = &stderr
-
-		exitCode := 0
-		err := command.Run()
-		if err != nil {
-			exitCode = -1
-			if exitErr, ok := err.(*exec.ExitError); ok {
-				exitCode = exitErr.ExitCode()
-			}
-		}
-
-		output[accountId] = xargsOutput{
-			ExitCode: exitCode,
-			StdOut:   stdout.String(),
-			StdErr:   stderr.String(),
-		}
+		output[accountId] = c.ExecString(commandStr)
 	}
 
 	buffer, err := json.MarshalIndent(output, "", "  ")
