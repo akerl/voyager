@@ -33,22 +33,14 @@ func (g *Grapher) ResolveAll(args, roleNames, profileNames []string) ([]Path, er
 	}
 	accounts := g.Pack.Search(tfs)
 
-	firstAccount, otherAccounts := accounts[0], accounts[1:]
+	paths := make([]Path, len(accounts))
 
-	firstPath, err := g.filterPaths(firstAccount, roleNames, profileNames)
-	if err != nil {
-		return []Path{}, err
-	}
-	paths := []Path{firstPath}
-	selectedRole := []string{firstPath[len(firstPath)-1].Role}
-	selectedProfile := []string{firstPath[0].Profile}
-
-	for _, item := range otherAccounts {
-		path, err := g.filterPaths(item, selectedRole, selectedProfile)
+	for index, item := range accounts {
+		path, err := g.filterPaths(item, roleNames, profileNames)
 		if err != nil {
 			return []Path{}, err
 		}
-		paths = append(paths, path)
+		paths[index] = path
 	}
 
 	return paths, nil
