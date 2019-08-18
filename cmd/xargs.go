@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/akerl/voyager/v2/cartogram"
+	"github.com/akerl/voyager/v2/multi"
 	"github.com/akerl/voyager/v2/travel"
 	"github.com/akerl/voyager/v2/yubikey"
 
@@ -75,11 +76,6 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 		Pack:   pack,
 	}
 
-	paths, err := grapher.ResolveAll(args, []string{flagRole}, []string{flagProfile})
-	if err != nil {
-		return err
-	}
-
 	opts := travel.DefaultTraverseOptions()
 	if useYubikey {
 		opts.MfaPrompt = &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
@@ -88,25 +84,20 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 		}}
 	}
 
-	allCreds := map[string]creds.Creds{}
-	for _, item := range paths {
-		c, err := item.TraverseWithOptions(opts)
-		if err != nil {
-			return err
-		}
-		accountId, err := c.AccountID()
-		if err != nil {
-			return err
-		}
-		allCreds[accountId] = c
+	processor := multi.Processor{
+		Grapher:      grapher,
+		Options:      opts,
+		Args:         args,
+		RoleNames:    []string{flagRole},
+		ProfileNames: []string{flagProfile},
 	}
 
-	output := map[string]creds.ExecResult{}
-	for accountId, c := range allCreds {
-		output[accountId] = c.ExecString(commandStr)
+	results, err := processor.ExecString(commandStr)
+	if err != nil {
+		return err
 	}
 
-	buffer, err := json.MarshalIndent(output, "", "  ")
+	buffer, err := json.MarshalIndent(results, "", "  ")
 	if err != nil {
 		return err
 	}
