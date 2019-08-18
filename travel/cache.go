@@ -2,6 +2,7 @@ package travel
 
 import (
 	"fmt"
+
 	"github.com/akerl/speculate/v2/creds"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
