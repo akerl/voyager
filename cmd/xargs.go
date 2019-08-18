@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
-	"os/exec"
 
 	"github.com/akerl/voyager/v2/cartogram"
 	"github.com/akerl/voyager/v2/travel"
