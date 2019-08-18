@@ -63,7 +63,7 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if commandStr == "" {
-		return fmt.Errorf("Command must be provided via --command / -c")
+		return fmt.Errorf("command must be provided via --command / -c")
 	}
 
 	pack := cartogram.Pack{}
