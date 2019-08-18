@@ -84,15 +84,15 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		}}
 	}
 
-	creds, err := path.TraverseWithOptions(opts)
+	c, err := path.TraverseWithOptions(opts)
 	if err != nil {
 		return err
 	}
 
-	for _, line := range creds.ToEnvVars() {
+	for _, line := range c.ToEnvVars() {
 		fmt.Println(line)
 	}
-	url, err := creds.ToCustomConsoleURL(servicePath)
+	url, err := c.ToCustomConsoleURL(servicePath)
 	if err != nil {
 		return err
 	}

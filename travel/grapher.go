@@ -23,6 +23,37 @@ type Grapher struct {
 	Pack   cartogram.Pack
 }
 
+// ResolveAll selects all matching paths based on provided args
+func (g *Grapher) ResolveAll(args, roleNames, profileNames []string) ([]Path, error) {
+	logger.InfoMsgf("resolving all paths based on %v / %v / %v", args, roleNames, profileNames)
+
+	tfs := cartogram.TagFilterSet{}
+	if err := tfs.LoadFromArgs(args); err != nil {
+		return []Path{}, err
+	}
+	accounts := g.Pack.Search(tfs)
+
+	firstAccount, otherAccounts := accounts[0], accounts[1:]
+
+	firstPath, err := g.filterPaths(firstAccount, roleNames, profileNames)
+	if err != nil {
+		return []Path{}, err
+	}
+	paths := []Path{firstPath}
+	selectedRole := []string{firstPath[len(firstPath)-1].Role}
+	selectedProfile := []string{firstPath[0].Profile}
+
+	for _, item := range otherAccounts {
+		path, err := g.filterPaths(item, selectedRole, selectedProfile)
+		if err != nil {
+			return []Path{}, err
+		}
+		paths = append(paths, path)
+	}
+
+	return paths, nil
+}
+
 // Resolve selects a valid path to the target account and role
 func (g *Grapher) Resolve(args, roleNames, profileNames []string) (Path, error) {
 	logger.InfoMsgf("resolving a path based on %v / %v / %v", args, roleNames, profileNames)
@@ -30,18 +61,21 @@ func (g *Grapher) Resolve(args, roleNames, profileNames []string) (Path, error) 
 	if err != nil {
 		return Path{}, err
 	}
+	return g.filterPaths(account, roleNames, profileNames)
+}
 
+func (g *Grapher) filterPaths(account cartogram.Account, r, p []string) (Path, error) {
 	paths, err := g.findAllPaths(account)
 	if err != nil {
 		return Path{}, err
 	}
 
-	paths, err = g.filterByRole(paths, roleNames)
+	paths, err = g.filterByRole(paths, r)
 	if err != nil {
 		return Path{}, err
 	}
 
-	paths, err = g.filterByProfile(paths, profileNames)
+	paths, err = g.filterByProfile(paths, p)
 	if err != nil {
 		return Path{}, err
 	}
