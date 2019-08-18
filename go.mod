@@ -11,3 +11,5 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/yawn/ykoath v1.0.2
 )
+
+replace github.com/akerl/speculate/v2 => /Users/laker/tmp/speculate

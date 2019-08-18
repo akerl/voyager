@@ -94,5 +94,9 @@ func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) 
 
 	c.Region = h.Region
 	newCreds, err := c.AssumeRole(a)
+	if err != nil {
+		return creds.Creds{}, err
+	}
+	err = opts.Cache.Put(h, newCreds)
 	return newCreds, err
 }

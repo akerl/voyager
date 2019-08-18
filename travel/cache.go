@@ -16,6 +16,7 @@ type Cache interface {
 // CheckCache returns credentials if they exist in the cache and are still valid
 // If the credentials exist but are invalid/expired, it removes them from the cache
 func CheckCache(c Cache, h Hop) (creds.Creds, bool) {
+	logger.DebugMsgf("checking cache for %+v", h)
 	cachedCreds, ok := c.Get(h)
 	if !ok {
 		return creds.Creds{}, false
@@ -57,6 +58,7 @@ type MapCache struct {
 // Put stores the credentials in the map
 func (mc *MapCache) Put(h Hop, c creds.Creds) error {
 	key := mc.hopToKey(h)
+	logger.DebugMsgf("mapcache: caching %s", key)
 	if mc.creds == nil {
 		mc.creds = map[string]creds.Creds{}
 	}
@@ -67,6 +69,7 @@ func (mc *MapCache) Put(h Hop, c creds.Creds) error {
 // Get returns credentials from the map, if they exist
 func (mc *MapCache) Get(h Hop) (creds.Creds, bool) {
 	key := mc.hopToKey(h)
+	logger.DebugMsgf("mapcache: getting %s", key)
 	creds, ok := mc.creds[key]
 	return creds, ok
 }
@@ -74,6 +77,7 @@ func (mc *MapCache) Get(h Hop) (creds.Creds, bool) {
 // Delete removes credentials from the cache
 func (mc *MapCache) Delete(h Hop) error {
 	key := mc.hopToKey(h)
+	logger.DebugMsgf("mapcache: deleting %s", key)
 	delete(mc.creds, key)
 	return nil
 }
