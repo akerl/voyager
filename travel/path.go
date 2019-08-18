@@ -1,10 +1,19 @@
 package travel
 
 import (
+	"fmt"
+
 	"github.com/akerl/voyager/v2/profiles"
 
+	"github.com/BurntSushi/locker"
 	"github.com/akerl/speculate/v2/creds"
 )
+
+var mutex *locker.Locker
+
+func init() {
+	mutex = locker.NewLocker()
+}
 
 // Path defines a set of hops to reach the target account
 type Path []Hop
@@ -75,6 +84,10 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 
 // Traverse executes a Hop, returning the new credentials
 func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) {
+	key := h.toKey()
+	mutex.Lock(key)
+	defer mutex.Unlock(key)
+
 	if cached, ok := CheckCache(opts.Cache, h); ok {
 		return cached, nil
 	}
@@ -94,5 +107,16 @@ func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) 
 
 	c.Region = h.Region
 	newCreds, err := c.AssumeRole(a)
+	if err != nil {
+		return creds.Creds{}, err
+	}
+	err = opts.Cache.Put(h, newCreds)
 	return newCreds, err
+}
+
+func (h *Hop) toKey() string {
+	if h.Profile != "" {
+		return fmt.Sprintf("profile--%s", h.Profile)
+	}
+	return fmt.Sprintf("%s-%s-%t", h.Account, h.Role, h.Mfa)
 }

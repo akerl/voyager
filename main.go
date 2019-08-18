@@ -1,15 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/akerl/voyager/v2/cmd"
+
+	"github.com/akerl/speculate/v2/helpers"
 )
 
 func main() {
 	if err := cmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		helpers.PrintAwsError(err)
 		os.Exit(1)
 	}
 }

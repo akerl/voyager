@@ -1,3 +1,8 @@
+# 2.1.0 / 2019-08-19
+
+* [FEATURE] Add xargs subcommand
+* [FEATURE] Mutex for thread-safe credential lookups
+
 # 2.0.9 / 2019-08-15
 
 * [FEATURE] Update speculate to handle platform-specific env vars
