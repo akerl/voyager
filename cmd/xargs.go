@@ -27,6 +27,7 @@ func init() {
 	xargsCmd.Flags().StringP("prompt", "p", "", "Choose prompt to use")
 	xargsCmd.Flags().BoolP("yubikey", "y", false, "Use Yubikey for MFA")
 	xargsCmd.Flags().StringP("command", "c", "", "Command to execute")
+	xargsCmd.Flags().Bool("skipconfirm", false, "Skip confirmation prompt")
 }
 
 // revive:disable-next-line:cyclomatic
@@ -66,6 +67,11 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("command must be provided via --command / -c")
 	}
 
+	skipConfirm, err := flags.GetBool("skipconfirm")
+	if err != nil {
+		return err
+	}
+
 	pack := cartogram.Pack{}
 	if err := pack.Load(); err != nil {
 		return err
@@ -90,6 +96,7 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 		Args:         args,
 		RoleNames:    []string{flagRole},
 		ProfileNames: []string{flagProfile},
+		SkipConfirm:  skipConfirm,
 	}
 
 	results, err := processor.ExecString(commandStr)

@@ -1,6 +1,8 @@
 package multi
 
 import (
+	"bufio"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -22,6 +24,7 @@ type Processor struct {
 	Args         []string
 	RoleNames    []string
 	ProfileNames []string
+	SkipConfirm  bool
 }
 
 // ExecString runs a command string against a set of accounts
@@ -37,6 +40,10 @@ func (p Processor) Exec(cmd []string) (map[string]creds.ExecResult, error) {
 	paths, err := p.Grapher.ResolveAll(p.Args, p.RoleNames, p.ProfileNames)
 	if err != nil {
 		return map[string]creds.ExecResult{}, err
+	}
+
+	if !p.confirm(paths) {
+		return map[string]creds.ExecResult{}, fmt.Errorf("aborted by user")
 	}
 
 	inputCh := make(chan workerInput, len(paths))
@@ -80,6 +87,34 @@ func (p Processor) Exec(cmd []string) (map[string]creds.ExecResult, error) {
 	progress.Wait()
 
 	return output, nil
+}
+
+func (p Processor) confirm(paths []travel.Path) bool {
+	if p.SkipConfirm {
+		return true
+	}
+	fmt.Fprintln(os.Stderr, "Will run on the following accounts:")
+	for _, item := range paths {
+		accountID := item[len(item)-1].Account
+		ok, account := p.Grapher.Pack.Lookup(accountID)
+		if !ok {
+			fmt.Fprintf(os.Stderr, "Failed account lookup: %s\n", accountID)
+			return false
+		}
+		fmt.Fprintf(os.Stderr, "  %s -- %s\n", account.Account, account.Tags)
+	}
+	fmt.Fprintln(os.Stderr, "Type 'yes' to confirm")
+	confirmReader := bufio.NewReader(os.Stdin)
+	confirmInput, err := confirmReader.ReadString('\n')
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading prompt: %s", err)
+		return false
+	}
+	cleanedInput := strings.TrimSpace(confirmInput)
+	if cleanedInput != "yes" {
+		return false
+	}
+	return true
 }
 
 type workerInput struct {

@@ -1,3 +1,7 @@
+# 2.1.1 / 2019-08-19
+
+* [FEATURE] Show confirmation prompt before running xargs
+
 # 2.1.0 / 2019-08-19
 
 * [FEATURE] Add xargs subcommand
