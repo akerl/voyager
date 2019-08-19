@@ -1,3 +1,7 @@
+# 2.1.2 / 2019-08-20
+
+* [BUGFIX] Fix version setting
+
 # 2.1.1 / 2019-08-19
 
 * [FEATURE] Show confirmation prompt before running xargs
