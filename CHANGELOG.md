@@ -1,3 +1,7 @@
+# 2.1.4 / 2019-08-20
+
+* [BUGFIX] Update deps
+
 # 2.1.3 / 2019-08-20
 
 * [BUGFIX] Additional version setting fix
