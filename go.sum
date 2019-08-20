@@ -7,8 +7,8 @@ github.com/VividCortex/ewma v1.1.1 h1:MnEK4VOv6n0RSY4vtRe3h11qjxL3+t0B8yOL8iMXdc
 github.com/VividCortex/ewma v1.1.1/go.mod h1:2Tkkvm3sRDVXaiyucHiACn4cqf7DpdyLvmxzcbUokwA=
 github.com/akerl/input v0.0.3 h1:gy9u/L8WJWIJ9OB/5HSdOBIjrFfVkrRxmRlWd3I9+Co=
 github.com/akerl/input v0.0.3/go.mod h1:AVqHnOGmoQDEzX4jMX/ZZOC20+7MfodkmNbXhzqIJ2U=
-github.com/akerl/speculate/v2 v2.1.1 h1:le63HArowE0E8CS0fIdfXIyVewrVNNBx+2vg6MTujtE=
-github.com/akerl/speculate/v2 v2.1.1/go.mod h1:qkhyP7kYtsPqTNpuE+6S4/gx5q2X1AmTcuDqp7Jmegw=
+github.com/akerl/speculate/v2 v2.1.2 h1:QnsoAmr/vAgYrUzZFEEaAT/fJ3eSw/o30r/Lsz+aQe4=
+github.com/akerl/speculate/v2 v2.1.2/go.mod h1:9RcyRFiIaG2pzhYj/JDOXkrDPCPcIZEQ+dRT+kQm2uk=
 github.com/akerl/timber/v2 v2.0.1 h1:hY4VCOJns7KsxwxP/ifSt3Rz9GZCfKewapaimObnA2E=
 github.com/akerl/timber/v2 v2.0.1/go.mod h1:jBjRGI2CWuvbZlrZkp1JO/X51pMlbg72NFy+Vnd59oI=
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=
@@ -100,8 +100,9 @@ golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9/go.mod h1:6SG95UA2DQfeDnf
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 h1:HuIa8hRrWRSrqYzx1qI49NNxhdi2PrY7gxVSq1JjLDc=
 golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
-golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 h1:0GoQqolDA55aaLxZyTzK/Y2ePZzZTUrRacwib7cNsYQ=
 golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=
+golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7 h1:fHDIZ2oxGnUZRN6WgWFCbYBjH9uqVPRCUVUDhs0wnbA=
+golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/sys v0.0.0-20181205085412-a5c9d58dba9a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
