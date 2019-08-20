@@ -1,3 +1,7 @@
+# 2.1.3 / 2019-08-20
+
+* [BUGFIX] Additional version setting fix
+
 # 2.1.2 / 2019-08-20
 
 * [BUGFIX] Fix version setting
