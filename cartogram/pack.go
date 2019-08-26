@@ -122,7 +122,7 @@ func (cp Pack) Load() error {
 	}
 	fileObjs, err := ioutil.ReadDir(config)
 	if err != nil {
-		return nil
+		return err
 	}
 	logger.InfoMsgf("found %d cartogram files", len(fileObjs))
 	files := make([]string, len(fileObjs))
