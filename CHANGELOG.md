@@ -1,3 +1,7 @@
+# 2.1.5 / 2020-01-08
+
+* [ENHANCEMENT] Update deps
+
 # 2.1.4 / 2019-08-20
 
 * [BUGFIX] Update deps
