@@ -1,2 +1,2 @@
-FROM dock0/pkgforge-golang-cross
-RUN pacman -Syu --noconfirm --needed pcsclite
+FROM docker.pkg.github.com/dock0/pkgforge-golang-cross/pkgforge-golang-cross
+RUN pacman -S --noconfirm --needed pcsclite
