@@ -55,7 +55,7 @@ func (c *Cartogram) loadFromString(data []byte) error {
 }
 
 func schemaVersionCheck(data []byte) error {
-	var c Cartogram
+	var c dummyCartogram
 	if err := json.Unmarshal(data, &c); err != nil {
 		return err
 	}
