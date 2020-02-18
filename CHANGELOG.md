@@ -1,3 +1,8 @@
+# 2.1.6 / 2020-02-18
+
+* [ENHANCEMENT] Update deps
+* [ENHANCEMENT] Switch to GitHub Actions for CI
+
 # 2.1.5 / 2020-01-08
 
 * [ENHANCEMENT] Update deps
