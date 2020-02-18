@@ -72,10 +72,10 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 	c := creds.Creds{
 		AccessKey: profileCreds.AccessKeyID,
 		SecretKey: profileCreds.SecretAccessKey,
-		UserAgentItems: []creds.UserAgentItem{
+		UserAgentItems: []creds.UserAgentItem{{
 			Name:    "voyager",
 			Version: version.Version,
-		},
+		}},
 	}
 
 	for _, thisHop := range stack {
