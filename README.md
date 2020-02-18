@@ -1,9 +1,9 @@
 voyager
 =========
 
-[![Build Status](https://img.shields.io/travis/com/akerl/voyager.svg)](https://travis-ci.com/akerl/voyager)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/akerl/voyager/Build)](https://github.com/akerl/voyager/actions))
 [![GitHub release](https://img.shields.io/github/release/akerl/voyager.svg)](https://github.com/akerl/voyager/releases)
-[![MIT Licensed](https://img.shields.io/badge/license-MIT-green.svg)](https://tldrlegal.com/license/mit-license)
+[![License](https://img.shields.io/github/license/akerl/voyager)](https://github.com/akerl/voyager/blob/master/LICENSE)
 
 Helper for assuming roles on AWS accounts
 
