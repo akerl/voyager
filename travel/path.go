@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/akerl/voyager/v2/profiles"
+	"github.com/akerl/voyager/v2/version"
 
 	"github.com/BurntSushi/locker"
 	"github.com/akerl/speculate/v2/creds"
@@ -71,6 +72,10 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 	c := creds.Creds{
 		AccessKey: profileCreds.AccessKeyID,
 		SecretKey: profileCreds.SecretAccessKey,
+		UserAgentItems: []creds.UserAgentItem{
+			Name:    "voyager",
+			Version: version.Version,
+		},
 	}
 
 	for _, thisHop := range stack {
