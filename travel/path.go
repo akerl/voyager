@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/akerl/voyager/v2/profiles"
+	"github.com/akerl/voyager/v2/version"
 
 	"github.com/BurntSushi/locker"
 	"github.com/akerl/speculate/v2/creds"
@@ -30,12 +31,13 @@ type Hop struct {
 
 // TraverseOptions defines the parameters for traversing a path
 type TraverseOptions struct {
-	MfaCode     string
-	MfaPrompt   creds.MfaPrompt
-	Store       profiles.Store
-	Cache       Cache
-	SessionName string
-	Lifetime    int64
+	MfaCode        string
+	MfaPrompt      creds.MfaPrompt
+	Store          profiles.Store
+	Cache          Cache
+	SessionName    string
+	Lifetime       int64
+	UserAgentItems []creds.UserAgentItem
 }
 
 // DefaultTraverseOptions returns a standard set of TraverseOptions
@@ -68,9 +70,19 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 	if err != nil {
 		return creds.Creds{}, err
 	}
+
+	uai := []creds.UserAgentItem{{
+		Name:    "voyager",
+		Version: version.Version,
+	}}
+	for _, x := range opts.UserAgentItems {
+		uai = append(uai, x)
+	}
+
 	c := creds.Creds{
-		AccessKey: profileCreds.AccessKeyID,
-		SecretKey: profileCreds.SecretAccessKey,
+		AccessKey:      profileCreds.AccessKeyID,
+		SecretKey:      profileCreds.SecretAccessKey,
+		UserAgentItems: uai,
 	}
 
 	for _, thisHop := range stack {

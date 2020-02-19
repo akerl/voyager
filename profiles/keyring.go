@@ -80,11 +80,10 @@ func (k *KeyringStore) config() keyring.Config {
 			"wincred",
 			"file",
 		},
-		KeychainName:             "login",
-		KeychainTrustApplication: true,
-		FilePasswordFunc:         filePasswordShim,
-		FileDir:                  "~/.voyager/" + k.getName(),
-		ServiceName:              "voyager:" + k.getName(),
+		KeychainName:     "login",
+		FilePasswordFunc: filePasswordShim,
+		FileDir:          "~/.voyager/" + k.getName(),
+		ServiceName:      "voyager:" + k.getName(),
 	}
 }
 
