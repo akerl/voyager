@@ -1,3 +1,9 @@
+# 2.2.0 / 2020-02-19
+
+* [FEATURE] Add user-agent support
+* [BUGFIX] Update to patched keychain library which resolves Catalina deprecation warning
+* [ENHANCEMENT] Update deps
+
 # 2.1.6 / 2020-02-18
 
 * [ENHANCEMENT] Update deps
