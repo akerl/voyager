@@ -29,8 +29,11 @@ type Processor struct {
 
 // ExecString runs a command string against a set of accounts
 func (p Processor) ExecString(cmd string) (map[string]creds.ExecResult, error) {
-	cmdSlice := strings.Split(cmd, " ")
-	return p.Exec(cmdSlice)
+	args, err := StringToCommand(command)
+	if err != nil {
+		return map[string]creds.ExecResult{}, err
+	}
+	return p.Exec(args)
 }
 
 // Exec runs a command against a set of accounts
