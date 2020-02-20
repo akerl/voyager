@@ -7,6 +7,8 @@ github.com/VividCortex/ewma v1.1.1 h1:MnEK4VOv6n0RSY4vtRe3h11qjxL3+t0B8yOL8iMXdc
 github.com/VividCortex/ewma v1.1.1/go.mod h1:2Tkkvm3sRDVXaiyucHiACn4cqf7DpdyLvmxzcbUokwA=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat636LX7Bqt5lYEZ27JNDcqxfjdBQuJ/MM4CN/Lzo=
+github.com/akerl/go-fuzzyfinder v0.1.2-0.20200220111247-2e90b475f471 h1:gh5EDYO2drm8T2bz88B9C4ligP4V5toRec6gJwW1Rmw=
+github.com/akerl/go-fuzzyfinder v0.1.2-0.20200220111247-2e90b475f471/go.mod h1:Ol2Z6Rc1tu/uUSlD6b67wnhB4nGQt0Mr2NtP0SNW6uM=
 github.com/akerl/input v0.0.4 h1:basD0SFwgzkFdKovmU+jNixPA5XeleY1OZKyi9IMj8s=
 github.com/akerl/input v0.0.4/go.mod h1:y7utWbu2xagneRG/jHulW254BzmdpHEIeNIm1L/6U9A=
 github.com/akerl/keyring v0.0.0-20200219084108-1f409e548abc h1:rgr2nWwLQ++doaXhUFx3ttJLPtWZGLCKzL8YnLFR5dw=
@@ -67,8 +69,6 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/ktr0731/go-fuzzyfinder v0.2.0 h1:f9h2m2QwgVbgYAMBGWKTWs0xzZkL0QfECx2f/1KlOLg=
-github.com/ktr0731/go-fuzzyfinder v0.2.0/go.mod h1:Ol2Z6Rc1tu/uUSlD6b67wnhB4nGQt0Mr2NtP0SNW6uM=
 github.com/lucasb-eyer/go-colorful v1.0.2 h1:mCMFu6PgSozg9tDNMMK3g18oJBX7oYGrC09mS6CXfO4=
 github.com/lucasb-eyer/go-colorful v1.0.2/go.mod h1:0MS4r+7BZKSJ5mw4/S5MPN+qHFF1fYclkSPilDOKW0s=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
