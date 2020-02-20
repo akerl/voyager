@@ -29,7 +29,7 @@ type Processor struct {
 
 // ExecString runs a command string against a set of accounts
 func (p Processor) ExecString(cmd string) (map[string]creds.ExecResult, error) {
-	args, err := StringToCommand(cmd)
+	args, err := creds.StringToCommand(cmd)
 	if err != nil {
 		return map[string]creds.ExecResult{}, err
 	}
