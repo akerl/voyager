@@ -1,3 +1,7 @@
+# 2.4.0 / 2020-02-20
+
+* [ENHANCEMENT] Show prompt message for fuzzy prompt
+
 # 2.3.1 / 2020-02-19
 
 * [ENHANCEMENT] Update deps
