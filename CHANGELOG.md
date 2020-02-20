@@ -1,3 +1,7 @@
+# 2.4.1 / 2020-02-20
+
+* [BUGFIX] Fix go.sum file
+
 # 2.4.0 / 2020-02-20
 
 * [ENHANCEMENT] Show prompt message for fuzzy prompt
