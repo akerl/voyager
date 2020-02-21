@@ -1,21 +1,10 @@
 package travel
 
 import (
-	"regexp"
-
 	"github.com/akerl/voyager/v2/cartogram"
 
 	"github.com/akerl/input/list"
 )
-
-const (
-	// roleSourceRegexString matches an account number and role name, /-delimited
-	// Per https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-limits.html .
-	// role names can contain alphanumeric characters, and these symbols: +=,.@_-
-	roleSourceRegexString = `^(\d{12})/([a-zA-Z0-9+=,.@_-]+)$`
-)
-
-var roleSourceRegex = regexp.MustCompile(roleSourceRegexString)
 
 // Grapher defines a graph resolution object for finding paths to accounts
 type Grapher struct {
@@ -102,9 +91,9 @@ func (g *Grapher) findPathToRole(account cartogram.Account, role cartogram.Role)
 	var allPaths []Path
 
 	for _, item := range role.Sources {
-		sourceMatch := roleSourceRegex.FindStringSubmatch(item.Path)
-		if len(sourceMatch) == 3 {
-			newAccount, newRole, ok := g.pathIsViable(sourceMatch[1], sourceMatch[2])
+		account, role := item.Parse()
+		if account != "" {
+			newAccount, newRole, ok := g.pathIsViable(account, role)
 			if !ok {
 				continue
 			}

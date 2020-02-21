@@ -24,3 +24,14 @@ func NewDefaultStore() Store {
 		},
 	}
 }
+
+// BulkCheck checks which of a slice of profiles exist in the store
+func BulkCheck(s Store, all []string) []string {
+	found := []string{}
+	for _, item := range all {
+		if s.Check(item) {
+			found = append(found, item)
+		}
+	}
+	return found
+}

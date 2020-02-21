@@ -37,3 +37,15 @@ func homeDir() (string, error) {
 	}
 	return usr.HomeDir, nil
 }
+
+func uniqCollect(input []string) []string {
+	resultsMap := map[string]bool{}
+	for _, item := range input {
+		resultsMap[item] = true
+	}
+	results := []string{}
+	for result := range resultsMap {
+		results = append(results, result)
+	}
+	return results
+}
