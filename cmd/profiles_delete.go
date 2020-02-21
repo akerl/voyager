@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/akerl/voyager/v2/profiles"
+	"github.com/akerl/voyager/v2/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -35,18 +36,12 @@ func profilesDeleteRunner(_ *cobra.Command, args []string) error {
 		return nil
 	}
 
-	confirmText := "this is a destructive operation"
-	fmt.Printf("This will delete the following profile: %s\n", profile)
-	fmt.Printf("If you want to proceed, type '%s'\n", confirmText)
-
-	confirmReader := bufio.NewReader(os.Stdin)
-	confirmInput, err := confirmReader.ReadString('\n')
+	err := utils.ConfirmText(
+		"this is a destructive operation",
+		fmt.Sprintf("This will delete the following profile: %s", profile),
+	)
 	if err != nil {
 		return err
-	}
-	cleanedInput := strings.TrimSpace(confirmInput)
-	if cleanedInput != confirmText {
-		return fmt.Errorf("aborting")
 	}
 
 	err = store.Delete(profile)
