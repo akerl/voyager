@@ -1,7 +1,9 @@
 package cmd
 
 import (
-	"github.com/akerl/voyager/v2/rotate"
+	"fmt"
+
+	"github.com/akerl/voyager/v2/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -40,5 +42,7 @@ func profilesRotateRunner(cmd *cobra.Command, args []string) error {
 	//r := rotate.Rotator{UseYubikey: useYubikey, Profile: inputProfile}
 	//return r.Execute()
 	// TODO: finish implementing
-	return nil
+	fmt.Printf("got inputProfile %s\n", inputProfile)
+	fmt.Printf("got useYubikey %t\n", useYubikey)
+	return fmt.Errorf("profile rotation not yet implemented")
 }

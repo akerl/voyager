@@ -28,7 +28,7 @@ func profilesShowRunner(_ *cobra.Command, args []string) error {
 
 	check := store.Check(profile)
 	if !check {
-		return fmt.Errorf("No credentials stored for profile: %s\n", profile)
+		return fmt.Errorf("no credentials stored for profile: %s", profile)
 	}
 
 	creds, err := store.Lookup(profile)

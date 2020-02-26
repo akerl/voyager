@@ -91,9 +91,9 @@ func (g *Grapher) findPathToRole(account cartogram.Account, role cartogram.Role)
 	var allPaths []Path
 
 	for _, item := range role.Sources {
-		account, role := item.Parse()
-		if account != "" {
-			newAccount, newRole, ok := g.pathIsViable(account, role)
+		srcAccount, srcRole := item.Parse()
+		if srcAccount != "" {
+			newAccount, newRole, ok := g.pathIsViable(srcAccount, srcRole)
 			if !ok {
 				continue
 			}

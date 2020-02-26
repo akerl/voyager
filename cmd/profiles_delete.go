@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/akerl/voyager/v2/profiles"
 	"github.com/akerl/voyager/v2/utils"
