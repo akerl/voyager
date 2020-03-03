@@ -28,6 +28,10 @@ func profilesRotateRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	r := rotate.Rotator{UseYubikey: useYubikey, InputProfile: inputProfile}
+	r := rotate.Rotator{
+		UseYubikey:   useYubikey,
+		InputProfile: inputProfile,
+		Store:        profiles.NewDefaltStore(),
+	}
 	return r.Execute()
 }
