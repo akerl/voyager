@@ -54,11 +54,11 @@ func (r *Rotator) getMfaPrompt() creds.MfaPrompt {
 func (r *Rotator) Execute() error { // revive:disable-line:cyclomatic
 	err := utils.ConfirmText(
 		"this is a breaking change",
-		"This command makes the following changes:\n",
-		"* Creates a new AWS access/secret keypair\n",
-		"* Deletes your existing AWS access/secret keypair\n",
-		"* Deletes any existing MFA device on your AWS user\n",
-		"* Creates a new MFA device\n",
+		"This command makes the following changes:",
+		"* Creates a new AWS access/secret keypair",
+		"* Deletes your existing AWS access/secret keypair",
+		"* Deletes any existing MFA device on your AWS user",
+		"* Creates a new MFA device",
 	)
 	if err != nil {
 		return err
