@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/akerl/voyager/v2/profiles"
 	"github.com/akerl/voyager/v2/rotate"
 
 	"github.com/spf13/cobra"
@@ -31,7 +32,7 @@ func profilesRotateRunner(cmd *cobra.Command, args []string) error {
 	r := rotate.Rotator{
 		UseYubikey:   useYubikey,
 		InputProfile: inputProfile,
-		Store:        profiles.NewDefaltStore(),
+		Store:        profiles.NewDefaultStore(),
 	}
 	return r.Execute()
 }
