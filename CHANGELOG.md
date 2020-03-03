@@ -1,3 +1,7 @@
+# 2.6.1 / 2020-03-02
+
+* [ENHANCEMENT] Improve text for new rotated AWS key
+
 # 2.6.0 / 2020-03-02
 
 * [FEATURE] Add profile management commands
