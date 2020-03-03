@@ -1,3 +1,7 @@
+# 2.6.0 / 2020-03-02
+
+* [FEATURE] Add profile management commands
+
 # 2.5.0 / 2020-02-20
 
 * [BUGFIX] Correct handling of quotes in xargs commands
