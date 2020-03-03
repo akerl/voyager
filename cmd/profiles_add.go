@@ -19,13 +19,6 @@ var profilesAddCmd = &cobra.Command{
 	RunE:  profilesAddRunner,
 }
 
-// TODO: Remove this shim once revive bug is fixed
-func lookupShim(profile string) error {
-	store := profiles.NewDefaultStore()
-	_, err := store.Lookup(profile)
-	return err
-}
-
 func profilesAddRunner(_ *cobra.Command, args []string) error {
 	var inputProfile string
 	if len(args) != 0 {
@@ -57,7 +50,7 @@ func profilesAddRunner(_ *cobra.Command, args []string) error {
 		)
 		return nil
 	}
-	err = lookupShim(profile)
+	_, err = store.Lookup(profile)
 	if err == nil {
 		fmt.Println("Successfully added profile")
 	}
