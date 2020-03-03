@@ -75,6 +75,7 @@ func (k *KeyringStore) Delete(profile string) error {
 
 func (k *KeyringStore) config() keyring.Config {
 	return keyring.Config{
+		// TODO: libsecret support
 		AllowedBackends: []keyring.BackendType{
 			"keychain",
 			"wincred",

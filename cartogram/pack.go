@@ -113,6 +113,23 @@ func (cp Pack) Search(tfs TagFilterSet) AccountSet {
 	return results
 }
 
+func (cp Pack) toSlice() []Cartogram {
+	result := []Cartogram{}
+	for _, v := range cp {
+		result = append(result, v)
+	}
+	return result
+}
+
+// AllProfiles returns all unique profiles found
+func (cp Pack) AllProfiles() []string {
+	res := []string{}
+	for _, x := range cp {
+		res = append(res, x.AllProfiles()...)
+	}
+	return uniqCollect(res)
+}
+
 // Load populates the Cartograms from disk
 func (cp Pack) Load() error {
 	logger.InfoMsg("loading pack from disk")

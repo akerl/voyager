@@ -1,0 +1,551 @@
+package rotate
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/akerl/voyager/v2/cartogram"
+	"github.com/akerl/voyager/v2/profiles"
+	"github.com/akerl/voyager/v2/travel"
+	"github.com/akerl/voyager/v2/utils"
+	"github.com/akerl/voyager/v2/version"
+	"github.com/akerl/voyager/v2/yubikey"
+
+	"github.com/akerl/input/list"
+	"github.com/akerl/speculate/v2/creds"
+	"github.com/akerl/timber/v2/log"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/mdp/qrterminal/v3"
+	"github.com/pquerna/otp/totp"
+)
+
+var logger = log.NewLogger("voyager")
+
+// Rotator is a helper for rotating credentials
+type Rotator struct {
+	UseYubikey     bool
+	Store          profiles.Store
+	InputProfile   string
+	profile        string
+	originalCreds  credentials.Value
+	validCreds     credentials.Value
+	newCreds       credentials.Value
+	existingMfaArn string
+}
+
+func (r *Rotator) getMfaPrompt() creds.MfaPrompt {
+	if r.UseYubikey {
+		return &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
+			yubikey.NewPrompt(),
+			&creds.DefaultMfaPrompt{},
+		}}
+	}
+	return &creds.DefaultMfaPrompt{}
+}
+
+// Execute rotates the users keypair and MFA
+func (r *Rotator) Execute() error { // revive:disable-line:cyclomatic
+	err := utils.ConfirmText(
+		"this is a breaking change",
+		"This command makes the following changes:",
+		"* Creates a new AWS access/secret keypair",
+		"* Deletes your existing AWS access/secret keypair",
+		"* Deletes any existing MFA device on your AWS user",
+		"* Creates a new MFA device",
+	)
+	if err != nil {
+		return err
+	}
+
+	profile, err := r.getProfile()
+	if err != nil {
+		return err
+	}
+
+	r.originalCreds, err = r.Store.Lookup(profile)
+	if err != nil {
+		return err
+	}
+	r.validCreds = r.originalCreds
+
+	if err := r.deleteOtherKey(); err != nil {
+		return err
+	}
+
+	if err := r.swapForMfaSession(); err != nil {
+		return err
+	}
+
+	if err := r.deleteMfaDevice(); err != nil {
+		return err
+	}
+
+	if err := r.createMfaDevice(); err != nil {
+		return err
+	}
+
+	if err := r.generateNewKey(); err != nil {
+		return err
+	}
+
+	if err := r.waitForConsistency(); err != nil {
+		return err
+	}
+
+	if err := r.testAuth(); err != nil {
+		return err
+	}
+
+	if err := r.deleteOriginalKey(); err != nil {
+		return err
+	}
+
+	fmt.Println("Credential rotation complete!")
+	return nil
+}
+
+func (r *Rotator) getProfile() (string, error) {
+	var err error
+
+	if r.profile == "" {
+		pack := cartogram.Pack{}
+		if err := pack.Load(); err != nil {
+			return "", err
+		}
+
+		allProfiles := pack.AllProfiles()
+		p := list.WmenuPrompt{}
+
+		r.profile, err = list.WithInputString(
+			p,
+			allProfiles,
+			r.InputProfile,
+			"Which team credentials would you like to rotate?",
+		)
+	}
+
+	return r.profile, err
+}
+
+func (r *Rotator) getRegion() (string, error) {
+	profile, err := r.getProfile()
+	if err != nil {
+		return "", err
+	}
+	var region string
+	if strings.HasPrefix(profile, "gov_") {
+		region = "us-gov-west-1"
+	} else {
+		region = "us-east-1"
+	}
+	logger.InfoMsgf("parsed region: %s", region)
+	return region, nil
+}
+
+func (r *Rotator) getAwsSession() (*session.Session, error) {
+	region, err := r.getRegion()
+	if err != nil {
+		return nil, err
+	}
+	if r.validCreds.AccessKeyID == "" {
+		return nil, fmt.Errorf("no valid credentials set")
+	}
+	awsConfig := aws.NewConfig().WithRegion(region).WithCredentials(
+		credentials.NewStaticCredentialsFromCreds(r.validCreds),
+	)
+	return session.NewSession(awsConfig)
+}
+
+func (r *Rotator) getIamClient() (*iam.IAM, error) {
+	session, err := r.getAwsSession()
+	if err != nil {
+		return nil, err
+	}
+	logger.InfoMsg("loading new IAM client")
+	return iam.New(session), nil
+}
+
+func (r *Rotator) getStsClient() (*sts.STS, error) {
+	session, err := r.getAwsSession()
+	if err != nil {
+		return nil, err
+	}
+	logger.InfoMsg("loading new STS client")
+	return sts.New(session), nil
+}
+
+func (r *Rotator) getUsername() (string, error) {
+	stsClient, err := r.getStsClient()
+	if err != nil {
+		return "", err
+	}
+	logger.InfoMsg("looking up username")
+	userRes, err := stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+	if err != nil {
+		return "", err
+	}
+	arnChunks := strings.Split(*userRes.Arn, "/")
+	username := arnChunks[len(arnChunks)-1]
+	logger.InfoMsgf("found username: %s", username)
+	return username, nil
+}
+
+func (r *Rotator) swapForMfaSession() error { // revive:disable-line:cyclomatic
+	iamClient, err := r.getIamClient()
+	if err != nil {
+		return err
+	}
+
+	region, err := r.getRegion()
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("list MFA devices")
+	listMfaRes, err := iamClient.ListMFADevices(&iam.ListMFADevicesInput{})
+	if err != nil {
+		return err
+	}
+	listMfa := listMfaRes.MFADevices
+	logger.InfoMsgf("found %d MFA devices", len(listMfa))
+	if len(listMfa) == 0 {
+		return nil
+	}
+	r.existingMfaArn = *listMfa[0].SerialNumber
+
+	if r.validCreds.AccessKeyID == "" {
+		return fmt.Errorf("no valid credentials set")
+	}
+
+	c := creds.Creds{
+		AccessKey:    r.validCreds.AccessKeyID,
+		SecretKey:    r.validCreds.SecretAccessKey,
+		SessionToken: r.validCreds.SessionToken,
+		Region:       region,
+	}
+	// TODO: check if yubikey was used and set UseYubikey to true
+
+	logger.InfoMsg("getting mfa session token")
+	c, err = c.GetSessionToken(creds.GetSessionTokenOptions{
+		UseMfa:    true,
+		MfaPrompt: r.getMfaPrompt(),
+	})
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("setting valid creds with MFA session")
+	r.validCreds = credentials.Value{
+		AccessKeyID:     c.AccessKey,
+		SecretAccessKey: c.SecretKey,
+		SessionToken:    c.SessionToken,
+	}
+	return nil
+}
+
+func (r *Rotator) deleteOtherKey() error {
+	iamClient, err := r.getIamClient()
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("listing IAM keys")
+	existingKeysRes, err := iamClient.ListAccessKeys(&iam.ListAccessKeysInput{})
+	if err != nil {
+		return err
+	}
+	existingKeys := existingKeysRes.AccessKeyMetadata
+	if len(existingKeys) == 1 {
+		return nil
+	}
+
+	err = utils.ConfirmText(
+		"yes",
+		"You already have 2 access keys on the account.",
+		"Continuing will delete both of them.",
+	)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range existingKeys {
+		if *item.AccessKeyId != r.originalCreds.AccessKeyID {
+			logger.InfoMsgf("deleting other key: %s", *item.AccessKeyId)
+			_, err := iamClient.DeleteAccessKey(
+				&iam.DeleteAccessKeyInput{AccessKeyId: item.AccessKeyId},
+			)
+			return err
+		}
+	}
+	return fmt.Errorf("other key vanished!?")
+}
+
+func (r *Rotator) deleteOriginalKey() error {
+	iamClient, err := r.getIamClient()
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsgf(
+		"deleting original key: %s",
+		r.originalCreds.AccessKeyID,
+	)
+	_, err = iamClient.DeleteAccessKey(
+		&iam.DeleteAccessKeyInput{AccessKeyId: &r.originalCreds.AccessKeyID},
+	)
+	return err
+}
+
+func (r *Rotator) generateNewKey() error {
+	iamClient, err := r.getIamClient()
+	if err != nil {
+		return err
+	}
+
+	profile, err := r.getProfile()
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("creating new access key")
+	newKeyRes, err := iamClient.CreateAccessKey(&iam.CreateAccessKeyInput{})
+	if err != nil {
+		return err
+	}
+	newKey := newKeyRes.AccessKey
+
+	fmt.Println(
+		"New AWS key pair generated:\n",
+		*newKey.AccessKeyId,
+		"\n",
+		*newKey.SecretAccessKey,
+	)
+
+	logger.InfoMsg("patching multistore with static creds")
+	r.Store.Delete(profile)
+	multiStore, ok := r.Store.(*profiles.MultiStore)
+	if !ok {
+		return fmt.Errorf("could not cast store to multistore")
+	}
+	multiStore.Backends[len(multiStore.Backends)-1] = &staticStore{Key: *newKey}
+	c, err := multiStore.Lookup(profile)
+	if err != nil {
+		return err
+	}
+	r.newCreds = c
+	r.validCreds = c
+	return nil
+}
+
+func (r *Rotator) deleteMfaDevice() error {
+	if r.existingMfaArn == "" {
+		return nil
+	}
+
+	iamClient, err := r.getIamClient()
+	if err != nil {
+		return err
+	}
+
+	username, err := r.getUsername()
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("deactivating MFA device")
+	_, err = iamClient.DeactivateMFADevice(
+		&iam.DeactivateMFADeviceInput{
+			SerialNumber: &r.existingMfaArn,
+			UserName:     &username,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("deleting MFA device")
+	_, err = iamClient.DeleteVirtualMFADevice(
+		&iam.DeleteVirtualMFADeviceInput{
+			SerialNumber: &r.existingMfaArn,
+		},
+	)
+	return err
+}
+
+func (r *Rotator) createMfaDevice() error {
+	iamClient, err := r.getIamClient()
+	if err != nil {
+		return err
+	}
+
+	username, err := r.getUsername()
+	if err != nil {
+		return err
+	}
+
+	profile, err := r.getProfile()
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("creating MFA device")
+	newMfaDeviceRes, err := iamClient.CreateVirtualMFADevice(
+		&iam.CreateVirtualMFADeviceInput{VirtualMFADeviceName: &username},
+	)
+	if err != nil {
+		return err
+	}
+	newMfaDevice := newMfaDeviceRes.VirtualMFADevice
+
+	qrURL := fmt.Sprintf(
+		"otpauth://totp/%s?secret=%s",
+		profile,
+		newMfaDevice.Base32StringSeed,
+	)
+	qrterminal.Generate(qrURL, qrterminal.L, os.Stdout)
+	fmt.Printf("MFA secret: %s\n", newMfaDevice.Base32StringSeed)
+
+	timeTwo := time.Now().Add(time.Second * -30)
+	timeOne := timeTwo.Add(time.Second * -30)
+	authCodeOne, err := totp.GenerateCode(string(newMfaDevice.Base32StringSeed), timeOne)
+	if err != nil {
+		return err
+	}
+	authCodeTwo, err := totp.GenerateCode(string(newMfaDevice.Base32StringSeed), timeTwo)
+	if err != nil {
+		return err
+	}
+
+	logger.InfoMsg("enabling MFA device")
+	_, err = iamClient.EnableMFADevice(
+		&iam.EnableMFADeviceInput{
+			UserName:            &username,
+			SerialNumber:        newMfaDevice.SerialNumber,
+			AuthenticationCode1: &authCodeOne,
+			AuthenticationCode2: &authCodeTwo,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	if r.UseYubikey {
+		return r.yubikeySetup(newMfaDevice)
+	}
+	return nil
+}
+
+func (r *Rotator) yubikeySetup(newMfaDevice *iam.VirtualMFADevice) error {
+	logger.InfoMsg("setting up yubikey MFA")
+	mfaPrompt := r.getMfaPrompt()
+	multiMfaPrompt, ok := mfaPrompt.(*creds.MultiMfaPrompt)
+	if !ok {
+		return fmt.Errorf("failed to cast mfa prompt to multi mfa prompt")
+	}
+	yubikeyPrompt, ok := multiMfaPrompt.Backends[0].(*yubikey.Prompt)
+	if !ok {
+		return fmt.Errorf("failed to cast mfa prompt to yubikey mfa prompt")
+	}
+	// TODO: use mapping file when determining stored MFA name
+	err := yubikeyPrompt.Store(
+		*newMfaDevice.SerialNumber,
+		string(newMfaDevice.Base32StringSeed),
+	)
+	if err == nil {
+		return nil
+	}
+	logger.InfoMsg("skipping yubikey auto-fill due to failure to store")
+	r.UseYubikey = false
+	fmt.Println("Failed to store MFA in yubikey, but treating as non-fatal error")
+	fmt.Println(err)
+	fmt.Println("To retry, run the following command:")
+	fmt.Printf("ykman oath add --oath-type TOTP -t %s\n", *newMfaDevice.SerialNumber)
+	fmt.Println("When prompted, enter the MFA secret key from above")
+	return nil
+}
+
+func (r *Rotator) testAuth() error {
+	profile, err := r.getProfile()
+	if err != nil {
+		return err
+	}
+
+	profileChunks := strings.SplitN(profile, "_", 2)
+	partition := profileChunks[0]
+	role := profileChunks[1]
+	var account string
+	if partition == "comm" {
+		account = "^ops-auth$"
+	} else {
+		account = "^ops-auth-gov$"
+	}
+
+	username, err := r.getUsername()
+	if err != nil {
+		return err
+	}
+
+	mfaPrompt := r.getMfaPrompt()
+
+	pack := cartogram.Pack{}
+	if err := pack.Load(); err != nil {
+		return err
+	}
+
+	grapher := travel.Grapher{Pack: pack}
+	path, err := grapher.Resolve([]string{account}, []string{role}, []string{profile})
+	if err != nil {
+		return err
+	}
+	opts := travel.DefaultTraverseOptions()
+	opts.UserAgentItems = []creds.UserAgentItem{{
+		Name:    "voyager",
+		Version: version.Version,
+		Extra:   []string{"rotator"},
+	}}
+	opts.MfaPrompt = mfaPrompt
+	opts.Store = r.Store
+	opts.SessionName = username
+
+	logger.InfoMsg("testing auth using new creds")
+	c, err := path.TraverseWithOptions(opts)
+	if err != nil {
+		return err
+	}
+
+	openURL, err := c.ToCustomConsoleURL("")
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "# %s\n", openURL)
+	return nil
+}
+
+func (r *Rotator) waitForConsistency() error {
+	fmt.Println("Waiting for new IAM keypair to sync across AWS's backend")
+	fmt.Println("This may take up to a minute")
+	for i := 0; i < 6; i++ {
+		time.Sleep(5 * time.Second)
+		stsClient, err := r.getStsClient()
+		if err != nil {
+			return err
+		}
+		_, err = stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+		if err == nil {
+			return nil
+		}
+		aerr, ok := err.(awserr.RequestFailure)
+		if !ok || aerr.StatusCode() != 403 {
+			return err
+		}
+		logger.InfoMsgf("pausing to retry after error: %s", aerr)
+	}
+	return fmt.Errorf("failed after 10 retries")
+}

@@ -38,6 +38,15 @@ func (c Cartogram) Search(tfs TagFilterSet) AccountSet {
 	return c.AccountSet.Search(tfs)
 }
 
+// AllProfiles returns all unique profiles found
+func (c Cartogram) AllProfiles() []string {
+	res := []string{}
+	for _, x := range c.AccountSet {
+		res = append(res, x.AllProfiles()...)
+	}
+	return uniqCollect(res)
+}
+
 func (c *Cartogram) loadFromFile(filePath string) error {
 	logger.InfoMsgf("loading cartogram from %s", filePath)
 	data, err := ioutil.ReadFile(filePath)
