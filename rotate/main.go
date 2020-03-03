@@ -321,12 +321,9 @@ func (r *Rotator) generateNewKey() error {
 	}
 	newKey := newKeyRes.AccessKey
 
-	fmt.Println(
-		"New AWS key pair generated:\n",
-		*newKey.AccessKeyId,
-		"\n",
-		*newKey.SecretAccessKey,
-	)
+	fmt.Println("New AWS key pair generated:")
+	fmt.Printf("  Access Key ID: %s\n", *newKey.AccessKeyId)
+	fmt.Printf("  Secret Access Key: %s\n", *newKey.SecretAccessKey)
 
 	logger.InfoMsg("patching multistore with static creds")
 	r.Store.Delete(profile)
