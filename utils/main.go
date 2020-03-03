@@ -12,7 +12,7 @@ func ConfirmText(confirm string, prompt ...string) error {
 	for _, x := range prompt {
 		fmt.Println(x)
 	}
-	fmt.Printf("If you want to proceed, type '%s'", confirm)
+	fmt.Printf("If you want to proceed, type '%s'\n> ", confirm)
 	confirmReader := bufio.NewReader(os.Stdin)
 	confirmInput, err := confirmReader.ReadString('\n')
 	if err != nil {
