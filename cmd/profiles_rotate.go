@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/akerl/voyager/v2/rotate"
 	"github.com/akerl/voyager/v2/utils"
 
 	"github.com/spf13/cobra"
@@ -39,10 +38,6 @@ func profilesRotateRunner(cmd *cobra.Command, args []string) error {
 		"* Creates a new MFA device",
 	)
 
-	//r := rotate.Rotator{UseYubikey: useYubikey, Profile: inputProfile}
-	//return r.Execute()
-	// TODO: finish implementing
-	fmt.Printf("got inputProfile %s\n", inputProfile)
-	fmt.Printf("got useYubikey %t\n", useYubikey)
-	return fmt.Errorf("profile rotation not yet implemented")
+	r := rotate.Rotator{UseYubikey: useYubikey, InputProfile: inputProfile}
+	return r.Execute()
 }

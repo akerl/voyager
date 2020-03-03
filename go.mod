@@ -19,6 +19,8 @@ require (
 	github.com/ktr0731/go-fuzzyfinder v0.2.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.0.3 // indirect
 	github.com/mattn/go-runewidth v0.0.8 // indirect
+	github.com/mdp/qrterminal/v3 v3.0.0
+	github.com/pquerna/otp v1.2.0
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vbauerster/mpb/v4 v4.12.1
