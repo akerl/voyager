@@ -1,3 +1,7 @@
+# 2.7.1 / 2020-03-05
+
+* [ENHANCEMENT] Prompt for profile before confirmation when rotating
+
 # 2.7.0 / 2020-03-05
 
 * [FEATURE] Implement profile rotation
