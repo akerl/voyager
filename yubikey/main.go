@@ -133,6 +133,17 @@ func (p *Prompt) Store(arn, base32seed string) error {
 	return oath.Put(name, ykoath.HmacSha1, ykoath.Totp, 6, secret, true)
 }
 
+// RetryText returns helper text for retrying the MFA storage
+func (p *Prompt) RetryText(arn string) string {
+	otpName := p.otpName(arn)
+	return fmt.Sprintf(
+		"To retry, run the following command:\n"+
+			"ykman oath add --oath-type TOTP -t %s\n"+
+			"When prompted, enter the MFA secret key from above",
+		otpName,
+	)
+}
+
 func (p *Prompt) otpName(arn string) string {
 	if translated, ok := p.mapping[arn]; ok {
 		logger.InfoMsgf("translating %s to %s", arn, translated)

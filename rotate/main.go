@@ -11,7 +11,6 @@ import (
 	"github.com/akerl/voyager/v2/travel"
 	"github.com/akerl/voyager/v2/utils"
 	"github.com/akerl/voyager/v2/version"
-	"github.com/akerl/voyager/v2/yubikey"
 
 	"github.com/akerl/input/list"
 	"github.com/akerl/speculate/v2/creds"
@@ -30,9 +29,9 @@ var logger = log.NewLogger("voyager")
 
 // Rotator is a helper for rotating credentials
 type Rotator struct {
-	UseYubikey     bool
 	Store          profiles.Store
 	InputProfile   string
+	MfaPrompt      creds.MfaPrompt
 	profile        string
 	originalCreds  credentials.Value
 	validCreds     credentials.Value
@@ -41,13 +40,17 @@ type Rotator struct {
 }
 
 func (r *Rotator) getMfaPrompt() creds.MfaPrompt {
-	if r.UseYubikey {
-		return &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
-			yubikey.NewPrompt(),
-			&creds.DefaultMfaPrompt{},
-		}}
+	if r.MfaPrompt == nil {
+		r.MfaPrompt = &creds.DefaultMfaPrompt{}
 	}
-	return &creds.DefaultMfaPrompt{}
+	return r.MfaPrompt
+}
+
+func (r *Rotator) getStore() profiles.Store {
+	if r.Store == nil {
+		r.Store = profiles.NewDefaultStore()
+	}
+	return r.Store
 }
 
 // Execute rotates the users keypair and MFA
@@ -69,7 +72,7 @@ func (r *Rotator) Execute() error { // revive:disable-line:cyclomatic
 		return err
 	}
 
-	r.originalCreds, err = r.Store.Lookup(profile)
+	r.originalCreds, err = r.getStore().Lookup(profile)
 	if err != nil {
 		return err
 	}
@@ -230,7 +233,6 @@ func (r *Rotator) swapForMfaSession() error { // revive:disable-line:cyclomatic
 		SessionToken: r.validCreds.SessionToken,
 		Region:       region,
 	}
-	// TODO: check if yubikey was used and set UseYubikey to true
 
 	logger.InfoMsg("getting mfa session token")
 	c, err = c.GetSessionToken(creds.GetSessionTokenOptions{
@@ -326,13 +328,23 @@ func (r *Rotator) generateNewKey() error {
 	fmt.Printf("  Secret Access Key: %s\n", *newKey.SecretAccessKey)
 
 	logger.InfoMsg("patching multistore with static creds")
-	r.Store.Delete(profile)
-	multiStore, ok := r.Store.(*profiles.MultiStore)
+	store := r.getStore()
+	store.Delete(profile)
+	writableStore, ok := store.(profiles.WritableStore)
 	if !ok {
-		return fmt.Errorf("could not cast store to multistore")
+		return fmt.Errorf("provided store doesn't support writes")
 	}
-	multiStore.Backends[len(multiStore.Backends)-1] = &staticStore{Key: *newKey}
-	c, err := multiStore.Lookup(profile)
+	err = writableStore.Write(
+		profile,
+		credentials.Value{
+			AccessKeyID:     *newKey.AccessKeyId,
+			SecretAccessKey: *newKey.SecretAccessKey,
+		},
+	)
+	if err != nil {
+		return err
+	}
+	c, err := store.Lookup(profile)
 	if err != nil {
 		return err
 	}
@@ -376,7 +388,7 @@ func (r *Rotator) deleteMfaDevice() error {
 	return err
 }
 
-func (r *Rotator) createMfaDevice() error {
+func (r *Rotator) createMfaDevice() error { // revive:disable-line:cyclomatic
 	iamClient, err := r.getIamClient()
 	if err != nil {
 		return err
@@ -433,38 +445,22 @@ func (r *Rotator) createMfaDevice() error {
 		return err
 	}
 
-	if r.UseYubikey {
-		return r.yubikeySetup(newMfaDevice)
-	}
-	return nil
-}
-
-func (r *Rotator) yubikeySetup(newMfaDevice *iam.VirtualMFADevice) error {
-	logger.InfoMsg("setting up yubikey MFA")
+	logger.InfoMsg("attempting to store new mfa seed")
 	mfaPrompt := r.getMfaPrompt()
-	multiMfaPrompt, ok := mfaPrompt.(*creds.MultiMfaPrompt)
+	writer, ok := mfaPrompt.(creds.WritableMfaPrompt)
 	if !ok {
-		return fmt.Errorf("failed to cast mfa prompt to multi mfa prompt")
+		logger.InfoMsg("mfa prompt is not writable")
 	}
-	yubikeyPrompt, ok := multiMfaPrompt.Backends[0].(*yubikey.Prompt)
-	if !ok {
-		return fmt.Errorf("failed to cast mfa prompt to yubikey mfa prompt")
+	err = writer.Store(*newMfaDevice.SerialNumber, string(newMfaDevice.Base32StringSeed))
+	if err != nil {
+		fmt.Println("Failed to store new MFA seed, but treating as non-fatal.")
+		fmt.Println("Please make sure to scan the above QR code.")
+		fmt.Printf("Error message from storage attempt: %s", err)
+		retryText := writer.RetryText(*newMfaDevice.SerialNumber)
+		if retryText != "" {
+			fmt.Println(retryText)
+		}
 	}
-	// TODO: use mapping file when determining stored MFA name
-	err := yubikeyPrompt.Store(
-		*newMfaDevice.SerialNumber,
-		string(newMfaDevice.Base32StringSeed),
-	)
-	if err == nil {
-		return nil
-	}
-	logger.InfoMsg("skipping yubikey auto-fill due to failure to store")
-	r.UseYubikey = false
-	fmt.Println("Failed to store MFA in yubikey, but treating as non-fatal error")
-	fmt.Println(err)
-	fmt.Println("To retry, run the following command:")
-	fmt.Printf("ykman oath add --oath-type TOTP -t %s\n", *newMfaDevice.SerialNumber)
-	fmt.Println("When prompted, enter the MFA secret key from above")
 	return nil
 }
 

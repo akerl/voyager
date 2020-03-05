@@ -16,16 +16,14 @@ func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 	logger.InfoMsgf("looking up %s in multi store", profile)
 
 	var err error
-	var writer WritableStore
 	var creds credentials.Value
+	var readIndex int
 
-	for _, item := range m.Backends {
+	for index, item := range m.Backends {
 		creds, err = item.Lookup(profile)
 		if err == nil {
+			readIndex = index
 			break
-		}
-		if writer == nil {
-			writer = item.(WritableStore)
 		}
 		logger.DebugMsgf("backend failed with error: %s", err)
 	}
@@ -33,8 +31,9 @@ func (m *MultiStore) Lookup(profile string) (credentials.Value, error) {
 		return credentials.Value{}, fmt.Errorf("all backends failed to return creds")
 	}
 
-	if writer != nil {
-		logger.InfoMsg("found writer before credentials, writing")
+	writeIndex, writer := m.getWriter()
+	if writer != nil && writeIndex < readIndex {
+		logger.InfoMsg("writing forward to earlier backend")
 		err := writer.Write(profile, creds)
 		if err != nil {
 			return credentials.Value{}, err
@@ -65,6 +64,27 @@ func (m *MultiStore) Delete(profile string) error {
 		}
 	}
 	return nil
+}
+
+func (m *MultiStore) Write(s string, c credentials.Value) error {
+	_, writer := m.getWriter()
+	if writer == nil {
+		return fmt.Errorf("no writers available in backends")
+	}
+	return writer.Write(s, c)
+}
+
+func (m *MultiStore) getWriter() (int, WritableStore) {
+	logger.InfoMsgf("looking up writer in backends")
+	for index, item := range m.Backends {
+		writer, ok := item.(WritableStore)
+		if ok {
+			logger.InfoMsgf("found writer in %d backend", index)
+			return index, writer
+		}
+	}
+	logger.InfoMsgf("no writer found")
+	return 0, nil
 }
 
 // WritableStore defines a backend which can save credentials
