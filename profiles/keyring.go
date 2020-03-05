@@ -75,16 +75,17 @@ func (k *KeyringStore) Delete(profile string) error {
 
 func (k *KeyringStore) config() keyring.Config {
 	return keyring.Config{
-		// TODO: libsecret support
 		AllowedBackends: []keyring.BackendType{
 			"keychain",
 			"wincred",
+			"libsecret",
 			"file",
 		},
-		KeychainName:     "login",
-		FilePasswordFunc: filePasswordShim,
-		FileDir:          "~/.voyager/" + k.getName(),
-		ServiceName:      "voyager:" + k.getName(),
+		KeychainName:            "login",
+		LibSecretCollectionName: "voyager:" + k.getName(),
+		FilePasswordFunc:        filePasswordShim,
+		FileDir:                 "~/.voyager/" + k.getName(),
+		ServiceName:             "voyager:" + k.getName(),
 	}
 }
 

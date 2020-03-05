@@ -1,3 +1,7 @@
+# 2.7.0 / 2020-03-05
+
+* [FEATURE] Implement profile rotation
+
 # 2.6.1 / 2020-03-02
 
 * [ENHANCEMENT] Improve text for new rotated AWS key

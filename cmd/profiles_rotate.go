@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/akerl/voyager/v2/profiles"
 	"github.com/akerl/voyager/v2/rotate"
+	"github.com/akerl/voyager/v2/yubikey"
 
+	"github.com/akerl/speculate/v2/creds"
 	"github.com/spf13/cobra"
 )
 
@@ -29,10 +30,19 @@ func profilesRotateRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	var mfaPrompt creds.MfaPrompt
+	if useYubikey {
+		mfaPrompt = &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
+			yubikey.NewPrompt(),
+			&creds.DefaultMfaPrompt{},
+		}}
+	} else {
+		mfaPrompt = &creds.DefaultMfaPrompt{}
+	}
+
 	r := rotate.Rotator{
-		UseYubikey:   useYubikey,
 		InputProfile: inputProfile,
-		Store:        profiles.NewDefaultStore(),
+		MfaPrompt:    mfaPrompt,
 	}
 	return r.Execute()
 }
