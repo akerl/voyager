@@ -55,7 +55,12 @@ func (r *Rotator) getStore() profiles.Store {
 
 // Execute rotates the users keypair and MFA
 func (r *Rotator) Execute() error { // revive:disable-line:cyclomatic
-	err := utils.ConfirmText(
+	profile, err := r.getProfile()
+	if err != nil {
+		return err
+	}
+
+	err = utils.ConfirmText(
 		"this is a breaking change",
 		"This command makes the following changes:",
 		"* Creates a new AWS access/secret keypair",
@@ -63,11 +68,6 @@ func (r *Rotator) Execute() error { // revive:disable-line:cyclomatic
 		"* Deletes any existing MFA device on your AWS user",
 		"* Creates a new MFA device",
 	)
-	if err != nil {
-		return err
-	}
-
-	profile, err := r.getProfile()
 	if err != nil {
 		return err
 	}
