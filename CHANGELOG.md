@@ -1,3 +1,7 @@
+# 2.8.0 / 2020-03-23
+
+* [FEATURE] Use STS regional endpoints for API requests
+
 # 2.7.1 / 2020-03-05
 
 * [ENHANCEMENT] Prompt for profile before confirmation when rotating

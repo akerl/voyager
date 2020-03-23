@@ -12,9 +12,9 @@ require (
 	github.com/99designs/keyring v0.0.0-00010101000000-000000000000
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/akerl/input v0.0.6
-	github.com/akerl/speculate/v2 v2.4.1
+	github.com/akerl/speculate/v2 v2.5.0
 	github.com/akerl/timber/v2 v2.0.1
-	github.com/aws/aws-sdk-go v1.29.17
+	github.com/aws/aws-sdk-go v1.29.29
 	github.com/mdp/qrterminal/v3 v3.0.0
 	github.com/pquerna/otp v1.2.0
 	github.com/spf13/cobra v0.0.6
