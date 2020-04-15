@@ -1,3 +1,8 @@
+# 2.9.0 / 2020-04-15
+
+* [BUGFIX] Add quirks fix for fuzzyfinder terminal bug on Macs
+* [ENHANCEMENT] Update deps
+
 # 2.8.0 / 2020-03-23
 
 * [FEATURE] Use STS regional endpoints for API requests
