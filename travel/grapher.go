@@ -12,6 +12,7 @@ type Grapher struct {
 	Pack   cartogram.Pack
 }
 
+// ResolveOptions allow passing structured parameters for graph resolution
 type ResolveOptions struct {
 	Args         []string
 	RoleNames    []string
