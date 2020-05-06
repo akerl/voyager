@@ -1,3 +1,7 @@
+# 2.10.0 / 2020-05-06
+
+* [ENHANCEMENT] Add ResolveOptions for Grapher, to enable overriding region setting
+
 # 2.9.0 / 2020-04-15
 
 * [BUGFIX] Add quirks fix for fuzzyfinder terminal bug on Macs
