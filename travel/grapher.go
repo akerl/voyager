@@ -12,6 +12,13 @@ type Grapher struct {
 	Pack   cartogram.Pack
 }
 
+type ResolveOptions struct {
+	Args         []string
+	RoleNames    []string
+	ProfileNames []string
+	Region       string
+}
+
 // ResolveAll selects all matching paths based on provided args
 func (g *Grapher) ResolveAll(args, roleNames, profileNames []string) ([]Path, error) {
 	logger.InfoMsgf("resolving all paths based on %v / %v / %v", args, roleNames, profileNames)
@@ -37,12 +44,30 @@ func (g *Grapher) ResolveAll(args, roleNames, profileNames []string) ([]Path, er
 
 // Resolve selects a valid path to the target account and role
 func (g *Grapher) Resolve(args, roleNames, profileNames []string) (Path, error) {
-	logger.InfoMsgf("resolving a path based on %v / %v / %v", args, roleNames, profileNames)
-	account, err := g.selectTargetAccount(args)
+	opts := ResolveOptions{
+		Args:         args,
+		RoleNames:    roleNames,
+		ProfileNames: profileNames,
+	}
+	return g.ResolveWithOptions(opts)
+}
+
+// ResolveWithOptions resolves a valid path using the provided options and the graph
+func (g *Grapher) ResolveWithOptions(opts ResolveOptions) (Path, error) {
+	logger.InfoMsgf(
+		"resolving a path based on %v / %v / %v",
+		opts.Args,
+		opts.RoleNames,
+		opts.ProfileNames,
+	)
+	account, err := g.selectTargetAccount(opts.Args)
 	if err != nil {
 		return Path{}, err
 	}
-	return g.filterPaths(account, roleNames, profileNames)
+	if opts.Region != "" {
+		account.Region = opts.Region
+	}
+	return g.filterPaths(account, opts.RoleNames, opts.ProfileNames)
 }
 
 func (g *Grapher) filterPaths(account cartogram.Account, r, p []string) (Path, error) {
