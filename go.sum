@@ -8,8 +8,8 @@ github.com/VividCortex/ewma v1.1.1 h1:MnEK4VOv6n0RSY4vtRe3h11qjxL3+t0B8yOL8iMXdc
 github.com/VividCortex/ewma v1.1.1/go.mod h1:2Tkkvm3sRDVXaiyucHiACn4cqf7DpdyLvmxzcbUokwA=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat636LX7Bqt5lYEZ27JNDcqxfjdBQuJ/MM4CN/Lzo=
-github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507155925-dcc2d8cc0a8c h1:I7LA+Wjq15BMUoNnnkl+QRRi2FToGqRfSCj+z46ZS3k=
-github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507155925-dcc2d8cc0a8c/go.mod h1:BY/TljaPI5vswGOfCxkh7+9toQklMeb0DUZshNHKj5s=
+github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507171954-7f19dd52209e h1:aX0YSX7Ss4yv9fQnlbNZGcCmk301WkadicpJa3Ww8qw=
+github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507171954-7f19dd52209e/go.mod h1:BY/TljaPI5vswGOfCxkh7+9toQklMeb0DUZshNHKj5s=
 github.com/akerl/input v0.0.9 h1:GVkuhmmSYqlGZI/OJMjf13Ma7dJ2BRKuagbD7V04S5U=
 github.com/akerl/input v0.0.9/go.mod h1:fcO0VJlDGj9+0IvcKq3vbVFLESPcoXI3OEE2Fxsh12Y=
 github.com/akerl/keyring v0.0.0-20200219084108-1f409e548abc h1:rgr2nWwLQ++doaXhUFx3ttJLPtWZGLCKzL8YnLFR5dw=

@@ -6,7 +6,7 @@ go 1.14
 replace github.com/99designs/keyring => github.com/akerl/keyring v0.0.0-20200219084108-1f409e548abc
 
 // Needed until https://github.com/ktr0731/go-fuzzyfinder/pull/13 is merged
-replace github.com/ktr0731/go-fuzzyfinder => github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507155925-dcc2d8cc0a8c
+replace github.com/ktr0731/go-fuzzyfinder => github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507171954-7f19dd52209e
 
 require (
 	github.com/99designs/keyring v0.0.0-00010101000000-000000000000
