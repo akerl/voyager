@@ -9,8 +9,8 @@ github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpH
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat636LX7Bqt5lYEZ27JNDcqxfjdBQuJ/MM4CN/Lzo=
 github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507171954-7f19dd52209e h1:aX0YSX7Ss4yv9fQnlbNZGcCmk301WkadicpJa3Ww8qw=
 github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507171954-7f19dd52209e/go.mod h1:BY/TljaPI5vswGOfCxkh7+9toQklMeb0DUZshNHKj5s=
-github.com/akerl/input v0.0.10 h1:GJzhnni8OWAudYtbqKGmtx45LmNdoULv5eB/43ueGXc=
-github.com/akerl/input v0.0.10/go.mod h1:quaXkcHHIjGgbG3lLttXAwyakHs+gh0wX2xMrGBUKGw=
+github.com/akerl/input v0.0.11 h1:xxqyMgAJP18fuTw8k1L1gMjodAhSsgyUhhIiYh+fcco=
+github.com/akerl/input v0.0.11/go.mod h1:quaXkcHHIjGgbG3lLttXAwyakHs+gh0wX2xMrGBUKGw=
 github.com/akerl/keyring v0.0.0-20200219084108-1f409e548abc h1:rgr2nWwLQ++doaXhUFx3ttJLPtWZGLCKzL8YnLFR5dw=
 github.com/akerl/keyring v0.0.0-20200219084108-1f409e548abc/go.mod h1:7Jt2k9tnyY3YKoQgGSxYkwBXKNZFZas/DwB1RhNoG1o=
 github.com/akerl/speculate/v2 v2.5.2 h1:HyOXGdOsxUWm9kEdhEW2+KuWJjcK9xpzru3PUG8Db8Q=

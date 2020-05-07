@@ -11,7 +11,7 @@ replace github.com/ktr0731/go-fuzzyfinder => github.com/akerl/go-fuzzyfinder v0.
 require (
 	github.com/99designs/keyring v0.0.0-00010101000000-000000000000
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
-	github.com/akerl/input v0.0.10
+	github.com/akerl/input v0.0.11
 	github.com/akerl/speculate/v2 v2.5.2
 	github.com/akerl/timber/v2 v2.0.1
 	github.com/aws/aws-sdk-go v1.30.22
