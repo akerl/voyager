@@ -1,3 +1,7 @@
+# 2.10.1 / 2020-05-07
+
+* [ENHANCEMENT] Update deps
+
 # 2.10.0 / 2020-05-06
 
 * [ENHANCEMENT] Add ResolveOptions for Grapher, to enable overriding region setting
