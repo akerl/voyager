@@ -1,3 +1,7 @@
+# 2.10.2 / 2020-05-07
+
+* [ENHANCEMENT] Update deps
+
 # 2.10.1 / 2020-05-07
 
 * [ENHANCEMENT] Update deps
