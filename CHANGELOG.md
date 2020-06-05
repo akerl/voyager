@@ -1,3 +1,8 @@
+# 2.10.4 / 2020-06-05
+
+* [ENHANCEMENT] Update deps
+* [BUGFIX] Fix handling for empty wmenu selection
+
 # 2.10.3 / 2020-05-08
 
 * [ENHANCEMENT] Update deps
