@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/akerl/voyager/v2/profiles"
+	"github.com/akerl/voyager/v3/profiles"
 
 	"github.com/akerl/input/list"
 	"github.com/spf13/cobra"

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/akerl/voyager/v2/cmd"
+	"github.com/akerl/voyager/v3/cmd"
 
 	"github.com/akerl/speculate/v2/helpers"
 )

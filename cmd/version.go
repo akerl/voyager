@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/akerl/voyager/v2/version"
+	"github.com/akerl/voyager/v3/version"
 )
 
 var versionCmd = &cobra.Command{

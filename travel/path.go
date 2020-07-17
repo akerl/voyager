@@ -3,8 +3,8 @@ package travel
 import (
 	"fmt"
 
-	"github.com/akerl/voyager/v2/profiles"
-	"github.com/akerl/voyager/v2/version"
+	"github.com/akerl/voyager/v3/profiles"
+	"github.com/akerl/voyager/v3/version"
 
 	"github.com/BurntSushi/locker"
 	"github.com/akerl/speculate/v2/creds"

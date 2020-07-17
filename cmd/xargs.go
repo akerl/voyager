@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/akerl/voyager/v2/cartogram"
-	"github.com/akerl/voyager/v2/multi"
-	"github.com/akerl/voyager/v2/travel"
-	"github.com/akerl/voyager/v2/yubikey"
+	"github.com/akerl/voyager/v3/cartogram"
+	"github.com/akerl/voyager/v3/multi"
+	"github.com/akerl/voyager/v3/travel"
+	"github.com/akerl/voyager/v3/yubikey"
 
 	"github.com/akerl/input/list"
 	"github.com/akerl/speculate/v2/creds"
