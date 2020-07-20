@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/akerl/voyager/v2/profiles"
+	"github.com/akerl/voyager/v3/profiles"
 
 	"github.com/spf13/cobra"
 )

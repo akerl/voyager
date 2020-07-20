@@ -1,4 +1,4 @@
-module github.com/akerl/voyager/v2
+module github.com/akerl/voyager/v3
 
 go 1.14
 
@@ -12,9 +12,9 @@ require (
 	github.com/99designs/keyring v0.0.0-00010101000000-000000000000
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/akerl/input v0.0.13
-	github.com/akerl/speculate/v2 v2.5.4
+	github.com/akerl/speculate/v2 v2.5.5
 	github.com/akerl/timber/v2 v2.0.1
-	github.com/aws/aws-sdk-go v1.31.12
+	github.com/aws/aws-sdk-go v1.33.6
 	github.com/mdp/qrterminal/v3 v3.0.0
 	github.com/pquerna/otp v1.2.0
 	github.com/spf13/cobra v1.0.0

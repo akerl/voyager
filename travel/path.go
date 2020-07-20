@@ -3,8 +3,9 @@ package travel
 import (
 	"fmt"
 
-	"github.com/akerl/voyager/v2/profiles"
-	"github.com/akerl/voyager/v2/version"
+	"github.com/akerl/voyager/v3/cartogram"
+	"github.com/akerl/voyager/v3/profiles"
+	"github.com/akerl/voyager/v3/version"
 
 	"github.com/BurntSushi/locker"
 	"github.com/akerl/speculate/v2/creds"
@@ -23,10 +24,9 @@ type Path []Hop
 // to the target role
 type Hop struct {
 	Profile string
-	Account string
+	Account cartogram.Account
 	Role    string
 	Mfa     bool
-	Region  string
 }
 
 // TraverseOptions defines the parameters for traversing a path
@@ -106,7 +106,7 @@ func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) 
 	logger.InfoMsgf("Executing hop: %+v", h)
 	a := creds.AssumeRoleOptions{
 		RoleName:    h.Role,
-		AccountID:   h.Account,
+		AccountID:   h.Account.Account,
 		SessionName: opts.SessionName,
 		Lifetime:    opts.Lifetime,
 	}
@@ -117,7 +117,7 @@ func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) 
 		a.MfaPrompt = opts.MfaPrompt
 	}
 
-	c.Region = h.Region
+	c.Region = h.Account.Region
 	newCreds, err := c.AssumeRole(a)
 	if err != nil {
 		return creds.Creds{}, err
@@ -130,5 +130,5 @@ func (h *Hop) toKey() string {
 	if h.Profile != "" {
 		return fmt.Sprintf("profile--%s", h.Profile)
 	}
-	return fmt.Sprintf("%s-%s-%t", h.Account, h.Role, h.Mfa)
+	return fmt.Sprintf("%s-%s-%t", h.Account.Account, h.Role, h.Mfa)
 }

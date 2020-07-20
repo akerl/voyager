@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/akerl/voyager/v2/cartogram"
+	"github.com/akerl/voyager/v3/cartogram"
 
 	"github.com/spf13/cobra"
 )

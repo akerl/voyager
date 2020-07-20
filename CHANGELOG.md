@@ -1,3 +1,7 @@
+# 3.0.0 / 2020-07-17
+
+* [ENHANCEMENT] Multi processing now supports configurable KeyFunc and passes through tags, to enable downstream libraries to better customize xargs results
+
 # 2.10.4 / 2020-06-05
 
 * [ENHANCEMENT] Update deps

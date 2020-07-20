@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/akerl/voyager/v2/travel"
+	"github.com/akerl/voyager/v3/cartogram"
+	"github.com/akerl/voyager/v3/travel"
 
 	"github.com/akerl/speculate/v2/creds"
 	"github.com/akerl/timber/v2/log"
@@ -25,28 +26,38 @@ type Processor struct {
 	RoleNames    []string
 	ProfileNames []string
 	SkipConfirm  bool
+	KeyFunc      func(cartogram.Account) (string, cartogram.Tags)
+}
+
+// ExecResult is based on creds.ExecResult but adds account tags
+type ExecResult struct {
+	Tags     cartogram.Tags `json:"tags"`
+	Error    error          `json:"error"`
+	ExitCode int            `json:"exitcode"`
+	StdOut   string         `json:"stdout"`
+	StdErr   string         `json:"stderr"`
 }
 
 // ExecString runs a command string against a set of accounts
-func (p Processor) ExecString(cmd string) (map[string]creds.ExecResult, error) {
+func (p Processor) ExecString(cmd string) (map[string]ExecResult, error) {
 	args, err := creds.StringToCommand(cmd)
 	if err != nil {
-		return map[string]creds.ExecResult{}, err
+		return map[string]ExecResult{}, err
 	}
 	return p.Exec(args)
 }
 
 // Exec runs a command against a set of accounts
-func (p Processor) Exec(cmd []string) (map[string]creds.ExecResult, error) {
+func (p Processor) Exec(cmd []string) (map[string]ExecResult, error) {
 	logger.InfoMsgf("processing command: %v", cmd)
 
 	paths, err := p.Grapher.ResolveAll(p.Args, p.RoleNames, p.ProfileNames)
 	if err != nil {
-		return map[string]creds.ExecResult{}, err
+		return map[string]ExecResult{}, err
 	}
 
 	if !p.confirm(paths) {
-		return map[string]creds.ExecResult{}, fmt.Errorf("aborted by user")
+		return map[string]ExecResult{}, fmt.Errorf("aborted by user")
 	}
 
 	inputCh := make(chan workerInput, len(paths))
@@ -58,10 +69,15 @@ func (p Processor) Exec(cmd []string) (map[string]creds.ExecResult, error) {
 	}
 
 	for _, item := range paths {
+		account := item[len(item)-1]
+		key, tags := p.ParseKey(account.Account)
+
 		inputCh <- workerInput{
 			Path:    item,
 			Options: p.Options,
 			Command: cmd,
+			Key:     key,
+			Tags:    tags,
 		}
 	}
 	close(inputCh)
@@ -80,10 +96,10 @@ func (p Processor) Exec(cmd []string) (map[string]creds.ExecResult, error) {
 		),
 	)
 
-	output := map[string]creds.ExecResult{}
+	output := map[string]ExecResult{}
 	for i := 1; i <= len(paths); i++ {
 		result := <-outputCh
-		output[result.AccountID] = result.ExecResult
+		output[result.Key] = result.ExecResult
 		bar.Increment()
 		refreshCh <- time.Now()
 	}
@@ -92,13 +108,26 @@ func (p Processor) Exec(cmd []string) (map[string]creds.ExecResult, error) {
 	return output, nil
 }
 
+// ParseKey derives an output key from an account
+func (p Processor) ParseKey(account cartogram.Account) (string, cartogram.Tags) {
+	if p.KeyFunc == nil {
+		return DefaultKeyFunc(account)
+	}
+	return p.KeyFunc(account)
+}
+
+// DefaultKeyFunc uses the account's ID as the key, and passes through its tags
+func DefaultKeyFunc(account cartogram.Account) (string, cartogram.Tags) {
+	return account.Account, account.Tags
+}
+
 func (p Processor) confirm(paths []travel.Path) bool {
 	if p.SkipConfirm {
 		return true
 	}
 	fmt.Fprintln(os.Stderr, "Will run on the following accounts:")
 	for _, item := range paths {
-		accountID := item[len(item)-1].Account
+		accountID := item[len(item)-1].Account.Account
 		ok, account := p.Grapher.Pack.Lookup(accountID)
 		if !ok {
 			fmt.Fprintf(os.Stderr, "Failed account lookup: %s\n", accountID)
@@ -124,28 +153,32 @@ type workerInput struct {
 	Path    travel.Path
 	Options travel.TraverseOptions
 	Command []string
+	Key     string
+	Tags    cartogram.Tags
 }
 
 type workerOutput struct {
-	AccountID  string
-	ExecResult creds.ExecResult
+	Key        string
+	ExecResult ExecResult
 }
 
 func execWorker(inputCh <-chan workerInput, outputCh chan<- workerOutput) {
 	for item := range inputCh {
 		c, err := item.Path.TraverseWithOptions(item.Options)
 		if err != nil {
-			outputCh <- workerOutput{ExecResult: creds.ExecResult{Error: err}}
+			outputCh <- workerOutput{ExecResult: ExecResult{Error: err}}
 			continue
 		}
-		accountID, err := c.AccountID()
-		if err != nil {
-			outputCh <- workerOutput{ExecResult: creds.ExecResult{Error: err}}
-			continue
-		}
+		result := c.Exec(item.Command)
 		outputCh <- workerOutput{
-			AccountID:  accountID,
-			ExecResult: c.Exec(item.Command),
+			Key: item.Key,
+			ExecResult: ExecResult{
+				Tags:     item.Tags,
+				Error:    result.Error,
+				ExitCode: result.ExitCode,
+				StdOut:   result.StdOut,
+				StdErr:   result.StdErr,
+			},
 		}
 	}
 }

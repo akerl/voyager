@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/akerl/voyager/v2/rotate"
-	"github.com/akerl/voyager/v2/yubikey"
+	"github.com/akerl/voyager/v3/rotate"
+	"github.com/akerl/voyager/v3/yubikey"
 
 	"github.com/akerl/speculate/v2/creds"
 	"github.com/spf13/cobra"

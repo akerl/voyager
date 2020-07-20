@@ -87,5 +87,5 @@ func (mc *MapCache) hopToKey(h Hop) string {
 	if h.Profile != "" {
 		return fmt.Sprintf("profile--%s", h.Profile)
 	}
-	return fmt.Sprintf("%s-%s-%t", h.Account, h.Role, h.Mfa)
+	return fmt.Sprintf("%s-%s-%t", h.Account.Account, h.Role, h.Mfa)
 }

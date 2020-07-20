@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/akerl/voyager/v2/cartogram"
-	"github.com/akerl/voyager/v2/profiles"
-	"github.com/akerl/voyager/v2/travel"
-	"github.com/akerl/voyager/v2/utils"
-	"github.com/akerl/voyager/v2/version"
+	"github.com/akerl/voyager/v3/cartogram"
+	"github.com/akerl/voyager/v3/profiles"
+	"github.com/akerl/voyager/v3/travel"
+	"github.com/akerl/voyager/v3/utils"
+	"github.com/akerl/voyager/v3/version"
 
 	"github.com/akerl/input/list"
 	"github.com/akerl/speculate/v2/creds"
