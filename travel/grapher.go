@@ -137,9 +137,8 @@ func (g *Grapher) findPathToRole(account cartogram.Account, role cartogram.Role)
 
 	myHop := Hop{
 		Role:    role.Name,
-		Account: account.Account,
+		Account: account,
 		Mfa:     role.Mfa,
-		Region:  account.Region,
 	}
 
 	for i := range allPaths {

@@ -70,7 +70,7 @@ func (p Processor) Exec(cmd []string) (map[string]ExecResult, error) {
 
 	for _, item := range paths {
 		account := item[len(item)-1]
-		key, tags := p.ParseKey(account)
+		key, tags := p.ParseKey(account.Account)
 
 		inputCh <- workerInput{
 			Path:    item,
@@ -99,7 +99,7 @@ func (p Processor) Exec(cmd []string) (map[string]ExecResult, error) {
 	output := map[string]ExecResult{}
 	for i := 1; i <= len(paths); i++ {
 		result := <-outputCh
-		output[result.AccountID] = result.ExecResult
+		output[result.Key] = result.ExecResult
 		bar.Increment()
 		refreshCh <- time.Now()
 	}
@@ -108,6 +108,7 @@ func (p Processor) Exec(cmd []string) (map[string]ExecResult, error) {
 	return output, nil
 }
 
+// ParseKey derives an output key from an account
 func (p Processor) ParseKey(account cartogram.Account) (string, cartogram.Tags) {
 	if p.KeyFunc == nil {
 		return DefaultKeyFunc(account)
@@ -115,6 +116,7 @@ func (p Processor) ParseKey(account cartogram.Account) (string, cartogram.Tags) 
 	return p.KeyFunc(account)
 }
 
+// DefaultKeyFunc uses the account's ID as the key, and passes through its tags
 func DefaultKeyFunc(account cartogram.Account) (string, cartogram.Tags) {
 	return account.Account, account.Tags
 }
@@ -125,7 +127,7 @@ func (p Processor) confirm(paths []travel.Path) bool {
 	}
 	fmt.Fprintln(os.Stderr, "Will run on the following accounts:")
 	for _, item := range paths {
-		accountID := item[len(item)-1].Account
+		accountID := item[len(item)-1].Account.Account
 		ok, account := p.Grapher.Pack.Lookup(accountID)
 		if !ok {
 			fmt.Fprintf(os.Stderr, "Failed account lookup: %s\n", accountID)
