@@ -144,6 +144,16 @@ func (p *Prompt) RetryText(arn string) string {
 	)
 }
 
+// PluggedIn returns true if a yubikey device is found on the system
+func (p *Prompt) PluggedIn() bool {
+	oath, err := p.getDevice()
+	if err != nil {
+		return false
+	}
+	oath.Close()
+	return true
+}
+
 func (p *Prompt) otpName(arn string) string {
 	if translated, ok := p.mapping[arn]; ok {
 		logger.InfoMsgf("translating %s to %s", arn, translated)
