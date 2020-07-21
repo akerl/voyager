@@ -1,3 +1,7 @@
+# 3.0.1 / 2020-07-21
+
+* [ENHANCEMENT] Add helper function for detecting yubikey presence
+
 # 3.0.0 / 2020-07-17
 
 * [ENHANCEMENT] Multi processing now supports configurable KeyFunc and passes through tags, to enable downstream libraries to better customize xargs results
