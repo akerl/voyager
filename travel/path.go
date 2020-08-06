@@ -118,6 +118,10 @@ func (h Hop) Traverse(c creds.Creds, opts TraverseOptions) (creds.Creds, error) 
 	}
 
 	c.Region = h.Account.Region
+	if c.Region == "" {
+		logger.InfoMsg("missing region for hop; inferring us-east-1")
+		c.Region = "us-east-1"
+	}
 	newCreds, err := c.AssumeRole(a)
 	if err != nil {
 		return creds.Creds{}, err
