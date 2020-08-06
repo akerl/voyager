@@ -1,3 +1,7 @@
+# 3.0.2 / 2020-08-06
+
+* [ENHANCEMENT] Default to using us-east-1 regional STS endpoint
+
 # 3.0.1 / 2020-07-21
 
 * [ENHANCEMENT] Add helper function for detecting yubikey presence
