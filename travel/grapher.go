@@ -162,7 +162,9 @@ func (g *Grapher) pathIsViable(account, role string) (cartogram.Account, cartogr
 }
 
 func (g *Grapher) filterByRole(paths []Path, roleNames []string) ([]Path, error) {
-	af := func(p Path) string { return p[len(p)-1].Role }
+	af := func(p Path) string {
+		return p[len(p)-1].Role
+	}
 
 	allRoles := uniquePathAttributes(paths, af)
 
@@ -180,7 +182,9 @@ func (g *Grapher) filterByRole(paths []Path, roleNames []string) ([]Path, error)
 }
 
 func (g *Grapher) filterByProfile(paths []Path, profileNames []string) ([]Path, error) {
-	af := func(p Path) string { return p[0].Profile }
+	af := func(p Path) string {
+		return p[0].Profile
+	}
 
 	allProfiles := uniquePathAttributes(paths, af)
 	unionProfiles := sliceUnion(allProfiles, profileNames)
