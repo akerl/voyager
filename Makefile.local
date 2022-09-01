@@ -2,3 +2,5 @@ PACKAGE = voyager
 VERSION_VAR_PATH = version.Version
 OSARCHLIST = darwin/arm64 linux/amd64 darwin/amd64
 
+export GOX_DARWIN_AMD64_CC=o64-clang
+export GOX_EXTRA_FLAGS=-cgo
