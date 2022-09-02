@@ -13,7 +13,7 @@ end
 
 package(
   type: 'file',
-  artifacts: %w(darwin/amd64 darwin/arm64 linux/amd64 linux/arm linux/arm64).map do |x|
+  artifacts: %w(darwin/amd64 darwin/arm64 linux/amd64).map do |x|
     os, arch = x.split '/'
     filename = "#{@forge.name}_#{os}_#{arch}"
     {
