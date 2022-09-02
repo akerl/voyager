@@ -1,5 +1,5 @@
 PACKAGE = voyager
 VERSION_VAR_PATH = version.Version
 
-export GOX_CC=o64-clang
+export CC=o64-clang
 export GOX_EXTRA_FLAGS=-cgo
