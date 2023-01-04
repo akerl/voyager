@@ -4,7 +4,7 @@ go 1.18
 
 replace github.com/ktr0731/go-fuzzyfinder => github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507171954-7f19dd52209e
 
-replace github.com/yawn/ykoath => github.com/akerl/ykoath v0.0.0-20230103063257-aefeeb4a3d6e
+replace github.com/yawn/ykoath => github.com/akerl/ykoath v0.0.0-20230104034220-eb95436723d2
 
 require (
 	github.com/99designs/keyring v1.2.1

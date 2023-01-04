@@ -22,7 +22,7 @@ const (
 
 type config struct {
 	Mapping map[string]string
-	Serials map[string]string
+	Serials map[string][]string
 }
 
 func mappingFile() (string, error) {
@@ -64,7 +64,7 @@ func homeDir() (string, error) {
 // Prompt defines a yubikey prompt object
 type Prompt struct {
 	mapping map[string]string
-	serials map[string]string
+	serials map[string][]string
 }
 
 // NewPrompt populates the yubikey mapping from a dotfile, if it exists
@@ -106,7 +106,7 @@ func (p *Prompt) AddMapping(mapping map[string]string) {
 }
 
 // AddSerials adds a serial lookup for OTP names
-func (p *Prompt) AddSerials(serials map[string]string) {
+func (p *Prompt) AddSerials(serials map[string][]string) {
 	logger.InfoMsgf("adding serials: %+v", serials)
 	p.serials = serials
 }
@@ -214,7 +214,7 @@ func (p *Prompt) otpCode(name string) (string, error) {
 
 func (p *Prompt) getDevice(name string) (*ykoath.OATH, error) {
 	logger.InfoMsg("creating new yubikey oath device")
-	oath, err := ykoath.NewFromSerial(p.serials[name])
+	oath, err := ykoath.NewFromSerialList(p.serials[name])
 	if err != nil {
 		return nil, err
 	}
