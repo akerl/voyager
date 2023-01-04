@@ -26,7 +26,6 @@ func init() {
 	xargsCmd.Flags().String("profile", "", "Choose source profile to use")
 	xargsCmd.Flags().StringP("prompt", "p", "", "Choose prompt to use")
 	xargsCmd.Flags().BoolP("yubikey", "y", false, "Use Yubikey for MFA")
-	xargsCmd.Flags().String("serial", "", "Yubikey serial to use")
 	xargsCmd.Flags().StringP("command", "c", "", "Command to execute")
 	xargsCmd.Flags().Bool("skipconfirm", false, "Skip confirmation prompt")
 }
@@ -60,11 +59,6 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	serial, err := cmd.Flags().GetString("serial")
-	if err != nil {
-		return err
-	}
-
 	commandStr, err := flags.GetString("command")
 	if err != nil {
 		return err
@@ -91,7 +85,7 @@ func xargsRunner(cmd *cobra.Command, args []string) error {
 	opts := travel.DefaultTraverseOptions()
 	if useYubikey {
 		opts.MfaPrompt = &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
-			yubikey.NewPromptWithSerial(serial),
+			yubikey.NewPrompt(),
 			&creds.DefaultMfaPrompt{},
 		}}
 	}

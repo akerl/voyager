@@ -22,6 +22,7 @@ const (
 
 type config struct {
 	Mapping map[string]string
+	Serials map[string]string
 }
 
 func mappingFile() (string, error) {
@@ -63,22 +64,13 @@ func homeDir() (string, error) {
 // Prompt defines a yubikey prompt object
 type Prompt struct {
 	mapping map[string]string
-	serial  string
+	serials map[string]string
 }
 
 // NewPrompt populates the yubikey mapping from a dotfile, if it exists
 func NewPrompt() *Prompt {
-	return NewPromptWithSerial("")
-}
-
-// NewPromptWithSerial creates a new prompt with a specific serial
-func NewPromptWithSerial(serial string) *Prompt {
 	logger.InfoMsg("creating new yubikey prompt object")
 	p := Prompt{}
-	if serial != "" {
-		logger.InfoMsgf("setting yubikey serial to %s", serial)
-		p.serial = serial
-	}
 	file, err := mappingFile()
 	if err != nil {
 		logger.InfoMsgf("failed to load mapping file: %s", err)
@@ -103,6 +95,7 @@ func (p *Prompt) AddMappingFromFile(file string) error {
 		return err
 	}
 	p.AddMapping(c.Mapping)
+	p.AddSerials(c.Serials)
 	return nil
 }
 
@@ -110,6 +103,12 @@ func (p *Prompt) AddMappingFromFile(file string) error {
 func (p *Prompt) AddMapping(mapping map[string]string) {
 	logger.InfoMsgf("adding mapping: %+v", mapping)
 	p.mapping = mapping
+}
+
+// AddSerials adds a serial lookup for OTP names
+func (p *Prompt) AddSerials(serials map[string]string) {
+	logger.InfoMsgf("adding serials: %+v", serials)
+	p.serials = serials
 }
 
 // Prompt asks the yubikey for a code
@@ -128,7 +127,7 @@ func (p *Prompt) Prompt(arn string) (string, error) {
 func (p *Prompt) Store(arn, base32seed string) error {
 	logger.InfoMsgf("storing mfa for %s", arn)
 	name := p.otpName(arn)
-	oath, err := p.getDevice()
+	oath, err := p.getDevice(name)
 	if err != nil {
 		logger.InfoMsgf("failed to access yubikey: %s", err)
 		return err
@@ -174,7 +173,7 @@ func (p *Prompt) otpName(arn string) string {
 
 func (p *Prompt) otpExists(name string) bool {
 	logger.InfoMsgf("checking for existing of %s", name)
-	oath, err := p.getDevice()
+	oath, err := p.getDevice(name)
 	if err != nil {
 		logger.InfoMsgf("failed to access yubikey: %s", err)
 		return false
@@ -200,7 +199,7 @@ func (p *Prompt) otpExists(name string) bool {
 
 func (p *Prompt) otpCode(name string) (string, error) {
 	logger.InfoMsgf("prompting for code for %s", name)
-	oath, err := p.getDevice()
+	oath, err := p.getDevice(name)
 	if err != nil {
 		logger.InfoMsgf("failed to access yubikey: %s", err)
 		return "", err
@@ -213,9 +212,9 @@ func (p *Prompt) otpCode(name string) (string, error) {
 	})
 }
 
-func (p *Prompt) getDevice() (*ykoath.OATH, error) {
+func (p *Prompt) getDevice(name string) (*ykoath.OATH, error) {
 	logger.InfoMsg("creating new yubikey oath device")
-	oath, err := ykoath.NewFromSerial(p.serial)
+	oath, err := ykoath.NewFromSerial(p.serials[name])
 	if err != nil {
 		return nil, err
 	}

@@ -24,7 +24,6 @@ func init() {
 	travelCmd.Flags().String("profile", "", "Choose source profile to use")
 	travelCmd.Flags().StringP("prompt", "p", "", "Choose prompt to use")
 	travelCmd.Flags().BoolP("yubikey", "y", false, "Use Yubikey for MFA")
-	travelCmd.Flags().String("serial", "", "Yubikey serial to use")
 	travelCmd.Flags().String("service", "", "Service path for console URL")
 }
 
@@ -57,11 +56,6 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	serial, err := cmd.Flags().GetString("serial")
-	if err != nil {
-		return err
-	}
-
 	servicePath, err := flags.GetString("service")
 	if err != nil {
 		return err
@@ -85,7 +79,7 @@ func travelRunner(cmd *cobra.Command, args []string) error {
 	opts := travel.DefaultTraverseOptions()
 	if useYubikey {
 		opts.MfaPrompt = &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
-			yubikey.NewPromptWithSerial(serial),
+			yubikey.NewPrompt(),
 			&creds.DefaultMfaPrompt{},
 		}}
 	}
