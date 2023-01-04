@@ -155,7 +155,7 @@ func (p *Prompt) RetryText(arn string) string {
 
 // PluggedIn returns true if a yubikey device is found on the system
 func (p *Prompt) PluggedIn() bool {
-	oath, err := p.getDevice()
+	oath, err := p.getDevice("")
 	if err != nil {
 		return false
 	}
