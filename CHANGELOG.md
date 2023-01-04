@@ -1,3 +1,7 @@
+# 3.2.1 / 2023-01-03
+
+* [ENHANCEMENT] Support lists of yubikeys per name
+
 # 3.2.0 / 2023-01-03
 
 * [ENHANCEMENT] Identify yubikey via mapping file
