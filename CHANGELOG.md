@@ -1,3 +1,7 @@
+# 3.1.0 / 2023-01-03
+
+* [ENHANCEMENT] Allow providing a yubikey serial with --serial
+
 # 3.0.2 / 2020-08-06
 
 * [ENHANCEMENT] Default to using us-east-1 regional STS endpoint
