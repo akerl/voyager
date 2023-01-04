@@ -63,12 +63,22 @@ func homeDir() (string, error) {
 // Prompt defines a yubikey prompt object
 type Prompt struct {
 	mapping map[string]string
+	serial  string
 }
 
 // NewPrompt populates the yubikey mapping from a dotfile, if it exists
 func NewPrompt() *Prompt {
+	return NewPromptWithSerial("")
+}
+
+// NewPromptWithSerial creates a new prompt with a specific serial
+func NewPromptWithSerial(serial string) *Prompt {
 	logger.InfoMsg("creating new yubikey prompt object")
 	p := Prompt{}
+	if serial != "" {
+		logger.InfoMsgf("setting yubikey serial to %s", serial)
+		p.serial = serial
+	}
 	file, err := mappingFile()
 	if err != nil {
 		logger.InfoMsgf("failed to load mapping file: %s", err)
@@ -205,7 +215,7 @@ func (p *Prompt) otpCode(name string) (string, error) {
 
 func (p *Prompt) getDevice() (*ykoath.OATH, error) {
 	logger.InfoMsg("creating new yubikey oath device")
-	oath, err := ykoath.New()
+	oath, err := ykoath.NewFromSerial(p.serial)
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ import (
 func init() {
 	profilesCmd.AddCommand(profilesRotateCmd)
 	profilesRotateCmd.Flags().BoolP("yubikey", "y", false, "Store MFA on yubikey")
+	profilesRotateCmd.Flags().String("serial", "", "Yubikey serial to use")
 }
 
 var profilesRotateCmd = &cobra.Command{
@@ -30,10 +31,15 @@ func profilesRotateRunner(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	serial, err := cmd.Flags().GetString("serial")
+	if err != nil {
+		return err
+	}
+
 	var mfaPrompt creds.MfaPrompt
 	if useYubikey {
 		mfaPrompt = &creds.MultiMfaPrompt{Backends: []creds.MfaPrompt{
-			yubikey.NewPrompt(),
+			yubikey.NewPromptWithSerial(serial),
 			&creds.DefaultMfaPrompt{},
 		}}
 	} else {
