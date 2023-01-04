@@ -1,3 +1,7 @@
+# 3.2.0 / 2023-01-03
+
+* [ENHANCEMENT] Identify yubikey via mapping file
+
 # 3.1.0 / 2023-01-03
 
 * [ENHANCEMENT] Allow providing a yubikey serial with --serial
