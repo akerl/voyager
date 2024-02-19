@@ -1,23 +1,21 @@
 module github.com/akerl/voyager/v3
 
-go 1.18
+go 1.22.0
 
-replace github.com/ktr0731/go-fuzzyfinder => github.com/akerl/go-fuzzyfinder v0.1.2-0.20200507171954-7f19dd52209e
-
-replace github.com/yawn/ykoath => github.com/akerl/ykoath v0.0.0-20230105025207-5e8d38e463a0
+replace github.com/ktr0731/go-fuzzyfinder => github.com/akerl/go-fuzzyfinder v0.8.1-0.20240219013315-145c720c8ce9
 
 require (
-	github.com/99designs/keyring v1.2.1
+	github.com/99designs/keyring v1.2.2
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
-	github.com/akerl/input v0.0.13
-	github.com/akerl/speculate/v2 v2.6.2
+	github.com/akerl/input v0.0.14
+	github.com/akerl/speculate/v2 v2.6.5
 	github.com/akerl/timber/v2 v2.0.1
-	github.com/aws/aws-sdk-go v1.44.70
-	github.com/mdp/qrterminal/v3 v3.0.0
-	github.com/pquerna/otp v1.3.0
-	github.com/spf13/cobra v1.5.0
+	github.com/aws/aws-sdk-go v1.50.20
+	github.com/mdp/qrterminal/v3 v3.2.0
+	github.com/pquerna/otp v1.4.0
+	github.com/spf13/cobra v1.8.0
 	github.com/vbauerster/mpb/v4 v4.12.2
-	github.com/yawn/ykoath v1.0.4
+	github.com/yawn/ykoath v1.0.5
 )
 
 require (
@@ -30,21 +28,27 @@ require (
 	github.com/dixonwille/wlog/v3 v3.0.1 // indirect
 	github.com/dixonwille/wmenu/v5 v5.1.0 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/ebfe/scard v0.0.0-20190212122703-c3d1b1916a95 // indirect
+	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7 // indirect
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell/v2 v2.6.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/ktr0731/go-ansisgr v0.1.0 // indirect
 	github.com/ktr0731/go-fuzzyfinder v0.0.0-00010101000000-000000000000 // indirect
-	github.com/mattn/go-isatty v0.0.11 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mattn/go-shellwords v1.0.10 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
-	github.com/nsf/termbox-go v0.0.0-20200418040025-38ba6e5628f1 // indirect
+	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6 // indirect
-	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/term v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	rsc.io/qr v0.2.0 // indirect
 )

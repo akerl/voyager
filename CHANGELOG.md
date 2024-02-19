@@ -1,3 +1,7 @@
+# 3.2.2 / 2023-02-18
+
+* [ENHANCEMENT] Update deps
+
 # 3.2.1 / 2023-01-03
 
 * [ENHANCEMENT] Support lists of yubikeys per name
