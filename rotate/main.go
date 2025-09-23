@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/akerl/voyager/v3/cartogram"
+	"github.com/akerl/voyager/v3/confirm"
 	"github.com/akerl/voyager/v3/profiles"
 	"github.com/akerl/voyager/v3/travel"
-	"github.com/akerl/voyager/v3/utils"
 	"github.com/akerl/voyager/v3/version"
 
 	"github.com/akerl/input/list"
@@ -60,7 +60,7 @@ func (r *Rotator) Execute() error { // revive:disable-line:cyclomatic
 		return err
 	}
 
-	err = utils.ConfirmText(
+	err = confirm.Text(
 		"this is a breaking change",
 		"This command makes the following changes:",
 		"* Creates a new AWS access/secret keypair",
@@ -268,7 +268,7 @@ func (r *Rotator) deleteOtherKey() error {
 		return nil
 	}
 
-	err = utils.ConfirmText(
+	err = confirm.Text(
 		"yes",
 		"You already have 2 access keys on the account.",
 		"Continuing will delete both of them.",

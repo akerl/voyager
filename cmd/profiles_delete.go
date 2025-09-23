@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/akerl/voyager/v3/confirm"
 	"github.com/akerl/voyager/v3/profiles"
-	"github.com/akerl/voyager/v3/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -33,7 +33,7 @@ func profilesDeleteRunner(_ *cobra.Command, args []string) error {
 		return nil
 	}
 
-	err := utils.ConfirmText(
+	err := confirm.Text(
 		"this is a destructive operation",
 		fmt.Sprintf("This will delete the following profile: %s", profile),
 	)

@@ -1,4 +1,4 @@
-package utils
+package confirm
 
 import (
 	"bufio"
@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// ConfirmText asks the user to confirm an action by typing a verification message
-func ConfirmText(confirm string, prompt ...string) error {
+// Text asks the user to confirm an action by typing a verification message
+func Text(confirm string, prompt ...string) error {
 	for _, x := range prompt {
 		fmt.Println(x)
 	}
