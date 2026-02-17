@@ -2,6 +2,7 @@ package travel
 
 import (
 	"os"
+	"slices"
 
 	"github.com/akerl/speculate/v2/creds"
 )
@@ -18,12 +19,7 @@ func clearEnvironment() error {
 }
 
 func stringInSlice(list []string, key string) bool {
-	for _, item := range list {
-		if item == key {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(list, key)
 }
 
 func sliceUnion(a []string, b []string) []string {

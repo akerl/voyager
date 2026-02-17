@@ -524,7 +524,7 @@ func (r *Rotator) testAuth() error {
 func (r *Rotator) waitForConsistency() error {
 	fmt.Println("Waiting for new IAM keypair to sync across AWS's backend")
 	fmt.Println("This may take up to a minute")
-	for i := 0; i < 6; i++ {
+	for range 6 {
 		time.Sleep(5 * time.Second)
 		stsClient, err := r.getStsClient()
 		if err != nil {
