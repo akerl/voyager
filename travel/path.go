@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/akerl/voyager/v3/cartogram"
+	"github.com/akerl/voyager/v3/pkgver"
 	"github.com/akerl/voyager/v3/profiles"
-	"github.com/akerl/voyager/v3/version"
 
 	"github.com/BurntSushi/locker"
 	"github.com/akerl/speculate/v2/creds"
@@ -73,7 +73,7 @@ func (p Path) TraverseWithOptions(opts TraverseOptions) (creds.Creds, error) {
 
 	uai := []creds.UserAgentItem{{
 		Name:    "voyager",
-		Version: version.Version,
+		Version: pkgver.Version,
 	}}
 	for _, x := range opts.UserAgentItems {
 		uai = append(uai, x)

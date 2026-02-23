@@ -8,9 +8,9 @@ import (
 
 	"github.com/akerl/voyager/v3/cartogram"
 	"github.com/akerl/voyager/v3/confirm"
+	"github.com/akerl/voyager/v3/pkgver"
 	"github.com/akerl/voyager/v3/profiles"
 	"github.com/akerl/voyager/v3/travel"
-	"github.com/akerl/voyager/v3/version"
 
 	"github.com/akerl/input/list"
 	"github.com/akerl/speculate/v2/creds"
@@ -500,7 +500,7 @@ func (r *Rotator) testAuth() error {
 	opts := travel.DefaultTraverseOptions()
 	opts.UserAgentItems = []creds.UserAgentItem{{
 		Name:    "voyager",
-		Version: version.Version,
+		Version: pkgver.Version,
 		Extra:   []string{"rotator"},
 	}}
 	opts.MfaPrompt = mfaPrompt
